@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AcessoNegado</title>
+     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='acesso_negado.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Acesso Negado</h1>
+        <p>Você precisa estar autenticado para acessar esta página.</p>
+        <p><a href="{{ url_for('auth.login') }}">Faça login</a> para continuar.</p>
+    </div>
+</body>
+</html>
