@@ -1,4 +1,4 @@
 Flask==3.0.2
-Flask_Login==0.6.2
+Flask_Login==0.6.3
 Flask_MySQLdb==2.0.0
 Flask_SocketIO==5.3.6
