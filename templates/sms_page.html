@@ -5,14 +5,34 @@
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='sms_page.css') }}">
 </head>
 <body>
-	<div class="container">
-		<h1>SUPERNOVA</h1>
-		<p>Digite o código de 4 dígitos que você recebeu por SMS</p>
-		<form>
-			<input type="text" id="code" maxlength="4">
-			<a><button type="button">REENVIAR CÓDIGO</button></a>
-			<a><button type="button">VALIDAR CÓDIGO</button></a>
-		</form>
-	</div>
+    <div class="container">
+        <h1>SUPERNOVA</h1>
+        <p>Digite o código de 4 dígitos que você recebeu por SMS</p>
+        <form action="/validatesms" method="POST">
+            <input type="text" id="code" name="code" maxlength="4" required>
+            <button type="submit">VALIDAR CÓDIGO</button>
+        </form>
+        <button id="reenviar-btn" type="button">REENVIAR CÓDIGO</button>
+    </div>
+
+    <script>
+        document.getElementById('reenviar-btn').addEventListener('click', function() {
+            sendPost('/resendsms', { code: document.getElementById('code').value });
+        });
+
+        function sendPost(route, data) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', route, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                    console.log('POST enviado com sucesso');
+                }
+            };
+            xhr.send(JSON.stringify(data));
+        }
+    </script>
+
+
 </body>
 </html>

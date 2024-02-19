@@ -6,6 +6,7 @@ from local import local
 from user import user
 
 
+
 app = Flask(__name__)
 
 # configuration
@@ -20,6 +21,7 @@ login_manager.init_app(app)
 app.register_blueprint(auth)
 app.register_blueprint(local)
 app.register_blueprint(user)
+
 
 
 

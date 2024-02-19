@@ -9,38 +9,38 @@
 <body>
     <div class="container">
         <h2>Criar Usuário</h2>
-        <form id="create-user-form" action="/users" method="POST">
+        <form id="create-user-form" action="/user_register" method="POST">
             <div class="form-group">
                 <label for="nome">Nome:</label>
                 <input type="text" id="nome" name="nome" required>
             </div>
             <div class="form-group">
                 <label for="sobrenome">Sobrenome:</label>
-                <input type="text" id="sobrenome" name="sobrenome">
+                <input type="text" id="sobrenome" name="sobrenome" required>
             </div>
             <div class="form-group">
                 <label for="idade">Idade:</label>
-                <input type="number" id="idade" name="idade">
+                <input type="number" id="idade" name="idade" required>
             </div>
             <div class="form-group">
                 <label for="email">Email:</label>
-                <input type="email" id="email" name="email">
+                <input type="email" id="email" name="email" required>
             </div>
             <div class="form-group">
                 <label for="documento">Documento:</label>
-                <input type="text" id="documento" name="documento">
+                <input type="text" id="documento" name="documento" required>
             </div>
             <div class="form-group">
                 <label for="telefone">Telefone:</label>
-                <input type="tel" id="telefone" name="telefone">
+                <input type="tel" id="telefone" name="telefone" required>
             </div>
             <div class="form-group">
                 <label for="local-de-locacao">Local de Locação:</label>
-                <input type="text" id="local-de-locacao" name="local_de_locacao">
+                <input type="text" id="local-de-locacao" name="local_de_locacao" required>
             </div>
             <div class="form-group">
                 <label for="genero">Gênero:</label>
-                <input type="text" id="genero" name="genero">
+                <input type="text" id="genero" name="genero" required>
             </div>
             <div class="form-group">
                 <button type="submit">Criar Usuário</button>
