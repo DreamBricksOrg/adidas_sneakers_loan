@@ -3,6 +3,7 @@ from flask_socketio import SocketIO
 from login_manager import login_manager, auth
 from database import initialize_mysql
 from local import local
+from sms_sender import sms_sender
 from user import user
 
 
@@ -21,8 +22,7 @@ login_manager.init_app(app)
 app.register_blueprint(auth)
 app.register_blueprint(local)
 app.register_blueprint(user)
-
-
+app.register_blueprint(sms_sender)
 
 
 if __name__ == '__main__':
