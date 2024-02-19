@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='welcome.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Bem vindo</h1>
+        <p>Gostaria de experimentar um de nossos tênis?</p>
+        <a href="{{ url_for('user.terms_page') }}"><button>Ir para outra rota</button></a>
+    </div>
+</body>
+</html>

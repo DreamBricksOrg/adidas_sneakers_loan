@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Supernova Code Validation</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='sms_page.css') }}">
+</head>
+<body>
+	<div class="container">
+		<h1>SUPERNOVA</h1>
+		<p>Digite o código de 4 dígitos que você recebeu por SMS</p>
+		<form>
+			<input type="text" id="code" maxlength="4">
+			<a><button type="button">REENVIAR CÓDIGO</button></a>
+			<a><button type="button">VALIDAR CÓDIGO</button></a>
+		</form>
+	</div>
+</body>
+</html>

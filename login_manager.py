@@ -6,7 +6,7 @@ login_manager = LoginManager()
 auth = Blueprint('auth', __name__)
 
 
-class User(UserMixin):
+class UserAdmin(UserMixin):
     def __init__(self, user_id):
         self.id = user_id
 
@@ -18,7 +18,7 @@ def load_user(user_id):
     cur.close()
     if not user_data:
         return None
-    return User(user_id)
+    return UserAdmin(user_id)
 
 @login_manager.unauthorized_handler
 def unauthorized():
@@ -51,7 +51,7 @@ def login():
         user_data = cur.fetchone()
         cur.close()
         if user_data and user_data[2] == password:
-            user = User(user_data[0])
+            user = UserAdmin(user_data[0])
             login_user(user)
             if request.form['submit_button'] == 'Entrar':
                 return redirect(url_for('index'))
