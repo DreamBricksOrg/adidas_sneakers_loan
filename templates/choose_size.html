@@ -9,8 +9,8 @@
 <body>
     <div class="container">
         <h2>Choose your shoe size</h2>
-        <form id="sizeForm" action="{{ url_for('user.time_use_page') }}" method="POST">
-            <select id="sizeSelect" name="size">
+        <form id="sizeForm" action="/choose-size" method="POST">
+            <select id="size" name="size">
                 <option value="36">36</option>
                 <option value="37">37</option>
                 <option value="38">38</option>
@@ -19,15 +19,8 @@
                 <option value="41">41</option>
             </select>
             <br><br>
-            <button type="button" onclick="saveSize()">Continue</button>
+            <button type="submit" >Continue</button>
         </form>
     </div>
-    <script>
-        function saveSize() {
-            var selectedSize = document.getElementById("sizeSelect").value;
-            localStorage.setItem("selectedSize", selectedSize);
-            document.getElementById("sizeForm").submit();
-        }
-    </script>
 </body>
 </html>

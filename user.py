@@ -1,7 +1,6 @@
-import random
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session
 from database import mysql
-from sms_sender import create_verification_code
+from sms_sender import create_verification_code, send_sms_code
 
 user = Blueprint('user', __name__)
 
@@ -102,7 +101,7 @@ def sneakers_page():
 def choose_size_page():
     if request.method == 'POST':
         size = request.form['size']
-        print(size)
+        session['size'] = size
         return redirect(url_for('user.time_use_page'))  # Redirect to the next route
     return render_template('choose_size.html')
 
@@ -123,8 +122,48 @@ def user_register_page():
     return render_template('user_register.html')
 
 
-
 @user.route('/qr_code_validation')
 def qr_code_validation_page():
-    # Implemente o que você deseja fazer nesta rota
     return render_template('qrcode_validation.html')
+
+
+@user.route('/allright')
+def allright_page():
+    return render_template('allright.html')
+
+
+@user.route('/ready')
+def ready_page():
+    return render_template('ready.html')
+
+
+@user.route('/countdownstart')
+def countdown_start_page():
+    return render_template('countdown_start.html')
+
+
+@user.route('/clock')
+def clock_page():
+    return render_template('clock.html')
+
+
+@user.route('/submit_review', methods=['POST', 'GET'])
+def submit_review_page():
+    if request.method == 'POST':
+        comfort = request.form['conforto']
+        stability = request.form['estabilidade']
+        style = request.form['estilo']
+        would_buy = request.form['compraria']
+        user_id = session.get('user_id')
+
+        # Inserir os dados no banco de dados
+        cur = mysql.connection.cursor()
+        cur.execute(
+            "INSERT INTO Avaliacao (Usuario, conforto, estabilidade, estilo, compraria) VALUES (%s, %s, %s, %s, %s)",
+            (user_id, comfort, stability, style, would_buy))
+        mysql.connection.commit()
+        cur.close()
+
+        return 'Review submitted successfully!'
+
+    return render_template('evaluation_form.html')
