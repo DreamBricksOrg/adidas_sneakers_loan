@@ -80,17 +80,19 @@ def validate_sms():
             # Se o código for '3177', redirecione imediatamente
             return redirect(url_for('user.qr_code_validation_page'))
 
-        # Caso contrário, faça a validação normal
+
         cursor = mysql.connection.cursor()
         try:
             cursor.execute("SELECT status FROM CodigoVerificacao WHERE codigo = %s", (code,))
             result = cursor.fetchone()
 
             if result and result[0] == 'ACTIVE':
-                # Se o código for válido, atualize o status para DISABLE
+
                 cursor.execute("UPDATE CodigoVerificacao SET status = 'DISABLE' WHERE codigo = %s", (code,))
+
+                cursor.execute("UPDATE Usuario SET confirmacao_sms = true WHERE id = (SELECT Usuario FROM CodigoVerificacao Where codigo = %s)", (code,))
+
                 mysql.connection.commit()
-                # Em seguida, redirecione para outra página
                 return redirect(url_for('user.qr_code_validation_page'))
 
         except Exception as e:

@@ -31,7 +31,6 @@ def create_user(data):
     email = data.get('email')
     documento = data.get('documento')
     telefone = data.get('telefone')
-    local_de_locacao = data.get('local_de_locacao')
     genero = data.get('genero')
     confirmacao_sms = False
 
@@ -44,8 +43,8 @@ def create_user(data):
 
         cursor = mysql.connection.cursor()
         cursor.execute(
-            'INSERT INTO Usuario (nome, nome_iniciais, sobrenome, idade, email, documento, telefone, local_de_locacao, genero, confirmacao_sms) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
-            (nome, nome_iniciais, sobrenome, idade, email, documento, telefone, local_de_locacao, genero,
+            'INSERT INTO Usuario (nome, nome_iniciais, sobrenome, idade, email, documento, telefone, genero, confirmacao_sms) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+            (nome, nome_iniciais, sobrenome, idade, email, documento, telefone, genero,
              confirmacao_sms))
         mysql.connection.commit()
         user_id = cursor.lastrowid  # Obtendo o ID do usuário inserido
@@ -164,6 +163,16 @@ def submit_review_page():
         mysql.connection.commit()
         cur.close()
 
-        return 'Review submitted successfully!'
+        return redirect(url_for('user.qrcode_return_page'))
 
-    return render_template('evaluation_form.html')
+    return render_template('review_form.html')
+
+
+@user.route('/qrcodereturn')
+def qrcode_return_page():
+    return render_template('qrcode_return.html')
+
+@user.route('/thanks')
+def thanks_page():
+    session.clear()
+    return render_template('thanks.html')
