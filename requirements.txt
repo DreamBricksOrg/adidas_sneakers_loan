@@ -5,3 +5,7 @@ Flask_SocketIO==5.3.6
 
 cryptography~=42.0.3
 requests~=2.31.0
+qrcode~=7.4.2
+opencv-python~=4.9.0.80
+pyzbar~=0.1.9
+pillow~=10.2.0

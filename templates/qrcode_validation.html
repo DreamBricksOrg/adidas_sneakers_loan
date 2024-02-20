@@ -5,7 +5,7 @@
 </head>
 <body>
     <div class="qr-code-container">
-        <img src="{{ url_for('static', filename='images/qr_code.jpg') }}" alt="QR Supernova">
+        <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
         <p>AGORA É SÓ APRESENTAR<br>O QR CODE ABAIXO PARA<br>O PROMOTOR 53467</p>
         <a href="{{ url_for('user.allright_page') }}"><button>Ir para outra rota</button></a>
     </div>

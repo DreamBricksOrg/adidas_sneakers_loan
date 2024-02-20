@@ -1,6 +1,12 @@
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session
 from database import mysql
-from sms_sender import create_verification_code, send_sms_code
+from qrcodeaux import generate_qr_code
+from sms_sender import create_verification_code
+import io
+import base64
+from pyzbar.pyzbar import decode
+from PIL import Image
+import json
 
 user = Blueprint('user', __name__)
 
@@ -123,7 +129,19 @@ def user_register_page():
 
 @user.route('/qr_code_validation')
 def qr_code_validation_page():
-    return render_template('qrcode_validation.html')
+    user_id = session.get('user_id')
+    size = session.get('size')
+    data = {"user_id": user_id, "size": size}
+    qr_code_image = generate_qr_code(data)
+
+    # Salvar a imagem em um buffer de bytes
+    img_buffer = io.BytesIO()
+    qr_code_image.save(img_buffer, format="PNG")
+
+    # Converter o buffer de bytes em uma string base64
+    img_str = base64.b64encode(img_buffer.getvalue()).decode()
+
+    return render_template('qrcode_validation.html', qr_code=img_str)
 
 
 @user.route('/allright')
@@ -171,6 +189,7 @@ def submit_review_page():
 @user.route('/qrcodereturn')
 def qrcode_return_page():
     return render_template('qrcode_return.html')
+
 
 @user.route('/thanks')
 def thanks_page():
