@@ -150,10 +150,10 @@ def clock_page():
 def submit_review_page():
     if request.method == 'POST':
         print(request.form)
-        comfort = request.form['conforto']
-        stability = request.form['estabilidade']
-        style = request.form['estilo']
-        would_buy = request.form['compraria']
+        comfort = request.form['rate_confort']
+        stability = request.form['rate_stability']
+        style = request.form['rate_style']
+        would_buy = request.form['rate_buy']
         user_id = session.get('user_id')
 
         cur = mysql.connection.cursor()
