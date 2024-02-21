@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../assets/css/default.css" />
+
+    <link
+      rel="shortcut icon"
+      href="../assets/images/logos/adidas.png"
+      type="image/x-icon"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+      rel="stylesheet"
+    />
+    <title>Supernova - registro</title>
+
+    <style>
+      .background {
+        background-image: url("../assets/images/shoes-2.png");
+        background-position: -260px center;
+        background-repeat: no-repeat;
+        position: relative;
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+        padding-top: 56px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+
+      .logo {
+        padding-left: 57px;
+      }
+
+      .register {
+        margin-top: auto;
+        width: 100%;
+        padding: 56px 57px 106px;
+        box-sizing: border-box;
+        text-align: center;
+        color: white;
+      }
+
+      .register p {
+        font-size: 29px;
+      }
+
+      .register-form {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        margin: 72px 0;
+      }
+
+      .form-item {
+        background: var(--dark-grey);
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        border-radius: 7px;
+      }
+
+      .form-item input {
+        background: transparent;
+        color: var(--white);
+        font-size: 14px;
+        font-family: "Roboto", sans-serif;
+      }
+
+      .form-item input::placeholder {
+        color: var(--white);
+        font-size: 14;
+        font-family: "Roboto", sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container background">
+      <div class="overlay">
+        <div class="logo">
+          <logo-component></logo-component>
+        </div>
+
+        <div class="register">
+          <h1 class="uppercase">cadastre seus dados</h1>
+
+          <div class="register-form">
+            <div class="form-item">
+              <img src="../assets/images/icons/name.png" alt="icone-nome" />
+              <input type="text" id="name" placeholder="Nome completo" />
+            </div>
+
+            <div class="form-item">
+              <img src="../assets/images/icons/email.png" alt="icone-email" />
+              <input type="email" id="email" placeholder="Email" />
+            </div>
+
+            <div class="form-item">
+              <img
+                src="../assets/images/icons/birthdate.png"
+                alt="icone-data-nascimento"
+              />
+              <input
+                type="text"
+                id="birthdate"
+                placeholder="Data de nascimento"
+              />
+            </div>
+
+            <div class="form-item">
+              <img
+                src="../assets/images/icons/document.png"
+                alt="icone-documento"
+              />
+              <input type="text" id="document" placeholder="CPF" />
+            </div>
+
+            <div class="form-item">
+              <img
+                src="../assets/images/icons/phone.png"
+                alt="icone-telefone"
+              />
+              <input type="text" id="phone" placeholder="Telefone" />
+            </div>
+
+            <div class="form-item">
+              <img src="../assets/images/icons/gender.png" alt="icone-genero" />
+              <input type="text" id="name" placeholder="Gênero" />
+            </div>
+          </div>
+
+          <div class="button-container">
+            <button-component text="CONTINUAR"></button-component>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="../../assets/components/logo.js"></script>
+    <script src="../../assets/components/button.js"></script>
+  </body>
+</html>
