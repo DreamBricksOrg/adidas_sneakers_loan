@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../assets/css/default.css" />
+
+    <link
+      rel="shortcut icon"
+      href="../assets/images/logos/adidas.png"
+      type="image/x-icon"
+    />
+    <title>Supernova - escolha o tamanho</title>
+
+    <style>
+      .background {
+        background-image: url("../assets/images/men.png");
+        background-size: cover;
+        background-repeat: no-repeat;
+        position: relative;
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        padding-top: 56px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+
+      .logo {
+        padding-left: 57px;
+      }
+
+      .experience {
+        margin-top: auto;
+        width: 100%;
+        padding: 56px 43px 106px;
+        box-sizing: border-box;
+        text-align: center;
+        color: white;
+      }
+
+      .experience p {
+        font-size: 24px;
+        margin-top: 28px;
+        margin-bottom: 43px;
+      }
+
+      .button-container {
+        padding: 0 14px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container background">
+      <div class="overlay">
+        <div class="logo">
+          <logo-component></logo-component>
+        </div>
+
+        <div class="experience">
+          <h1 class="uppercase">Você terá 45 minutos para experimentar</h1>
+
+          <p class="uppercase">vamos lá?</p>
+
+          <div class="button-container">
+            <button-component text="CONTINUAR"></button-component>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="../../assets/components/logo.js"></script>
+    <script src="../../assets/components/button.js"></script>
+  </body>
+</html>
