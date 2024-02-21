@@ -108,7 +108,11 @@ def user_register_page():
 @user.route('/qr_code_validation')
 def qr_code_validation_page():
     user_id = session.get('user_id')
+    if user_id is None:
+        user_id = '0000'
     size = session.get('size')
+    if size is None:
+        size = '0000'
     data = {"user_id": user_id, "size": size}
     qr_code_image = generate_qr_code(data)
 
@@ -119,39 +123,39 @@ def qr_code_validation_page():
     # Converter o buffer de bytes em uma string base64
     img_str = base64.b64encode(img_buffer.getvalue()).decode()
 
-    return render_template('mock_pages/qrcode_validation.html', qr_code=img_str)
+    return render_template('7-qr-code-supernova.html', qr_code=img_str)
 
 
 @user.route('/allright')
 def allright_page():
-    return render_template('mock_pages/allright.html')
+    return render_template('8-ready-try-shoes-supernova.html')
 
 
 @user.route('/ready')
 def ready_page():
-    return render_template('mock_pages/ready.html')
+    return render_template('9-wear-shoes-supernova.html')
 
 
 @user.route('/countdownstart')
 def countdown_start_page():
-    return render_template('mock_pages/countdown_start.html')
+    return render_template('10-countdown-try-shoes-supernova.html')
 
 
 @user.route('/clock')
 def clock_page():
-    return render_template('mock_pages/clock.html')
+    return render_template('11-time-left-shoes-supernova.html')
 
 
 @user.route('/submit_review', methods=['POST', 'GET'])
 def submit_review_page():
     if request.method == 'POST':
+        print(request.form)
         comfort = request.form['conforto']
         stability = request.form['estabilidade']
         style = request.form['estilo']
         would_buy = request.form['compraria']
         user_id = session.get('user_id')
 
-        # Inserir os dados no banco de dados
         cur = mysql.connection.cursor()
         cur.execute(
             "INSERT INTO Avaliacao (Usuario, conforto, estabilidade, estilo, compraria) VALUES (%s, %s, %s, %s, %s)",
@@ -161,15 +165,33 @@ def submit_review_page():
 
         return redirect(url_for('user.qrcode_return_page'))
 
-    return render_template('mock_pages/review_form.html')
+    return render_template('12-rate-try-shoes-supernova.html')
 
 
 @user.route('/qrcodereturn')
 def qrcode_return_page():
-    return render_template('mock_pages/qrcode_return.html')
+
+    user_id = session.get('user_id')
+    if user_id is None:
+        user_id = '0000'
+
+    size = session.get('size')
+    if size is None:
+        size = '0000'
+    data = {"user_id": user_id, "size": size}
+    qr_code_image = generate_qr_code(data)
+
+    # Salvar a imagem em um buffer de bytes
+    img_buffer = io.BytesIO()
+    qr_code_image.save(img_buffer, format="PNG")
+
+    # Converter o buffer de bytes em uma string base64
+    img_str = base64.b64encode(img_buffer.getvalue()).decode()
+
+    return render_template('13-finish-try-shoes-supernova.html', qr_code=img_str)
 
 
 @user.route('/thanks')
 def thanks_page():
     session.clear()
-    return render_template('mock_pages/thanks.html')
+    return render_template('14-return-shoes-supernova.html')
