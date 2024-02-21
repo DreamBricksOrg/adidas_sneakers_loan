@@ -6,8 +6,6 @@ from local import local
 from sms_sender import sms_sender
 from user import user
 
-
-
 app = Flask(__name__)
 
 # configuration
@@ -23,7 +21,6 @@ app.register_blueprint(auth)
 app.register_blueprint(local)
 app.register_blueprint(user)
 app.register_blueprint(sms_sender)
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

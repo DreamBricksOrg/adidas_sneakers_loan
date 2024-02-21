@@ -20,8 +20,8 @@ const logoStyle = `
 
 const logo = ` 
   <div class="logo">
-    <img src="../../assets/images/logos/adidas.png" alt="logo-adidas" class="adidas-logo"/>
-    <img src="../../assets/images/logos/supernova.png" alt="logo-supernova" class="supernova-logo" />
+    <img src="../../static/assets/images/logos/adidas.png" alt="logo-adidas" class="adidas-logo"/>
+    <img src="../../static/assets/images/logos/supernova.png" alt="logo-supernova" class="supernova-logo" />
   </div>
 `;
 

@@ -27,11 +27,11 @@ const buttonStyle = `
       text-transform:uppercase;
 
   }
- 
+
 </style>
 `;
 
-const buttonHtml = ` 
+const buttonHtml = `
   <div class="container">
    <button></button>
   </div>
@@ -48,14 +48,13 @@ class Button extends HTMLElement {
     const background = this.getAttribute("background");
 
     const button = this.shadowRoot.querySelector("button");
-    console.log(background);
 
     if (background) {
       button.style.backgroundColor = "#000";
       button.style.color = "#FFF";
     }
 
-    button.innerHTML = ` ${text} <img src="../../assets/images/arrow.svg" alt="arrow" />`;
+    button.innerHTML = ` ${text} <img src="../../static/assets/images/arrow.svg" alt="arrow" />`;
   }
 }
 customElements.define("button-component", Button);

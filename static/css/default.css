@@ -22,13 +22,13 @@ body {
 
 @font-face {
   font-family: "ITCFThin";
-  src: url("../font/ITCFranklinGothicStd-BkCp.otf") format("opentype");
+  src: url("../../static/assets/font/ITCFranklinGothicStd-BkCp.otf") format("opentype");
   font-style: normal;
 }
 
 @font-face {
   font-family: "ITCF";
-  src: url("../font/ITCFranklinGothicStd-DmCp.otf") format("opentype");
+  src: url("../../static/assets/font/ITCFranklinGothicStd-DmCp.otf") format("opentype");
   font-style: normal;
 }
 
@@ -62,4 +62,9 @@ p {
   font-family: "Roboto", sans-serif;
   font-weight: 100;
   font-style: italic;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
 }

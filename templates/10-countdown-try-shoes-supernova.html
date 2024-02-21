@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../assets/css/default.css" />
+    <title>Supernova - Começar</title>
+    <link
+      rel="shortcut icon"
+      href="../assets/images/logos/adidas.png"
+      type="image/x-icon"
+    />
+
+    <style>
+      .background {
+        background-image: url("../assets/images/girl.png");
+        background-repeat: no-repeat;
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        padding-top: 56px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+
+      .logo {
+        padding: 0 57px 0;
+      }
+
+      .countdown {
+        margin: 0 auto;
+        margin-top: 233px;
+      }
+
+      .countdown-number {
+        border: 9px solid white;
+        border-radius: 100%;
+        width: 280px;
+        height: 280px;
+        text-align: center;
+        vertical-align: middle;
+      }
+
+      .countdown-number h1 {
+        font-size: 250px;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container background">
+      <div class="overlay">
+        <div class="logo">
+          <logo-component></logo-component>
+        </div>
+
+        <div class="countdown">
+          <div class="countdown-number">
+            <h1 class="uppercase">2</h1>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="../../assets/components/logo.js"></script>
+    <script src="../../assets/components/button.js"></script>
+  </body>
+</html>

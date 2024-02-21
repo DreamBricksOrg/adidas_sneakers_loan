@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../assets/css/default.css" />
+    <title>Supernova - Começar experiência</title>
+    <link
+      rel="shortcut icon"
+      href="../assets/images/logos/adidas.png"
+      type="image/x-icon"
+    />
+
+    <style>
+      .background {
+        background-image: url("../assets/images/shoes-2.png");
+        background-position: -350px -150px;
+        background-repeat: no-repeat;
+      }
+
+      .logo {
+        padding: 0 57px 0;
+      }
+
+      .begin-experience {
+        margin-top: auto;
+        width: 100%;
+        padding: 56px 36px 106px;
+        background: var(--orange);
+        border-radius: 35px 35px 0 0;
+        box-sizing: border-box;
+        text-align: center;
+      }
+
+      .begin-experience p {
+        margin-top: 24px;
+        margin-bottom: 37px;
+        display: inline-block;
+        font-size: 36px;
+      }
+
+      .button-container {
+        padding: 0 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container background">
+      <div class="logo">
+        <logo-component></logo-component>
+      </div>
+
+      <div class="begin-experience">
+        <h1 class="uppercase">Pronto para começar a sua experiência?</h1>
+
+        <p class="uppercase">Você terá 45 minutos. </p>
+
+        <div class="button-container">
+          <button-component text="QUERO PARTICIPAR"></button-component>
+        </div>
+      </div>
+    </div>
+
+    <script src="../../assets/components/logo.js"></script>
+    <script src="../../assets/components/button.js"></script>
+  </body>
+</html>

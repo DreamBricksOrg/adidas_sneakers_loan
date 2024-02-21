@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/default.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}" type="image/x-icon">
+    <title>Supernova - termos</title>
+
+    <style>
+        .background {
+            background-image: url("{{ url_for('static', filename='assets/images/shoes-2.png') }}");
+            background-position: -300px -100px;
+            background-repeat: no-repeat;
+            position: relative;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.72);
+            padding-top: 56px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .logo {
+            padding-left: 57px;
+        }
+
+        .terms {
+            margin-top: auto;
+            width: 100%;
+            padding: 56px 57px 106px;
+            box-sizing: border-box;
+            text-align: center;
+            color: white;
+        }
+
+        .terms-accept {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 0 20px;
+            margin-top: 40px;
+            margin-bottom: 48px;
+        }
+
+        .terms-accept p {
+            display: inline-block;
+            text-align: left;
+            line-height: 25px;
+            font-size: 20px;
+        }
+
+        input {
+            accent-color: transparent;
+        }
+    </style>
+</head>
+<body>
+<div class="container background">
+    <div class="overlay">
+        <div class="logo">
+            <logo-component></logo-component>
+        </div>
+
+        <div class="terms">
+            <h1>TEXTO LEGAL E REGULAMENTO</h1>
+
+            <div class="terms-accept">
+                <input type="checkbox" name="terms" id="terms-checkbox" required/>
+                <p>
+                    Li e aceito os termos
+                    <strong> Termos de Uso e Políticas de Privacidade </strong>
+                </p>
+            </div>
+
+            <button-component text="CONTINUAR" onclick="checkTerms()"></button-component>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/components/button.js') }}"></script>
+<script>
+    function checkTerms() {
+        var checkbox = document.getElementById('terms-checkbox');
+        if (checkbox.checked) {
+            window.location.href = "{{ url_for('user.choose_size_page') }}";
+        } else {
+            alert('Por favor, aceite os termos antes de continuar.');
+        }
+    }
+</script>
+</body>
+</html>

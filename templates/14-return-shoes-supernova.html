@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../assets/css/default.css" />
+    <title>Supernova - Tempo restante</title>
+    <link
+      rel="shortcut icon"
+      href="../assets/images/logos/adidas.png"
+      type="image/x-icon"
+    />
+
+    <style>
+      .background {
+        background-image: url("../assets/images/shoes.png");
+        background-repeat: no-repeat;
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.44);
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        padding: 56px 49px 0;
+      }
+
+      .logo {
+        padding: 0 57px 0;
+      }
+
+      .experience-done {
+        margin: 0 auto;
+        margin-top: 269px;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 0 34px;
+      }
+
+      .experience-done h1 {
+        font-size: 64px;
+      }
+
+      .experience-done p {
+        font-size: 32px;
+        text-transform: uppercase;
+        padding: 0 25px;
+        margin-top: 13px;
+      }
+
+      .adidas-logo {
+        margin-top: auto;
+        display: flex;
+        justify-content: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container background">
+      <div class="overlay">
+        <div class="logo">
+          <logo-component></logo-component>
+        </div>
+
+        <div class="experience-done">
+          <h1>Tudo certo!</h1>
+          <p>Volte sempre à Zona de Superconforto.</p>
+        </div>
+
+        <div class="adidas-logo">
+          <img src="../assets/images/logos/adidas-logo-bg.png" alt="" />
+        </div>
+      </div>
+    </div>
+
+    <script src="../../assets/components/logo.js"></script>
+    <script src="../../assets/components/button.js"></script>
+  </body>
+</html>

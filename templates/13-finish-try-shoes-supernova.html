@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../assets/css/default.css" />
+
+    <link
+      rel="shortcut icon"
+      href="../assets/images/logos/adidas.png"
+      type="image/x-icon"
+    />
+    <title>Supernova - Devolver</title>
+
+    <style>
+      .background {
+        background-image: url("../assets/images/shoes-2.png");
+        background-position: -260px center;
+        background-repeat: no-repeat;
+        position: relative;
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+        padding-top: 56px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+
+      .logo {
+        padding-left: 57px;
+      }
+
+      .qr-code {
+        width: 100%;
+        padding: 56px 57px 106px;
+        box-sizing: border-box;
+        text-align: center;
+        color: white;
+        margin-top: 186px;
+      }
+
+      .qr-code h1 {
+        font-size: 40px;
+      }
+
+      .qr-code-image {
+        margin-top: 64px;
+        border-radius: 7px;
+        display: inline-block;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container background">
+      <div class="overlay">
+        <div class="logo">
+          <logo-component></logo-component>
+        </div>
+
+        <div class="qr-code">
+          <h1 class="uppercase">
+            Apresente o QR Code abaixo e devolva o produto
+          </h1>
+
+          <div class="qr-code-image">
+            <img src="../assets/images/qr-code.png" alt="qr-code" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="../../assets/components/logo.js"></script>
+    <script src="../../assets/components/button.js"></script>
+  </body>
+</html>

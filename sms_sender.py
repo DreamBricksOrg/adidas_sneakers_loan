@@ -66,7 +66,9 @@ def generate_unique_code():
 
 @sms_sender.route('/resendsms', methods=['POST'])
 def resend_sms():
+    print("clicked resend")
     user_id = session.get('user_id')
+    print(user_id)
     create_verification_code(user_id)
     return ''
 
@@ -74,12 +76,12 @@ def resend_sms():
 @sms_sender.route('/validatesms', methods=['POST', 'GET'])
 def validate_sms():
     if request.method == 'POST':
-        code = request.form.get('code')
+        code_str = request.form.get('digit_1') + request.form.get('digit_2') + request.form.get('digit_3') + request.form.get('digit_4')
+        code = code_str
 
         if code == '3177':
             # Se o código for '3177', redirecione imediatamente
             return redirect(url_for('user.qr_code_validation_page'))
-
 
         cursor = mysql.connection.cursor()
         try:
@@ -87,10 +89,11 @@ def validate_sms():
             result = cursor.fetchone()
 
             if result and result[0] == 'ACTIVE':
-
                 cursor.execute("UPDATE CodigoVerificacao SET status = 'DISABLE' WHERE codigo = %s", (code,))
 
-                cursor.execute("UPDATE Usuario SET confirmacao_sms = true WHERE id = (SELECT Usuario FROM CodigoVerificacao Where codigo = %s)", (code,))
+                cursor.execute(
+                    "UPDATE Usuario SET confirmacao_sms = true WHERE id = (SELECT Usuario FROM CodigoVerificacao Where codigo = %s)",
+                    (code,))
 
                 mysql.connection.commit()
                 return redirect(url_for('user.qr_code_validation_page'))
@@ -99,4 +102,4 @@ def validate_sms():
             return jsonify({'error': str(e)}), 500
         finally:
             cursor.close()
-    return render_template('sms_page.html')
+    return render_template('6-sms-code-supernova.html')
