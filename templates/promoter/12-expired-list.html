@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tênis Disponíveis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/promoter/7-rental-list.css') }}">
+</head>
+<body>
+<div class="container">
+    <h1>Lista de locações</h1>
+    <form action="/promoter/rentallist" method="POST">
+        <table class="rental-table">
+            <thead>
+            <tr>
+                <th>Tenis</th>
+                <th>Usuario</th>
+                <th>Promotor</th>
+                <th>Data Inicio</th>
+                <th>Data Fim</th>
+                <th>Status</th>
+                <th>Local</th>
+                <th>Estande</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for rental in rentals %}
+            <tr>
+                <td>{{ rental[1] }}</td>
+                <td>{{ rental[2] }}</td>
+                <td>{{ rental[3] }}</td>
+                <td>{{ rental[4] }}</td>
+                <td>{{ rental[5] }}</td>
+                <td>{{ rental[6] }}</td>
+                <td>{{ rental[7] }}</td>
+                <td>{{ rental[8] }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit">Confirmar</button>
+    </form>
+</div>
+</body>
+</html>

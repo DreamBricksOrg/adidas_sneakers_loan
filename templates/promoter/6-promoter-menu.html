@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/promoter/6-promoter-menu.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Menu</h1>
+        <a href="{{ url_for('promoter.available_shoes_page') }}"><button class="menu-button">Lista de tênis disponíveis</button></a>
+        <a href="{{ url_for('promoter.rental_list_page') }}"><button class="menu-button">Lista de locações</button></a>
+        <a href="{{ url_for('promoter.scan_aprove_rental_page') }}"><button class="menu-button">Aprovar locação</button></a>
+        <a href="{{ url_for('promoter.scan_return_page') }}"><button class="menu-button">Devolver Tênis</button></a>
+        <a href="{{ url_for('promoter.available_shoes_page') }}"><button class="menu-button">Finalizar ação</button></a>
+    </div>
+</body>
+</html>
