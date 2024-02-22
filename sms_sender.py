@@ -102,4 +102,4 @@ def validate_sms():
             return jsonify({'error': str(e)}), 500
         finally:
             cursor.close()
-    return render_template('6-sms-code-supernova.html')
+    return render_template('user/6-sms-code-supernova.html')

@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session,  make_response
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, make_response
 from database import mysql
 from qrcodeaux import generate_qr_code
 from sms_sender import create_verification_code
@@ -58,22 +58,16 @@ def create_user(data):
         return jsonify({'error': 'O nome do usuário é obrigatório!'}), 400
 
 
-
-
-
 @user.route('/', methods=['GET'])
 def welcome_route():
-    return render_template('1-welcome-supernova.html')
+    return render_template('user/1-welcome-supernova.html')
 
 
 @user.route('/terms', methods=['GET'])
 def terms_page():
-    return render_template('2-terms-supernova.html')
+    return render_template('user/2-terms-supernova.html')
 
 
-@user.route('/sneaker', methods=['GET'])
-def sneakers_page():
-    return render_template('mock_pages/choose_size.html')
 
 
 @user.route('/choose-size', methods=['GET', 'POST'])
@@ -83,12 +77,12 @@ def choose_size_page():
         print(size)
         session['size'] = size
         return redirect(url_for('user.time_use_page'))  # Redirect to the next route
-    return render_template('3-shoes-size-supernova.html')
+    return render_template('user/3-shoes-size-supernova.html')
 
 
 @user.route('/time_use', methods=['GET', 'POST'])
 def time_use_page():
-    return render_template('4-try-shoes-supernova.html')
+    return render_template('user/4-try-shoes-supernova.html')
 
 
 @user.route('/user_register', methods=['GET', 'POST'])
@@ -100,7 +94,7 @@ def user_register_page():
         session['user_id'] = user_id
         create_verification_code(user_id)
         return redirect(url_for('sms_sender.validate_sms'))
-    return render_template('5-register-supernova.html')
+    return render_template('user/5-register-supernova.html')
 
 
 @user.route('/qr_code_validation')
@@ -121,22 +115,22 @@ def qr_code_validation_page():
     # Converter o buffer de bytes em uma string base64
     img_str = base64.b64encode(img_buffer.getvalue()).decode()
 
-    return render_template('7-qr-code-supernova.html', qr_code=img_str)
+    return render_template('user/7-qr-code-supernova.html', qr_code=img_str)
 
 
 @user.route('/allright')
 def allright_page():
-    return render_template('8-ready-try-shoes-supernova.html')
+    return render_template('user/8-ready-try-shoes-supernova.html')
 
 
 @user.route('/ready')
 def ready_page():
-    return render_template('9-wear-shoes-supernova.html')
+    return render_template('user/9-wear-shoes-supernova.html')
 
 
 @user.route('/countdownstart')
 def countdown_start_page():
-    return render_template('10-countdown-try-shoes-supernova.html')
+    return render_template('user/10-countdown-try-shoes-supernova.html')
 
 
 @user.route('/clock')
@@ -148,12 +142,12 @@ def clock_page():
         # Define o tempo inicial como o tempo atual se o cookie não estiver definido
         start_time = datetime.datetime.now()
         response = make_response(
-            render_template('11-time-left-shoes-supernova.html', start_time=start_time))
+            render_template('user/11-time-left-shoes-supernova.html', start_time=start_time))
         # Define o cookie com o tempo inicial
         response.set_cookie('start_time', start_time.isoformat())
         return response
 
-    return render_template('11-time-left-shoes-supernova.html', start_time=start_time)
+    return render_template('user/11-time-left-shoes-supernova.html', start_time=start_time)
 
 
 @user.route('/submit_review', methods=['POST', 'GET'])
@@ -175,12 +169,11 @@ def submit_review_page():
 
         return redirect(url_for('user.qrcode_return_page'))
 
-    return render_template('12-rate-try-shoes-supernova.html')
+    return render_template('user/12-rate-try-shoes-supernova.html')
 
 
 @user.route('/qrcodereturn')
 def qrcode_return_page():
-
     user_id = session.get('user_id')
     if user_id is None:
         user_id = '0000'
@@ -198,10 +191,10 @@ def qrcode_return_page():
     # Converter o buffer de bytes em uma string base64
     img_str = base64.b64encode(img_buffer.getvalue()).decode()
 
-    return render_template('13-finish-try-shoes-supernova.html', qr_code=img_str)
+    return render_template('user/13-finish-try-shoes-supernova.html', qr_code=img_str)
 
 
 @user.route('/thanks')
 def thanks_page():
     session.clear()
-    return render_template('14-return-shoes-supernova.html')
+    return render_template('user/14-return-shoes-supernova.html')
