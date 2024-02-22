@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<script type="text/javascript" src="util.js"></script>
+<script type="text/javascript" src="aes_encryption.js"></script>
+<script type="text/javascript" src="RsaStringEncryptPage.js"></script>
+<!--script type="text/javascript" src="util.js"></script-->
+<script>
+const myGeneratePassphrase = () => {
+    var passphrase = generatePassphrase();
+    document.getElementById("passphrase").value = passphrase;
+}
+
+const myGenerateKeyIV = async(passphrase) => {
+    var key = await getKeyFromPassphrase(passphrase);
+    var iv = await getIvFromPassphrase(passphrase);
+    document.getElementById("aesKey").value = key;
+    document.getElementById("aesIV").value = iv;
+}
+
+const myAESEncrypt = async() => {
+    var text = document.getElementById("textOriginal").value;
+    var bText = _stringToArrayBuffer(text);
+    var key = document.getElementById("aesKey").value;
+    var iv = document.getElementById("aesIV").value;
+    bEncryptedText = await encryptAes(bText, key, iv);
+    
+    var result = _arrayBufferToBase64(bEncryptedText);
+    //var result = bytesToBase64(bEncryptedText);
+    document.getElementById("encryptedText").value = result;
+}
+
+const myAESDecrypt = async() => {
+    var encryptedText = document.getElementById("encryptedText").value;
+    var bEncryptedText = _base64StringToArrayBuffer(encryptedText);
+    //var bEncryptedText = base64ToBytes(encryptedText);
+    var key = document.getElementById("aesKey").value;
+    var iv = document.getElementById("aesIV").value;
+    bText = await decryptAes(bEncryptedText, key, iv);
+    
+    var result = _stringFromArrayBuffer(bText);
+    document.getElementById("decryptedText").value = result;
+}
+
+</script>
+<body>
+<h2>AES Test</h2>
+<div id="demo"></div>
+<button type="button" onclick='myGeneratePassphrase()'>Generate passphrase</button><br>
+
+<h3>Passphrase</h3>
+<textarea
+  disabled
+  value={rsaKeyPair.publicKey}
+  id="passphrase"
+  rows="6"
+  placeholder="Passphrase"
+></textarea><br>
+
+<button type="button" onclick='myGenerateKeyIV()'>Generate key / IV</button><br>
+<h3>Key</h3>
+<textarea
+  disabled
+  value={rsaKeyPair.privateKey}
+  id="aesKey"
+  rows="6"
+  placeholder="AES Key"
+></textarea>
+<h3>IV</h3>
+<textarea
+  disabled
+  value={rsaKeyPair.privateKey}
+  id="aesIV"
+  rows="6"
+  placeholder="AES IV"
+></textarea>
+
+<h3>Text to encrypt</h3>
+<!--input
+  onChange="onKeyInputChange(this.value)"
+  type="text"
+  id="textOriginal"
+/-->
+<textarea
+  id="textOriginal"
+  rows="6"
+></textarea>
+
+<br>
+<button type="button" onclick='myAESEncrypt()'>Encrypt</button><br>
+
+<h3>Encrypted text</h3>
+<textarea
+  disabled
+  value="encryptedString"
+  id="encryptedText"
+  rows="6"
+  placeholder="Encrypted text"
+></textarea>
+
+<br>
+<button type="button" onclick='myAESDecrypt()'>Decrypt</button><br>
+
+<h3>Decrypted text</h3>
+<textarea
+  disabled
+  value="decryptedString"
+  id="decryptedText"
+  rows="6"
+  placeholder="Decrypted text"
+></textarea>
+
+
+</body>
+</html>
