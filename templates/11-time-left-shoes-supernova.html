@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/default.css') }}">
     <title>Supernova - Tempo restante</title>
-    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}"
+          type="image/x-icon">
 
     <style>
         .background {
@@ -60,15 +61,50 @@
 
         <div class="time-left">
             <h1>você ainda tem</h1>
-            <h1 class="time-remaining">38 min</h1>
+            <h1 id="timer" class="time-remaining"></h1>
             <h1>para experimentar o seu Supernova</h1>
         </div>
 
         <div class="button-container">
-            <a href="{{ url_for('user.submit_review_page') }}"><button-component text="devolver o tênis" background="black"></button-component></a>
+            <a href="{{ url_for('user.submit_review_page') }}">
+                <button-component id="devolver-btn" onclick="clearCookie()" text="devolver o tênis" background="black"></button-component>
+            </a>
         </div>
     </div>
 </div>
+<script>
+
+    function getRemainingTime() {
+        var startTime = new Date("{{ start_time.isoformat() }}");
+        var now = new Date();
+        var elapsedTime = now - startTime;
+        var remainingTime = (45 * 60 * 1000) - elapsedTime;
+        return Math.floor(remainingTime / (60 * 1000));
+    }
+
+
+    function updateTimer() {
+        var remainingMinutes = getRemainingTime();
+        if (remainingMinutes <= 0) {
+
+            document.querySelector('.time-left').innerHTML = '<h1>Hora de devolver o seu supernova</h1>';
+        } else {
+
+            document.getElementById("timer").innerText = remainingMinutes + "min";
+            setTimeout(updateTimer, 1000);
+        }
+    }
+
+
+    function clearCookie() {
+        document.cookie = "start_time=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    }
+
+
+    window.onload = function () {
+        updateTimer();
+    };
+</script>
 
 <script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>
 <script src="{{ url_for('static', filename='assets/components/button.js') }}"></script>

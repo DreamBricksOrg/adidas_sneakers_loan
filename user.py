@@ -1,12 +1,10 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session,  make_response
 from database import mysql
 from qrcodeaux import generate_qr_code
 from sms_sender import create_verification_code
 import io
 import base64
-from pyzbar.pyzbar import decode
-from PIL import Image
-import json
+import datetime
 
 user = Blueprint('user', __name__)
 
@@ -143,7 +141,19 @@ def countdown_start_page():
 
 @user.route('/clock')
 def clock_page():
-    return render_template('11-time-left-shoes-supernova.html')
+    # Verifica se o cookie já está definido
+    if 'start_time' in request.cookies:
+        start_time = datetime.datetime.fromisoformat(request.cookies.get('start_time'))
+    else:
+        # Define o tempo inicial como o tempo atual se o cookie não estiver definido
+        start_time = datetime.datetime.now()
+        response = make_response(
+            render_template('11-time-left-shoes-supernova.html', start_time=start_time))
+        # Define o cookie com o tempo inicial
+        response.set_cookie('start_time', start_time.isoformat())
+        return response
+
+    return render_template('11-time-left-shoes-supernova.html', start_time=start_time)
 
 
 @user.route('/submit_review', methods=['POST', 'GET'])
