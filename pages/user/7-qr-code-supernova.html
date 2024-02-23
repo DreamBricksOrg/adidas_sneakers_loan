@@ -3,28 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="../assets/css/default.css" />
+    <link rel="stylesheet" href="../../static/css/default.css" />
 
     <link
       rel="shortcut icon"
-      href="../assets/images/logos/adidas.png"
+      href="../../static/assets/images/logos/adidas.png"
       type="image/x-icon"
     />
-    <title>Supernova - Devolver</title>
+    <title>Supernova - qr-code</title>
 
     <style>
       .background {
-        background-image: url("../assets/images/shoes-2.png");
+        background-image: url("../../static/assets/images/shoes-2.png");
         background-position: -260px center;
         background-repeat: no-repeat;
         position: relative;
+        overflow: auto;
       }
 
       .overlay {
         position: absolute;
         inset: 0;
         background: rgba(0, 0, 0, 0.8);
-        padding-top: 56px;
+        padding-top: 26px;
         display: flex;
         flex-direction: column;
         flex: 1;
@@ -32,15 +33,19 @@
 
       .logo {
         padding-left: 57px;
+        position: relative;
+        z-index: 2;
       }
 
       .qr-code {
         width: 100%;
-        padding: 56px 57px 106px;
+        padding: 36px 37px 46px;
         box-sizing: border-box;
         text-align: center;
         color: white;
-        margin-top: 186px;
+        margin-top: 126px;
+        position: relative;
+        z-index: 2;
       }
 
       .qr-code h1 {
@@ -57,24 +62,24 @@
   </head>
   <body>
     <div class="container background">
-      <div class="overlay">
-        <div class="logo">
-          <logo-component></logo-component>
-        </div>
+      <div class="overlay"></div>
+      div>
+      <div class="logo">
+        <logo-component></logo-component>
+      </div>
 
-        <div class="qr-code">
-          <h1 class="uppercase">
-            Apresente o QR Code abaixo e devolva o produto
-          </h1>
+      <div class="qr-code">
+        <h1 class="uppercase">
+          agora é só apresentar o qr code abaixo para o promotor
+        </h1>
 
-          <div class="qr-code-image">
-            <img src="../assets/images/qr-code.png" alt="qr-code" />
-          </div>
+        <div class="qr-code-image">
+          <img src="../../static/assets/images/qr-code.png" alt="qr-code" />
         </div>
       </div>
     </div>
 
-    <script src="../../assets/components/logo.js"></script>
-    <script src="../../assets/components/button.js"></script>
+    <script src="../../static/assets/components/logo.js"></script>
+    <script src="../../static/assets/components/button.js"></script>
   </body>
 </html>

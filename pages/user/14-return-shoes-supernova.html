@@ -3,17 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="../assets/css/default.css" />
+    <link rel="stylesheet" href="../../static/css/default.css" />
     <title>Supernova - Tempo restante</title>
     <link
       rel="shortcut icon"
-      href="../assets/images/logos/adidas.png"
+      href="../../static/assets/images/logos/adidas.png"
       type="image/x-icon"
     />
 
     <style>
       .background {
-        background-image: url("../assets/images/shoes.png");
+        background-image: url("../../static/assets/images/shoes.png");
         background-repeat: no-repeat;
       }
 
@@ -21,25 +21,25 @@
         position: absolute;
         inset: 0;
         background: rgba(0, 0, 0, 0.44);
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-        padding: 56px 49px 0;
       }
 
       .logo {
         padding: 0 57px 0;
+        position: relative;
+        z-index: 2;
       }
 
       .experience-done {
         margin: 0 auto;
-        margin-top: 269px;
+        margin-top: 160px;
         display: flex;
         justify-content: center;
         flex-direction: column;
         align-items: center;
         text-align: center;
         padding: 0 34px;
+        position: relative;
+        z-index: 2;
       }
 
       .experience-done h1 {
@@ -57,28 +57,29 @@
         margin-top: auto;
         display: flex;
         justify-content: center;
+        position: relative;
+        z-index: 2;
       }
     </style>
   </head>
   <body>
     <div class="container background">
-      <div class="overlay">
-        <div class="logo">
-          <logo-component></logo-component>
-        </div>
+      <div class="overlay"></div>
+      <div class="logo">
+        <logo-component></logo-component>
+      </div>
 
-        <div class="experience-done">
-          <h1>Tudo certo!</h1>
-          <p>Volte sempre à Zona de Superconforto.</p>
-        </div>
+      <div class="experience-done">
+        <h1>Tudo certo!</h1>
+        <p>Volte sempre à Zona de Superconforto.</p>
+      </div>
 
-        <div class="adidas-logo">
-          <img src="../assets/images/logos/adidas-logo-bg.png" alt="" />
-        </div>
+      <div class="adidas-logo">
+        <img src="../../static/assets/images/logos/adidas-logo-bg.png" alt="" />
       </div>
     </div>
 
-    <script src="../../assets/components/logo.js"></script>
-    <script src="../../assets/components/button.js"></script>
+    <script src="../../static/assets/components/logo.js"></script>
+    <script src="../../static/assets/components/button.js"></script>
   </body>
 </html>

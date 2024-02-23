@@ -3,44 +3,48 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="../assets/css/default.css" />
+    <link rel="stylesheet" href="../../static/css/default.css" />
 
     <link
       rel="shortcut icon"
-      href="../assets/images/logos/adidas.png"
+      href="../../static/assets/images/logos/adidas.png"
       type="image/x-icon"
     />
     <title>Supernova - termos</title>
 
     <style>
       .background {
-        background-image: url("../assets/images/shoes-2.png");
+        background-image: url("../../static/assets/images/shoes-2.png");
         background-position: -300px -100px;
         background-repeat: no-repeat;
         position: relative;
+      }
+
+      .logo {
+        padding: 0 57px 0;
       }
 
       .overlay {
         position: absolute;
         inset: 0;
         background: rgba(0, 0, 0, 0.72);
-        padding-top: 56px;
+        padding-top: 36px;
         display: flex;
         flex-direction: column;
         flex: 1;
       }
 
-      .logo {
-        padding-left: 57px;
-      }
-
       .terms {
         margin-top: auto;
         width: 100%;
-        padding: 56px 57px 106px;
+        padding: 36px 37px 46px;
         box-sizing: border-box;
         text-align: center;
         color: white;
+      }
+
+      .terms h1 {
+        max-width: 160px;
       }
 
       .terms-accept {
@@ -57,6 +61,7 @@
         text-align: left;
         line-height: 25px;
         font-size: 20px;
+        max-width: 270px;
       }
 
       input {
@@ -87,7 +92,7 @@
       </div>
     </div>
 
-    <script src="../../assets/components/logo.js"></script>
-    <script src="../../assets/components/button.js"></script>
+    <script src="../../static/assets/components/logo.js"></script>
+    <script src="../../static/assets/components/button.js"></script>
   </body>
 </html>

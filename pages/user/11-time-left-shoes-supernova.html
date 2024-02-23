@@ -3,17 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="../assets/css/default.css" />
+    <link rel="stylesheet" href="../../static/css/default.css" />
+
     <title>Supernova - Tempo restante</title>
     <link
       rel="shortcut icon"
-      href="../assets/images/logos/adidas.png"
+      href="../../static/assets/images/logos/adidas.png"
       type="image/x-icon"
     />
 
     <style>
       .background {
-        background-image: url("../assets/images/girl.png");
+        background-image: url("../../static/assets/images/girl.png");
         background-repeat: no-repeat;
       }
 
@@ -24,22 +25,25 @@
         display: flex;
         flex-direction: column;
         flex: 1;
-        padding: 56px 49px 106px;
       }
 
       .logo {
         padding: 0 57px 0;
+        position: relative;
+        z-index: 2;
       }
 
       .time-left {
         margin: 0 auto;
-        margin-top: 196px;
+        margin-top: 146px;
         display: flex;
         justify-content: center;
         flex-direction: column;
         align-items: center;
         text-align: center;
         padding: 0 34px;
+        position: relative;
+        z-index: 2;
       }
 
       .time-left h1 {
@@ -47,37 +51,37 @@
       }
 
       .time-left .time-remaining {
-        font-size: 128px;
+        font-size: 100px;
       }
 
       .button-container {
         margin-top: auto;
+        margin-bottom: 46px;
+        padding: 0 46px;
       }
     </style>
   </head>
   <body>
     <div class="container background">
-      <div class="overlay">
-        <div class="logo">
-          <logo-component></logo-component>
-        </div>
+      <div class="overlay"></div>
+      <div class="logo">
+        <logo-component></logo-component>
+      </div>
 
-        <div class="time-left">
-          <h1>você ainda tem</h1>
-          <h1 class="time-remaining">38 min</h1>
-          <h1>para experimentar o seu Supernova</h1>
-        </div>
+      <div class="time-left">
+        <h1>você ainda tem</h1>
+        <h1 class="time-remaining">38 min</h1>
+        <h1>para experimentar o seu Supernova</h1>
+      </div>
 
-        <div class="button-container">
-          <button-component
-            text="devolver o tênis"
-            background="black"
-          ></button-component>
-        </div>
+      <div class="button-container">
+        <button-component
+          text="devolver o tênis"
+          background="black"
+        ></button-component>
       </div>
     </div>
-
-    <script src="../../assets/components/logo.js"></script>
-    <script src="../../assets/components/button.js"></script>
+    <script src="../../static/assets/components/logo.js"></script>
+    <script src="../../static/assets/components/button.js"></script>
   </body>
 </html>

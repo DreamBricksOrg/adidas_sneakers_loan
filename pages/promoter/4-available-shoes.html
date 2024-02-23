@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lista de Tênis Disponíveis</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/promoter/4-available-shoes.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Lista de Tênis Disponíveis</h1>
+      <form action="/promoter/availableshoes" method="POST">
+        <table class="tenis-table">
+          <thead>
+            <tr>
+              <th>Tamanho</th>
+              <th>Quantidade</th>
+              <th>Corrigir</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for tenis in tenis_disponiveis %}
+            <tr>
+              <td>{{ tenis[1] }}</td>
+              <td>{{ tenis[2] }}</td>
+              <td>
+                <input
+                  type="number"
+                  name="corrigir_quantidade_{{ loop.index }}"
+                  value=""
+                  min="0"
+                />
+                <input
+                  type="hidden"
+                  name="tenis_id_{{ loop.index }}"
+                  value="{{ tenis[0] }}"
+                />
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <button type="submit">Enviar Correções</button>
+      </form>
+    </div>
+  </body>
+</html>

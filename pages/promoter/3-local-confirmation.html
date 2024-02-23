@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Confirme o Local</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Confirme o Local</h1>
+      <form action="/promoter/local" method="POST">
+        <div class="dropbox">
+          <select name="local" id="local">
+            <option value="">Selecione o local</option>
+            {% for local in locais %}
+            <option value="{{ local[0] }}">{{ local[0] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit">CONFIRMAR</button>
+      </form>
+    </div>
+  </body>
+</html>
