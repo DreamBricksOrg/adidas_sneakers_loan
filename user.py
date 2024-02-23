@@ -59,7 +59,15 @@ def create_user(data):
 
 
 @user.route('/', methods=['GET'])
+def index_page():
+    return redirect(url_for('user.welcome_route'))
+
+
+@user.route('/welcome', methods=['GET'])
 def welcome_route():
+    estande = request.args.get('estande')
+    if estande:
+        session['estande'] = estande
     return render_template('user/1-welcome-supernova.html')
 
 
@@ -68,16 +76,22 @@ def terms_page():
     return render_template('user/2-terms-supernova.html')
 
 
-
-
 @user.route('/choose-size', methods=['GET', 'POST'])
 def choose_size_page():
     if request.method == 'POST':
         size = request.form['size']
         print(size)
         session['size'] = size
-        return redirect(url_for('user.time_use_page'))  # Redirect to the next route
-    return render_template('user/3-shoes-size-supernova.html')
+        return redirect(url_for('user.time_use_page'))
+
+    estande = session.get('estande')
+
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT tamanho, quantidade FROM Tenis WHERE estande = %s", (estande,))
+    tenis = cur.fetchall()
+    cur.close()
+
+    return render_template('user/3-shoes-size-supernova.html', tenis=tenis)
 
 
 @user.route('/time_use', methods=['GET', 'POST'])

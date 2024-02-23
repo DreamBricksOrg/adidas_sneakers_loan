@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/default.css') }}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}"
+          type="image/x-icon">
     <title>Supernova - escolha o tamanho</title>
 
     <style>
@@ -81,31 +82,21 @@
         <div class="choose-size">
             <h1>ESCOLHA O TAMANHO DO SEU CALÇADO</h1>
 
-<div class="sizes">
-    <form id="sizeForm" action="/choose-size" method="POST">
-        <p>Tamanhos</p>
-        <div class="table-sizes">
-            <button type="button" class="size-btn">34</button>
-            <button type="button" class="size-btn">35</button>
-            <button type="button" class="size-btn">35.5</button>
-            <button type="button" class="size-btn">36</button>
-            <button type="button" class="size-btn">37</button>
-            <button type="button" class="size-btn">38</button>
-            <button type="button" class="size-btn">39</button>
-            <button type="button" class="size-btn">39.5</button>
-            <button type="button" class="size-btn">40</button>
-            <button type="button" class="size-btn">40.5</button>
-            <button type="button" class="size-btn">41</button>
-            <button type="button" class="size-btn">42</button>
-            <button type="button" class="size-btn">42.5</button>
-            <button type="button" class="size-btn">43</button>
-            <button type="button" class="size-btn">44</button>
-        </div>
-        <input type="hidden" id="selectedSize" name="size">
-        <br><br>
-        <button-component text="CONTINUAR" type="submit" onclick="submitForm()"></button-component>
-    </form>
-</div>
+            <div class="sizes">
+                <form id="sizeForm" action="/choose-size" method="POST">
+                    <p>Tamanhos</p>
+                    <div class="table-sizes">
+                        {% for tamanho, quantidade in tenis %}
+                        {% if quantidade > 0 %}
+                        <button type="button" class="size-btn">{{ tamanho }}</button>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" id="selectedSize" name="size">
+                    <br><br>
+                    <button-component text="CONTINUAR" type="submit" onclick="submitForm()"></button-component>
+                </form>
+            </div>
 
         </div>
     </div>
@@ -122,7 +113,13 @@
     });
 
     function submitForm() {
-        document.getElementById('sizeForm').submit();
+        const selectedSize = document.getElementById('selectedSize').value;
+        if (selectedSize) {
+            document.getElementById('sizeForm').submit();
+        } else {
+            alert("Por favor, selecione um tamanho antes de enviar.");
+
+        }
     }
 </script>
 <script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>
