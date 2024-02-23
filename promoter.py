@@ -4,6 +4,16 @@ from database import mysql
 promoter = Blueprint('promoter', __name__)
 
 
+@promoter.route('/promoter/start', methods=['GET', 'POST'])
+def promoter_scan_start_page():
+    if request.method == 'POST':
+        estande = request.form['estande']
+        session['estande'] = estande
+        return redirect(url_for('promoter.promoter_login_page'))
+
+    return render_template('promoter/1-scan-start.html')
+
+
 @promoter.route('/promoter/login')
 def promoter_login_page():
     return render_template('promoter/2-promoter-login.html')
@@ -14,7 +24,6 @@ def promoter_local_page():
     if request.method == 'POST':
         local = request.form['local']
         session['local'] = local
-        session['estande'] = '1'
         return redirect(url_for('promoter.available_shoes_page'))
     cur = mysql.connection.cursor()
     cur.execute("SELECT nome FROM Local")
@@ -132,21 +141,31 @@ def update_rental():
 
 @promoter.route('/promoter/scanaproverental', methods=['GET', 'POST'])
 def scan_aprove_rental_page():
-    return render_template('8-scan-aprove-rental.html')
+    if request.method == 'POST':
+        user_id = request.form['user_id']
+        session['user_id'] = user_id
+        return redirect(url_for('promoter.aprove_rental_page'))
+    return render_template('promoter/8-scan-aprove-rental.html')
 
 
 @promoter.route('/promoter/aproverental', methods=['GET', 'POST'])
 def aprove_rental_page():
+    # user_id
     return render_template('promoter/9-aprove-rental.html')
 
 
 @promoter.route('/promoter/scanreturn', methods=['GET', 'POST'])
 def scan_return_page():
+    if request.method == 'POST':
+        user_id = request.form['user_id']
+        session['user_id'] = user_id
+        return redirect(url_for('promoter.return_page'))
     return render_template('promoter/10-scan-return.html')
 
 
 @promoter.route('/promoter/return', methods=['GET', 'POST'])
 def return_page():
+    # user_id
     return render_template('promoter/11-return.html')
 
 
