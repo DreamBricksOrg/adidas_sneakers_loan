@@ -26,7 +26,8 @@
             <tbody>
             {% for rental in rentals %}
             <tr>
-                <td><input type="number" value="{{ rental[1] }}"></td>
+                <td><input type="number" value="{{ rental[1] }}" onfocus="saveOldValue(this)" onblur="saveNewValue(this)">
+                </td>
                 <td>{{ rental[2] }}</td>
                 <td>{{ rental[3] }}</td>
                 <td>{{ rental[4] }}</td>
@@ -41,5 +42,58 @@
         <button type="submit">Confirmar</button>
     </form>
 </div>
+
+<script>
+    let oldValue;
+    let newValue;
+
+    function saveOldValue(input) {
+        oldValue = input.value;
+    }
+
+    function saveNewValue(input) {
+        newValue = input.value;
+        increaseValue();
+        decreaseValue();
+        updateRental();
+    }
+
+    function sendPost(route, data) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', route, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                console.log('POST enviado com sucesso');
+            }
+        };
+        xhr.send(JSON.stringify(data));
+    }
+
+    function increaseValue() {
+        if (newValue) {
+            sendPost('/promoter/updatevalue', { tamanho: newValue, action: 'increase' });
+        } else {
+            console.log('Tamanho de aumento não definido');
+        }
+    }
+
+    function decreaseValue() {
+        if (oldValue) {
+            sendPost('/promoter/updatevalue', { tamanho: oldValue, action: 'decrease' });
+        } else {
+            console.log('Tamanho de diminuição não definido');
+        }
+    }
+
+    function updateRental() {
+        if (newValue) {
+            sendPost('/promoter/update_rental', { newValue: newValue, oldValue: oldValue });
+        } else {
+            console.log('Tamanho de aumento não definido');
+        }
+    }
+
+</script>
 </body>
 </html>

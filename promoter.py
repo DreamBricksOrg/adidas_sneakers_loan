@@ -69,7 +69,68 @@ def rental_list_page():
     return render_template('promoter/7-rental-list.html', rentals=rentals)
 
 
-@promoter.route('/promoter/scaraproverental', methods=['GET', 'POST'])
+@promoter.route('/promoter/updatevalue', methods=['POST'])
+def update_values():
+    data = request.json
+    tamanho = data.get('tamanho')
+    action = data.get('action')
+
+    cur = mysql.connection.cursor()
+    cur.execute('SELECT quantidade FROM Tenis WHERE tamanho = %s', (tamanho,))
+    print(tamanho)
+    resultado = cur.fetchone()
+    print(resultado)
+
+    if resultado:
+        if action == 'increase':
+            nova_quantidade = resultado[0] + 1
+        elif action == 'decrease':
+            nova_quantidade = resultado[0] - 1
+        else:
+            return "Ação inválida. Use 'increase' ou 'decrease'."
+        print(nova_quantidade)
+        cur.execute('UPDATE Tenis SET quantidade = %s WHERE tamanho = %s', (nova_quantidade, tamanho))
+        mysql.connection.commit()
+        cur.close()
+        return f'Quantidade para o tamanho {tamanho} atualizada para {nova_quantidade}\n'
+
+    return redirect(url_for('promoter.promoter_menu_page'))
+
+
+@promoter.route('/promoter/update_rental', methods=['POST'])
+def update_rental():
+    data = request.json
+    oldValue = data.get('oldValue')
+    newValue = data.get('newValue')
+
+    # Connect to the database
+    cur = mysql.connection.cursor()
+
+    # Find the ID of the old tennis
+    cur.execute('SELECT id FROM Tenis WHERE tamanho = %s', (oldValue,))
+    old_tennis_id = cur.fetchone()
+
+    if not old_tennis_id:
+        cur.close()
+        return jsonify({'message': 'Old size not found'}), 404
+
+    # Find the ID of the new tennis
+    cur.execute('SELECT id FROM Tenis WHERE tamanho = %s', (newValue,))
+    new_tennis_id = cur.fetchone()
+
+    if not new_tennis_id:
+        cur.close()
+        return jsonify({'message': 'New size not found'}), 404
+
+    # Update records in the 'Rental' table with the new tennis ID
+    cur.execute('UPDATE Locacao SET Tenis = %s WHERE Tenis = %s', (new_tennis_id[0], old_tennis_id[0]))
+    mysql.connection.commit()
+
+    cur.close()
+    return jsonify({'message': 'Locacao updated successfully'}), 200
+
+
+@promoter.route('/promoter/scanaproverental', methods=['GET', 'POST'])
 def scan_aprove_rental_page():
     return render_template('8-scan-aprove-rental.html')
 
