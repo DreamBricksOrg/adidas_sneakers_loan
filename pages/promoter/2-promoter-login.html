@@ -1,23 +1,123 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - Promoter App</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/promoter/2-promoter-login.css') }}">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/promoter/2-promoter-login.css') }}"
+    />
+    <link
+      rel="shortcut icon"
+      href="../../static/assets/images/logos/adidas.png"
+      type="image/x-icon"
+    />
+    <link rel="stylesheet" href="../../static/css/default.css" />
+
+    <style>
+      .container {
+        background-image: url("../../static/assets/images/shoes-2.png");
+        background-repeat: no-repeat;
+        background-size: cover;
+        position: relative;
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+      }
+
+      h1,
+      form {
+        position: relative;
+        z-index: 2;
+      }
+
+      form {
+        width: 100%;
+        padding: 36px 27px 46px;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        align-items: center;
+        box-sizing: border-box;
+      }
+
+      .form-group {
+        width: max-content;
+      }
+
+      .register p {
+        font-size: 29px;
+      }
+
+      .register-form {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        margin: 42px 0 0;
+        padding: 0 35px 0px;
+      }
+
+      .form-item {
+        background: var(--dark-grey);
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        border-radius: 7px;
+        width: 300px;
+      }
+
+      .form-item input {
+        background: transparent;
+        color: var(--white);
+        font-size: 14px;
+        font-family: "Roboto", sans-serif;
+      }
+
+      .form-item input:focus {
+        border: 0;
+        outline: 0;
+      }
+
+      .form-item input::placeholder {
+        color: var(--white);
+        font-size: 14;
+        font-family: "Roboto", sans-serif;
+      }
+
+      button {
+        background: var(--white);
+        padding: 15px 50px;
+        font-size: 14px;
+        border-radius: 7px;
+        text-transform: uppercase;
+        font-family: "Roboto", sans-serif;
+      }
+    </style>
+  </head>
+  <body>
     <div class="container">
-        <h1>Login</h1>
-        <form action="#" method="post">
-            <div class="form-group">
-                <input type="text" name="username" placeholder="Usuário" required>
-            </div>
-            <div class="form-group">
-                <input type="password" name="password" placeholder="Senha" required>
-            </div>
-            <button type="submit" class="btn">Entrar</button>
-        </form>
+      <div class="overlay"></div>
+      <h1>Login</h1>
+      <form action="#" method="post">
+        <div class="form-group form-item">
+          <input type="text" name="username" placeholder="Usuário" required />
+        </div>
+        <div class="form-group form-item">
+          <input type="password" name="password" placeholder="Senha" required />
+        </div>
+        <button type="submit" class="btn">Entrar</button>
+      </form>
     </div>
-</body>
+  </body>
 </html>

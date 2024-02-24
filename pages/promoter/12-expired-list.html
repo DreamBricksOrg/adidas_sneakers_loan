@@ -1,45 +1,106 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lista de Tênis Disponíveis</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/promoter/7-rental-list.css') }}">
-</head>
-<body>
-<div class="container">
-    <h1>Lista de locações</h1>
-    <form action="/promoter/rentallist" method="POST">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/promoter/7-rental-list.css') }}"
+    />
+    <link rel="stylesheet" href="../../static/css/default.css" />
+
+    <link
+      rel="shortcut icon"
+      href="../../static/assets/images/logos/adidas.png"
+      type="image/x-icon"
+    />
+
+    <style>
+      .container {
+        background-image: url("../../static/assets/images/shoes-2.png");
+        background-repeat: no-repeat;
+        background-size: cover;
+        position: relative;
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+      }
+
+      table thead th,
+      tbody td {
+        border: 1px solid white;
+      }
+
+      h1,
+      form {
+        position: relative;
+        z-index: 2;
+      }
+
+      form {
+        width: 100%;
+        padding: 36px 27px 46px;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        align-items: center;
+        box-sizing: border-box;
+      }
+
+      button {
+        background: var(--white);
+        padding: 10px 40px;
+        font-size: 14px;
+        border-radius: 7px;
+        text-transform: uppercase;
+        font-family: "Roboto", sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Lista de locações</h1>
+      <form action="/promoter/rentallist" method="POST">
         <table class="rental-table">
-            <thead>
+          <thead>
             <tr>
-                <th>Tenis</th>
-                <th>Usuario</th>
-                <th>Promotor</th>
-                <th>Data Inicio</th>
-                <th>Data Fim</th>
-                <th>Status</th>
-                <th>Local</th>
-                <th>Estande</th>
+              <th>Tenis</th>
+              <th>Usuario</th>
+              <th>Promotor</th>
+              <th>Data Inicio</th>
+              <th>Data Fim</th>
+              <th>Status</th>
+              <th>Local</th>
+              <th>Estande</th>
             </tr>
-            </thead>
-            <tbody>
+          </thead>
+          <tbody>
             {% for rental in rentals %}
             <tr>
-                <td>{{ rental[1] }}</td>
-                <td>{{ rental[2] }}</td>
-                <td>{{ rental[3] }}</td>
-                <td>{{ rental[4] }}</td>
-                <td>{{ rental[5] }}</td>
-                <td>{{ rental[6] }}</td>
-                <td>{{ rental[7] }}</td>
-                <td>{{ rental[8] }}</td>
+              <td>{{ rental[1] }}</td>
+              <td>{{ rental[2] }}</td>
+              <td>{{ rental[3] }}</td>
+              <td>{{ rental[4] }}</td>
+              <td>{{ rental[5] }}</td>
+              <td>{{ rental[6] }}</td>
+              <td>{{ rental[7] }}</td>
+              <td>{{ rental[8] }}</td>
             </tr>
             {% endfor %}
-            </tbody>
+          </tbody>
         </table>
         <button type="submit">Confirmar</button>
-    </form>
-</div>
-</body>
+      </form>
+    </div>
+  </body>
 </html>
