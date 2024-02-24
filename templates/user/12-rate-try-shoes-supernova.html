@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/default.css') }}">
+    <title>Supernova - Avaliação</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}"
+          type="image/x-icon">
+
+    <style>
+        .background {
+            background-image: url("{{ url_for('static', filename='assets/images/shoes-2.png') }}");
+            background-position: -350px 0;
+            background-repeat: no-repeat;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.86);
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            padding: 56px 49px 106px;
+        }
+
+        .logo {
+            padding: 0 57px 0;
+        }
+
+        .experience-rating-text {
+            margin-top: 82px;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 0 34px;
+        }
+
+        .experience-rating-text h1 {
+            font-size: 48px;
+        }
+
+        .experience-rating-text p {
+            font-size: 20px;
+            text-transform: uppercase;
+            margin-top: 17px;
+        }
+
+        .rate {
+            display: flex;
+            flex-direction: column;
+            gap: 13px;
+            margin-top: 43px;
+        }
+
+        .rate-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--dark-grey);
+            color: white;
+            border-radius: 7px;
+            padding: 20px;
+            font-family: "Roboto", sans-serif;
+            font-size: 14px;
+        }
+
+        .rate-stars {
+            float: left;
+            height: 46px;
+            padding: 0 10px;
+        }
+        .rate-stars:not(:checked) > input {
+            position: absolute;
+            top: -9999px;
+        }
+        .rate-stars:not(:checked) > label {
+            float: right;
+            width: 1em;
+            overflow: hidden;
+            white-space: nowrap;
+            cursor: pointer;
+            font-size: 30px;
+            color: #ccc;
+        }
+        .rate-stars:not(:checked) > label:before {
+            content: "★ ";
+        }
+        .rate-stars > input:checked ~ label {
+            color: #ffc700;
+        }
+        .rate-stars:not(:checked) > label:hover,
+        .rate-stars:not(:checked) > label:hover ~ label {
+            color: #deb217;
+        }
+        .rate-stars > input:checked + label:hover,
+        .rate-stars > input:checked + label:hover ~ label,
+        .rate-stars > input:checked ~ label:hover,
+        .rate-stars > input:checked ~ label:hover ~ label,
+        .rate-stars > label:hover ~ input:checked ~ label {
+            color: #c59b08;
+        }
+
+        .button-container {
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+<div class="container background">
+    <div class="overlay">
+        <div class="logo">
+            <logo-component></logo-component>
+        </div>
+
+        <div class="experience-rating-text">
+            <h1>Curtiu a sua experiência?</h1>
+            <p>Por favor, conte-nos como foi.</p>
+        </div>
+
+        <form id="submit-form-review" method="POST" action="/submit_review">
+            <div class="rate">
+                <div class="rate-item">
+                    <span>Conforto</span>
+                    <div class="rate-stars">
+                        <input type="radio" id="star-confort-5" name="rate_confort" value="5"/>
+                        <label for="star-confort-5" title="text">5 stars</label>
+                        <input type="radio" id="star-confort-4" name="rate_confort" value="4"/>
+                        <label for="star-confort-4" title="text">4 stars</label>
+                        <input type="radio" id="star-confort-3" name="rate_confort" value="3"/>
+                        <label for="star-confort-3" title="text">3 stars</label>
+                        <input type="radio" id="star-confort-2" name="rate_confort" value="2"/>
+                        <label for="star-confort-2" title="text">2 stars</label>
+                        <input type="radio" id="star-confort-1" name="rate_confort" value="1"/>
+                        <label for="star-confort-1" title="text">1 star</label>
+                    </div>
+                </div>
+
+                <div class="rate-item">
+                    <span>Estabilidade</span>
+                    <div class="rate-stars">
+                        <input type="radio" id="star-stability-5" name="rate_stability" value="5"/>
+                        <label for="star-stability-5" title="text">5 stars</label>
+                        <input type="radio" id="star-stability-4" name="rate_stability" value="4"/>
+                        <label for="star-stability-4" title="text">4 stars</label>
+                        <input type="radio" id="star-stability-3" name="rate_stability" value="3"/>
+                        <label for="star-stability-3" title="text">3 stars</label>
+                        <input type="radio" id="star-stability-2" name="rate_stability" value="2"/>
+                        <label for="star-stability-2" title="text">2 stars</label>
+                        <input type="radio" id="star-stability-1" name="rate_stability" value="1"/>
+                        <label for="star-stability-1" title="text">1 star</label>
+                    </div>
+                </div>
+
+                <div class="rate-item">
+                    <span>Estilo</span>
+                    <div class="rate-stars">
+                        <input type="radio" id="star-style-5" name="rate_style" value="5"/>
+                        <label for="star-style-5" title="text">5 stars</label>
+                        <input type="radio" id="star-style-4" name="rate_style" value="4"/>
+                        <label for="star-style-4" title="text">4 stars</label>
+                        <input type="radio" id="star-style-3" name="rate_style" value="3"/>
+                        <label for="star-style-3" title="text">3 stars</label>
+                        <input type="radio" id="star-style-2" name="rate_style" value="2"/>
+                        <label for="star-style-2" title="text">2 stars</label>
+                        <input type="radio" id="star-style-1" name="rate_style" value="1"/>
+                        <label for="star-style-1" title="text">1 star</label>
+                    </div>
+                </div>
+
+                <div class="rate-item">
+                    <span>Compraria o supernova?</span>
+                    <div class="rate-stars">
+                        <input type="radio" id="star-buy-5" name="rate_buy" value="5"/>
+                        <label for="star-buy-5" title="text">5 stars</label>
+                        <input type="radio" id="star-buy-4" name="rate_buy" value="4"/>
+                        <label for="star-buy-4" title="text">4 stars</label>
+                        <input type="radio" id="star-buy-3" name="rate_buy" value="3"/>
+                        <label for="star-buy-3" title="text">3 stars</label>
+                        <input type="radio" id="star-buy-2" name="rate_buy" value="2"/>
+                        <label for="star-buy-2" title="text">2 stars</label>
+                        <input type="radio" id="star-buy-1" name="rate_buy" value="1"/>
+                        <label for="star-buy-1" title="text">1 star</label>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="button-container">
+            <button-component text="enviar" type="submit" onclick="enviarFormulario()"></button-component>
+        </div>
+
+    </div>
+</div>
+<script>
+    function validarFormulario() {
+        // Verificar se pelo menos uma opção de cada grupo foi selecionada
+        var confortoSelecionado = false;
+        var estabilidadeSelecionada = false;
+        var estiloSelecionado = false;
+        var comprariaSelecionado = false;
+
+        // Verificar se uma opção de conforto foi selecionada
+        var opcoesConforto = document.getElementsByName('rate_confort');
+        for (var i = 0; i < opcoesConforto.length; i++) {
+            if (opcoesConforto[i].checked) {
+                confortoSelecionado = true;
+                break;
+            }
+        }
+
+        // Verificar se uma opção de estabilidade foi selecionada
+        var opcoesEstabilidade = document.getElementsByName('rate_stability');
+        for (var i = 0; i < opcoesEstabilidade.length; i++) {
+            if (opcoesEstabilidade[i].checked) {
+                estabilidadeSelecionada = true;
+                break;
+            }
+        }
+
+        // Verificar se uma opção de estilo foi selecionada
+        var opcoesEstilo = document.getElementsByName('rate_style');
+        for (var i = 0; i < opcoesEstilo.length; i++) {
+            if (opcoesEstilo[i].checked) {
+                estiloSelecionado = true;
+                break;
+            }
+        }
+
+        // Verificar se uma opção de compraria foi selecionada
+        var opcoesCompraria = document.getElementsByName('rate_buy');
+        for (var i = 0; i < opcoesCompraria.length; i++) {
+            if (opcoesCompraria[i].checked) {
+                comprariaSelecionado = true;
+                break;
+            }
+        }
+
+        // Se todas as opções foram selecionadas, permitir o envio do formulário
+        if (confortoSelecionado && estabilidadeSelecionada && estiloSelecionado && comprariaSelecionado) {
+            return true;
+        } else {
+            // Caso contrário, exibir uma mensagem de erro e impedir o envio do formulário
+            alert("Por favor, selecione uma opção em cada categoria antes de enviar o formulário.");
+            return false;
+        }
+    }
+
+    // Adicionar um event listener para o envio do formulário
+    document.getElementById("submit-form-review").addEventListener("submit", function(event) {
+        // Chamar a função de validação quando o formulário for enviado
+        if (!validarFormulario()) {
+            // Impedir o envio do formulário se a validação falhar
+            event.preventDefault();
+        }
+    });
+</script>
+<script>
+    function enviarFormulario() {
+        // Chama a função de validação
+        if (validarFormulario()) {
+            // Se o formulário for válido, envie-o programaticamente
+            document.getElementById("submit-form-review").submit();
+        } else {
+            // Se o formulário não for válido, exiba uma mensagem de erro ou realize outra ação necessária
+            alert("Por favor, preencha todos os campos corretamente antes de enviar.");
+        }
+    }
+</script>
+
+<script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/components/button.js') }}"></script>
+</body>
+</html>

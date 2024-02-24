@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contagem Regressiva</title>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='mock/countdown_start.css') }}">
+<script>
+function startCountdown() {
+    var h1 = document.querySelector('h1');
+    var count = 5;
+    h1.textContent = count;
+
+    var interval = setInterval(function() {
+        count--;
+        h1.textContent = count;
+        if (count <= 0) {
+            clearInterval(interval);
+            window.location.href = '/clock';
+        }
+    }, 1000); // Atualiza a cada 1 segundo (1000 milissegundos)
+}
+</script>
+</head>
+<body onload="startCountdown()">
+    <div class="container">
+        <h1> aa</h1>
+    </div>
+</body>
+</html>

@@ -1,0 +1,48 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f4f4;
+}
+
+.container {
+    text-align: center;
+}
+
+.tenis-table {
+    width: 80%;
+    border-collapse: collapse;
+    margin: 20px auto;
+}
+
+.tenis-table th, .tenis-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+}
+
+.tenis-table th {
+    background-color: #f2f2f2;
+}
+
+.tenis-table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+button {
+    background-color: #007bff;
+    border: none;
+    color: white;
+    padding: 15px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+
+}

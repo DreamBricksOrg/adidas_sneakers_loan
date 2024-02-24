@@ -1,0 +1,20 @@
+body {
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+}
+
+.qr-code-container {
+    width: 50%;
+    margin: 0 auto;
+    text-align: center;
+    margin-top: 100px;
+}
+
+.qr-code-container img {
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+.qr-code-container p {
+    font-size: 24px;
+}

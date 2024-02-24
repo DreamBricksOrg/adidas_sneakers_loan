@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/default.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}"
+          type="image/x-icon">
+    <title>Supernova - escolha o tamanho</title>
+
+    <style>
+        .background {
+            background-image: url("{{ url_for('static', filename='assets/images/running-togheter.png') }}");
+            background-size: cover;
+            background-repeat: no-repeat;
+            position: relative;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.72);
+            padding-top: 56px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .logo {
+            padding-left: 57px;
+        }
+
+        .choose-size {
+            margin-top: auto;
+            width: 100%;
+            padding: 56px 54px 106px;
+            box-sizing: border-box;
+            text-align: center;
+            color: white;
+        }
+
+        .choose-size p {
+            font-size: 29px;
+        }
+
+        .sizes {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 40px;
+            margin-bottom: 48px;
+        }
+
+        .sizes p {
+            text-align: left;
+            line-height: 25px;
+            font-size: 24px;
+        }
+
+        .table-sizes {
+            display: grid;
+            grid-template-columns: repeat(5, auto);
+            grid-template-rows: repeat(3, auto);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .table-sizes button {
+            background: var(--dark-grey);
+            color: var(--white);
+            padding: 10px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+<div class="container background">
+    <div class="overlay">
+        <div class="logo">
+            <logo-component></logo-component>
+        </div>
+
+        <div class="choose-size">
+            <h1>ESCOLHA O TAMANHO DO SEU CALÇADO</h1>
+
+            <div class="sizes">
+                <form id="sizeForm" action="/choose-size" method="POST">
+                    <p>Tamanhos</p>
+                    <div class="table-sizes">
+                        {% for tamanho, quantidade in tenis %}
+                        {% if quantidade > 0 %}
+                        <button type="button" class="size-btn">{{ tamanho }}</button>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" id="selectedSize" name="size">
+                    <br><br>
+                    <button-component text="CONTINUAR" type="submit" onclick="submitForm()"></button-component>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script>
+    const buttons = document.querySelectorAll('.size-btn');
+
+    buttons.forEach(button => {
+        button.addEventListener('click', () => {
+            buttons.forEach(btn => btn.style.background = "#313131"); // Reset all button backgrounds
+            button.style.background = "#f8ad15"; // Set background of clicked button
+            document.getElementById('selectedSize').value = button.textContent; // Save text of clicked button to hidden input
+        });
+    });
+
+    function submitForm() {
+        const selectedSize = document.getElementById('selectedSize').value;
+        if (selectedSize) {
+            document.getElementById('sizeForm').submit();
+        } else {
+            alert("Por favor, selecione um tamanho antes de enviar.");
+
+        }
+    }
+</script>
+<script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/components/button.js') }}"></script>
+</body>
+</html>

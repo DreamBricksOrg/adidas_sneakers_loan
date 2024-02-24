@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/default.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}"
+          type="image/x-icon">
+    <title>Supernova - tudo certo</title>
+    <style>
+        .background {
+            background-image: url("{{ url_for('static', filename='assets/images/shoes.png') }}");
+            background-size: cover;
+            background-repeat: no-repeat;
+            position: relative;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            padding-top: 56px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .logo {
+            padding-left: 57px;
+        }
+
+        .experience {
+            margin-top: auto;
+            width: 100%;
+            padding: 56px 27px 106px;
+            box-sizing: border-box;
+            text-align: center;
+            color: white;
+        }
+
+        .experience h1 {
+            font-size: 64px;
+        }
+
+        .experience p {
+            font-size: 32px;
+            margin-top: 28px;
+            margin-bottom: 43px;
+        }
+
+        .button-container {
+            padding: 0 14px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 17px;
+        }
+    </style>
+</head>
+<body>
+<div class="container background">
+    <div class="overlay">
+        <div class="logo">
+            <logo-component></logo-component>
+        </div>
+
+        <div class="experience">
+            <h1 class="uppercase">tudo certo!</h1>
+            <p class="uppercase">você já pode calçar o seu supernova</p>
+
+            <div class="button-container">
+              <a href="{{ url_for('user.ready_page') }}"> <button-component text="calçar"></button-component></a>
+              <a href="{{ url_for('user.thanks_page') }}"><button-component text="cancelar" background="black"></button-component></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/components/button.js') }}"></script>
+</body>
+</html>

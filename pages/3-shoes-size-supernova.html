@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../assets/css/default.css" />
+
+    <link
+      rel="shortcut icon"
+      href="../assets/images/logos/adidas.png"
+      type="image/x-icon"
+    />
+    <title>Supernova - escolha o tamanho</title>
+
+    <style>
+      .background {
+        background-image: url("../assets/images/running-togheter.png");
+        background-size: cover;
+        background-repeat: no-repeat;
+        position: relative;
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.72);
+        padding-top: 56px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+
+      .logo {
+        padding-left: 57px;
+      }
+
+      .choose-size {
+        margin-top: auto;
+        width: 100%;
+        padding: 56px 54px 106px;
+        box-sizing: border-box;
+        text-align: center;
+        color: white;
+      }
+
+      .choose-size p {
+        font-size: 29px;
+      }
+
+      .sizes {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 40px;
+        margin-bottom: 48px;
+      }
+
+      .sizes p {
+        text-align: left;
+        line-height: 25px;
+        font-size: 24px;
+      }
+
+      .table-sizes {
+        display: grid;
+        grid-template-columns: repeat(5, auto);
+        grid-template-rows: repeat(3, auto);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+      }
+
+      .table-sizes button {
+        background: var(--dark-grey);
+        color: var(--white);
+        padding: 10px 15px;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container background">
+      <div class="overlay">
+        <div class="logo">
+          <logo-component></logo-component>
+        </div>
+
+        <div class="choose-size">
+          <h1>ESCOLHA O TAMANHO DO SEU CALÇADO</h1>
+
+          <div class="sizes">
+            <p>Tamanhos</p>
+            <div class="table-sizes">
+              <button>34</button>
+              <button>34</button>
+              <button>34</button>
+              <button>34</button>
+              <button>34</button>
+              <button>34</button>
+              <button>34</button>
+              <button>34</button>
+              <button>34</button>
+              <button>34</button>
+              <button>34</button>
+              <button>34</button>
+              <button>34</button>
+              <button>34</button>
+              <button>34</button>
+            </div>
+          </div>
+
+          <button-component text="CONTINUAR"></button-component>
+        </div>
+      </div>
+    </div>
+
+    <script src="../../assets/components/logo.js"></script>
+    <script src="../../assets/components/button.js"></script>
+  </body>
+</html>
