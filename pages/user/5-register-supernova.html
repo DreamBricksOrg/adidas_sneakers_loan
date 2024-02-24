@@ -90,6 +90,17 @@
         font-family: "Roboto", sans-serif;
       }
 
+      select {
+        background: var(--dark-grey);
+        color: var(--white);
+        font-size: 14px;
+        font-family: "Roboto", sans-serif;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        padding-left: 5px;
+      }
+
       .form-item input:focus {
         border: 0;
         outline: 0;
@@ -162,6 +173,7 @@
               type="text"
               id="phone"
               placeholder="Telefone"
+              onchange="changephone(this)"
               maxlength="11"
             />
           </div>
@@ -171,7 +183,14 @@
               src="../../static/assets/images/icons/gender.png"
               alt="icone-genero"
             />
-            <input type="text" id="name" placeholder="Gênero" />
+
+            <select name="gender" id="gender">
+              <option value="">Selecione um gênero</option>
+              <option value="male">Masculino</option>
+              <option value="female">Feminino</option>
+              <option value="others">Outros</option>
+              <option value="prefiro_nao_dizer">Prefiro não dizer</option>
+            </select>
           </div>
         </div>
 
@@ -188,7 +207,12 @@
       $(document).ready(function () {
         $(".cpf").mask("000.000.000-00", { reverse: true });
         $("#birthdate").mask("00/00/0000");
+        $("#phone").mask("(00) 0000-0000");
       });
+
+      const changephone = (e) => {
+        console.log(e.value);
+      };
     </script>
   </body>
 </html>
