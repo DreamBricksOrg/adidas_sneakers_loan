@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<script type="text/javascript" src="util.js"></script>
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script>
+var html5QrCode = null;
+
+function onScanSuccess(decodedText, decodedResult) {
+  // handle the scanned code as you like, for example:
+  console.log("Code matched = ${decodedText}", decodedResult);
+  document.getElementById("demo").innerHTML = "<h2>" + decodedText + "</h2>";
+  document.getElementById("qrcode_out").value = decodedText;
+  html5QrCode.stop();
+}
+
+function onScanFailure(error) {
+  // handle scan failure, usually better to ignore and keep scanning.
+  // for example:
+  console.warn("Code scan error = ${error}");
+}
+
+async function startScan() {
+    //let html5QrcodeScanner = new Html5QrcodeScanner(
+    //  "reader",
+    //  { fps: 10, qrbox: {width: 250, height: 250} },
+    //  /* verbose= */ false);
+    //html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+    
+    
+    html5QrCode = new Html5Qrcode("reader");
+    const config = { fps: 10, qrbox: { width: 500, height: 500 } };
+
+    // If you want to prefer back camera
+    html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailure);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(startScan(), 3000);
+}, false);
+
+</script>
+<body>
+<h2>QR Code Test</h2>
+<div id="demo"></div>
+
+<button type="button" onclick='startScan()'>Scan QRCode</button><br>
+
+<div id="reader" width="500px">
+</div>
+
+<h3>Decrypted text</h3>
+<textarea
+  disabled
+  width=250
+  value="---"
+  id="qrcode_out"
+  rows="6"
+  placeholder="QR Code Output"
+></textarea>
+
+</body>
+</html>

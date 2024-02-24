@@ -12,22 +12,21 @@
     <style>
         .background {
             background-image: url("{{ url_for('static', filename='assets/images/shoes-2.png') }}");
-            background-position: -350px 0;
+            background-position: -350px;
             background-repeat: no-repeat;
+            position: relative;
         }
 
         .overlay {
             position: absolute;
             inset: 0;
             background: rgba(0, 0, 0, 0.86);
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            padding: 56px 49px 106px;
         }
 
         .logo {
             padding: 0 57px 0;
+            position: relative;
+            z-index: 2;
         }
 
         .experience-rating-text {
@@ -38,6 +37,8 @@
             align-items: center;
             text-align: center;
             padding: 0 34px;
+            position: relative;
+            z-index: 2;
         }
 
         .experience-rating-text h1 {
@@ -55,6 +56,9 @@
             flex-direction: column;
             gap: 13px;
             margin-top: 43px;
+            position: relative;
+            z-index: 2;
+            padding: 0 36px;
         }
 
         .rate-item {
@@ -67,6 +71,10 @@
             padding: 20px;
             font-family: "Roboto", sans-serif;
             font-size: 14px;
+        }
+
+        .rate-item span {
+            max-width: 78px;
         }
 
         .rate-stars {
@@ -106,95 +114,97 @@
         }
 
         .button-container {
-            margin-top: auto;
+            margin-top: 50px;
+            margin-bottom: 46px;
+            padding: 0 36px;
         }
     </style>
 </head>
 <body>
 <div class="container background">
-    <div class="overlay">
-        <div class="logo">
-            <logo-component></logo-component>
-        </div>
+    <div class="overlay"></div>
+    <div class="logo">
+        <logo-component></logo-component>
+    </div>
 
-        <div class="experience-rating-text">
-            <h1>Curtiu a sua experiência?</h1>
-            <p>Por favor, conte-nos como foi.</p>
-        </div>
+    <div class="experience-rating-text">
+        <h1>Curtiu a sua experiência?</h1>
+        <p>Por favor, conte-nos como foi.</p>
+    </div>
 
-        <form id="submit-form-review" method="POST" action="/submit_review">
-            <div class="rate">
-                <div class="rate-item">
-                    <span>Conforto</span>
-                    <div class="rate-stars">
-                        <input type="radio" id="star-confort-5" name="rate_confort" value="5"/>
-                        <label for="star-confort-5" title="text">5 stars</label>
-                        <input type="radio" id="star-confort-4" name="rate_confort" value="4"/>
-                        <label for="star-confort-4" title="text">4 stars</label>
-                        <input type="radio" id="star-confort-3" name="rate_confort" value="3"/>
-                        <label for="star-confort-3" title="text">3 stars</label>
-                        <input type="radio" id="star-confort-2" name="rate_confort" value="2"/>
-                        <label for="star-confort-2" title="text">2 stars</label>
-                        <input type="radio" id="star-confort-1" name="rate_confort" value="1"/>
-                        <label for="star-confort-1" title="text">1 star</label>
-                    </div>
-                </div>
-
-                <div class="rate-item">
-                    <span>Estabilidade</span>
-                    <div class="rate-stars">
-                        <input type="radio" id="star-stability-5" name="rate_stability" value="5"/>
-                        <label for="star-stability-5" title="text">5 stars</label>
-                        <input type="radio" id="star-stability-4" name="rate_stability" value="4"/>
-                        <label for="star-stability-4" title="text">4 stars</label>
-                        <input type="radio" id="star-stability-3" name="rate_stability" value="3"/>
-                        <label for="star-stability-3" title="text">3 stars</label>
-                        <input type="radio" id="star-stability-2" name="rate_stability" value="2"/>
-                        <label for="star-stability-2" title="text">2 stars</label>
-                        <input type="radio" id="star-stability-1" name="rate_stability" value="1"/>
-                        <label for="star-stability-1" title="text">1 star</label>
-                    </div>
-                </div>
-
-                <div class="rate-item">
-                    <span>Estilo</span>
-                    <div class="rate-stars">
-                        <input type="radio" id="star-style-5" name="rate_style" value="5"/>
-                        <label for="star-style-5" title="text">5 stars</label>
-                        <input type="radio" id="star-style-4" name="rate_style" value="4"/>
-                        <label for="star-style-4" title="text">4 stars</label>
-                        <input type="radio" id="star-style-3" name="rate_style" value="3"/>
-                        <label for="star-style-3" title="text">3 stars</label>
-                        <input type="radio" id="star-style-2" name="rate_style" value="2"/>
-                        <label for="star-style-2" title="text">2 stars</label>
-                        <input type="radio" id="star-style-1" name="rate_style" value="1"/>
-                        <label for="star-style-1" title="text">1 star</label>
-                    </div>
-                </div>
-
-                <div class="rate-item">
-                    <span>Compraria o supernova?</span>
-                    <div class="rate-stars">
-                        <input type="radio" id="star-buy-5" name="rate_buy" value="5"/>
-                        <label for="star-buy-5" title="text">5 stars</label>
-                        <input type="radio" id="star-buy-4" name="rate_buy" value="4"/>
-                        <label for="star-buy-4" title="text">4 stars</label>
-                        <input type="radio" id="star-buy-3" name="rate_buy" value="3"/>
-                        <label for="star-buy-3" title="text">3 stars</label>
-                        <input type="radio" id="star-buy-2" name="rate_buy" value="2"/>
-                        <label for="star-buy-2" title="text">2 stars</label>
-                        <input type="radio" id="star-buy-1" name="rate_buy" value="1"/>
-                        <label for="star-buy-1" title="text">1 star</label>
-                    </div>
+    <form id="submit-form-review" method="POST" action="/submit_review">
+        <div class="rate">
+            <div class="rate-item">
+                <span>Conforto</span>
+                <div class="rate-stars">
+                    <input type="radio" id="star-confort-5" name="rate_confort" value="5"/>
+                    <label for="star-confort-5" title="text">5 stars</label>
+                    <input type="radio" id="star-confort-4" name="rate_confort" value="4"/>
+                    <label for="star-confort-4" title="text">4 stars</label>
+                    <input type="radio" id="star-confort-3" name="rate_confort" value="3"/>
+                    <label for="star-confort-3" title="text">3 stars</label>
+                    <input type="radio" id="star-confort-2" name="rate_confort" value="2"/>
+                    <label for="star-confort-2" title="text">2 stars</label>
+                    <input type="radio" id="star-confort-1" name="rate_confort" value="1"/>
+                    <label for="star-confort-1" title="text">1 star</label>
                 </div>
             </div>
-        </form>
 
-        <div class="button-container">
-            <button-component text="enviar" type="submit" onclick="enviarFormulario()"></button-component>
+            <div class="rate-item">
+                <span>Estabilidade</span>
+                <div class="rate-stars">
+                    <input type="radio" id="star-stability-5" name="rate_stability" value="5"/>
+                    <label for="star-stability-5" title="text">5 stars</label>
+                    <input type="radio" id="star-stability-4" name="rate_stability" value="4"/>
+                    <label for="star-stability-4" title="text">4 stars</label>
+                    <input type="radio" id="star-stability-3" name="rate_stability" value="3"/>
+                    <label for="star-stability-3" title="text">3 stars</label>
+                    <input type="radio" id="star-stability-2" name="rate_stability" value="2"/>
+                    <label for="star-stability-2" title="text">2 stars</label>
+                    <input type="radio" id="star-stability-1" name="rate_stability" value="1"/>
+                    <label for="star-stability-1" title="text">1 star</label>
+                </div>
+            </div>
+
+            <div class="rate-item">
+                <span>Estilo</span>
+                <div class="rate-stars">
+                    <input type="radio" id="star-style-5" name="rate_style" value="5"/>
+                    <label for="star-style-5" title="text">5 stars</label>
+                    <input type="radio" id="star-style-4" name="rate_style" value="4"/>
+                    <label for="star-style-4" title="text">4 stars</label>
+                    <input type="radio" id="star-style-3" name="rate_style" value="3"/>
+                    <label for="star-style-3" title="text">3 stars</label>
+                    <input type="radio" id="star-style-2" name="rate_style" value="2"/>
+                    <label for="star-style-2" title="text">2 stars</label>
+                    <input type="radio" id="star-style-1" name="rate_style" value="1"/>
+                    <label for="star-style-1" title="text">1 star</label>
+                </div>
+            </div>
+
+            <div class="rate-item">
+                <span>Compraria o supernova?</span>
+                <div class="rate-stars">
+                    <input type="radio" id="star-buy-5" name="rate_buy" value="5"/>
+                    <label for="star-buy-5" title="text">5 stars</label>
+                    <input type="radio" id="star-buy-4" name="rate_buy" value="4"/>
+                    <label for="star-buy-4" title="text">4 stars</label>
+                    <input type="radio" id="star-buy-3" name="rate_buy" value="3"/>
+                    <label for="star-buy-3" title="text">3 stars</label>
+                    <input type="radio" id="star-buy-2" name="rate_buy" value="2"/>
+                    <label for="star-buy-2" title="text">2 stars</label>
+                    <input type="radio" id="star-buy-1" name="rate_buy" value="1"/>
+                    <label for="star-buy-1" title="text">1 star</label>
+                </div>
+            </div>
         </div>
+    </form>
 
+    <div class="button-container">
+        <button-component text="enviar" type="submit" onclick="enviarFormulario()"></button-component>
     </div>
+
+
 </div>
 <script>
     function validarFormulario() {

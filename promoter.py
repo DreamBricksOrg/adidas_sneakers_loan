@@ -1,11 +1,39 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, make_response
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session
 from database import mysql
+from datetime import datetime
 
 promoter = Blueprint('promoter', __name__)
 
 
-@promoter.route('/promoter/login')
+@promoter.route('/promoter/start', methods=['GET', 'POST'])
+def promoter_scan_start_page():
+    if request.method == 'POST':
+        estande = request.form['estande']
+        session['estande'] = estande
+        return redirect(url_for('promoter.promoter_login_page'))
+
+    return render_template('promoter/1-scan-start.html')
+
+
+@promoter.route('/promoter/login', methods=['POST', 'GET'])
 def promoter_login_page():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM Promotor WHERE usuario = %s AND senha = %s", (username, password))
+        promotor = cur.fetchone()
+        print(promotor)
+        cur.close()
+
+        if promotor:
+            session['logged_in'] = True
+            session['promotor_id'] = promotor[0]
+            return redirect(url_for('promoter.promoter_local_page'))
+        else:
+            return 'Login Inválido'
+
     return render_template('promoter/2-promoter-login.html')
 
 
@@ -14,7 +42,6 @@ def promoter_local_page():
     if request.method == 'POST':
         local = request.form['local']
         session['local'] = local
-        session['estande'] = '1'
         return redirect(url_for('promoter.available_shoes_page'))
     cur = mysql.connection.cursor()
     cur.execute("SELECT nome FROM Local")
@@ -69,23 +96,110 @@ def rental_list_page():
     return render_template('promoter/7-rental-list.html', rentals=rentals)
 
 
-@promoter.route('/promoter/scaraproverental', methods=['GET', 'POST'])
+@promoter.route('/promoter/updatevalue', methods=['POST'])
+def update_values():
+    data = request.json
+    tamanho = data.get('tamanho')
+    action = data.get('action')
+
+    cur = mysql.connection.cursor()
+    cur.execute('SELECT quantidade FROM Tenis WHERE tamanho = %s', (tamanho,))
+    print(tamanho)
+    resultado = cur.fetchone()
+    print(resultado)
+
+    if resultado:
+        if action == 'increase':
+            nova_quantidade = resultado[0] + 1
+        elif action == 'decrease':
+            nova_quantidade = resultado[0] - 1
+        else:
+            return "Ação inválida. Use 'increase' ou 'decrease'."
+        print(nova_quantidade)
+        cur.execute('UPDATE Tenis SET quantidade = %s WHERE tamanho = %s', (nova_quantidade, tamanho))
+        mysql.connection.commit()
+        cur.close()
+        return f'Quantidade para o tamanho {tamanho} atualizada para {nova_quantidade}\n'
+
+    return redirect(url_for('promoter.promoter_menu_page'))
+
+
+@promoter.route('/promoter/update_rental', methods=['POST'])
+def update_rental():
+    data = request.json
+    oldValue = data.get('oldValue')
+    newValue = data.get('newValue')
+
+    # Connect to the database
+    cur = mysql.connection.cursor()
+
+    # Find the ID of the old tennis
+    cur.execute('SELECT id FROM Tenis WHERE tamanho = %s', (oldValue,))
+    old_tennis_id = cur.fetchone()
+
+    if not old_tennis_id:
+        cur.close()
+        return jsonify({'message': 'Old size not found'}), 404
+
+    # Find the ID of the new tennis
+    cur.execute('SELECT id FROM Tenis WHERE tamanho = %s', (newValue,))
+    new_tennis_id = cur.fetchone()
+
+    if not new_tennis_id:
+        cur.close()
+        return jsonify({'message': 'New size not found'}), 404
+
+    # Update records in the 'Rental' table with the new tennis ID
+    cur.execute('UPDATE Locacao SET Tenis = %s WHERE Tenis = %s', (new_tennis_id[0], old_tennis_id[0]))
+    mysql.connection.commit()
+
+    cur.close()
+    return jsonify({'message': 'Locacao updated successfully'}), 200
+
+
+@promoter.route('/promoter/scanaproverental', methods=['GET', 'POST'])
 def scan_aprove_rental_page():
-    return render_template('8-scan-aprove-rental.html')
+    if request.method == 'POST':
+        print(request.form)
+        user_id = request.form['user_id']
+        size = request.form['size']
+        session['size'] = size
+        session['user_id'] = user_id
+
+        return redirect(url_for('promoter.aprove_rental_page'))
+    return render_template('promoter/8-scan-aprove-rental.html')
 
 
 @promoter.route('/promoter/aproverental', methods=['GET', 'POST'])
 def aprove_rental_page():
-    return render_template('promoter/9-aprove-rental.html')
+    now = datetime.now()
+    formatted_date_time = now.strftime('%Y-%m-%d %H:%M:%S')
+    size = session.get('size')
+    user_id = session.get('user_id')
+
+    if request.method == 'POST':
+
+        return ''
+
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT nome_iniciais FROM Usuario WHERE id = %s ", (user_id,))
+    user_name = cur.fetchone()
+    cur.close()
+    return render_template('promoter/9-aprove-rental.html', user_name=user_name[0], now=formatted_date_time, size=size)
 
 
 @promoter.route('/promoter/scanreturn', methods=['GET', 'POST'])
 def scan_return_page():
+    if request.method == 'POST':
+        user_id = request.form['user_id']
+        session['user_id'] = user_id
+        return redirect(url_for('promoter.return_page'))
     return render_template('promoter/10-scan-return.html')
 
 
 @promoter.route('/promoter/return', methods=['GET', 'POST'])
 def return_page():
+    # user_id
     return render_template('promoter/11-return.html')
 
 

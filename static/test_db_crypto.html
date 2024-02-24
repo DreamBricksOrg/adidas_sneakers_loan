@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<script type="text/javascript" src="util.js"></script>
+<script type="text/javascript" src="rsa_encryption.js"></script>
+<script type="text/javascript" src="aes_encryption.js"></script>
+<script type="text/javascript" src="db_encryption.js"></script>
+<!--script type="text/javascript" src="RsaStringEncryptPage.js"></script-->
+<script>
+inputString = ""
+encryptedString = "";
+decryptedString = "";
+rsaKeyPair = 
+{
+    publicKey: "",
+    privateKey: "",
+};
+inputData = null;
+
+const setInputData = (data) => {
+    inputData = data;
+    //document.getElementById("demo").innerHTML = inputData.byteLength;
+}
+
+const downloadPemFile = (content, fileName) => {
+    const link = document.createElement("a");
+    const file = new Blob([content], { type: "text/plain" });
+    link.href = URL.createObjectURL(file);
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(link.href);
+};
+
+const generateRSAKey = async () => {
+    rsaKeyPair = await dbGenerateRSAKeys();
+    //document.getElementById("demo").innerHTML = rsaKeyPair.publicKey + "<br><br><br>" + rsaKeyPair.privateKey;
+    document.getElementById("rsaPublicKey").value = rsaKeyPair.publicKey;
+    document.getElementById("rsaPrivateKey").value = rsaKeyPair.privateKey;
+    //setRsaKeyPair(keyPair);
+};
+
+const downloadPemFiles = () => {
+    if (rsaKeyPair.privateKey) {
+      downloadPemFile(rsaKeyPair.privateKey, "rsa_private.pem");
+      //alert("rsa_private.pem");
+    }
+    if (rsaKeyPair.publicKey) {
+      downloadPemFile(rsaKeyPair.publicKey, "rsa_public.pem");
+    }
+    
+};
+
+const changeFilePemPublic = (files) => {
+    const file = files[0];
+    if (!file) {
+      return;
+    }
+    if (file.size > 1024 * 1024 * 50) {
+      return alert("file size is too big");
+    }
+    const reader = new FileReader();
+    reader.onload = async function () {
+      const publicKey = reader.result
+      setRsaKeyPair({
+        ...rsaKeyPair,
+        publicKey: publicKey,
+      });
+    };
+    reader.readAsText(file);
+};
+
+const encryptText = async () => {
+    try{
+      encryptedString = await dbEncryptString(inputString, rsaKeyPair.publicKey);
+      document.getElementById("encryptedText").value = encryptedString;
+    }catch(err){
+      alert('Encryption failed.')
+    }
+};
+
+const decryptText = async () => {
+    try{
+      decryptedString = await dbDecryptString(encryptedString, rsaKeyPair.privateKey);
+      document.getElementById("decryptedText").value = decryptedString;
+    }catch(err){
+      alert('Decryption failed.')
+    }
+};
+
+const onKeyInputChange = async (val) =>  {
+    inputString = val;
+    //document.getElementById("demo").innerHTML = inputString;
+};
+
+const readBinaryFile = async (file) => {
+    if (!file) {
+      return;
+    }
+    
+    if (file.size > 1024 * 1024 * 50) {
+      return alert("file size is too big");
+    }
+    
+    var binData = null;
+    const reader = new FileReader();
+    reader.onload = async function (e) {
+      var data = reader.result;
+      //var data = e.target.result; //reader.result;
+      
+      setInputData(data);
+      binData = data;
+      //document.getElementById("demo").innerHTML = inputData.byteLength;
+    };
+    await reader.readAsArrayBuffer(file);
+    
+    //if (binData == null) {
+    //    alert("binData is not set correctly");
+    //}
+    return inputData;
+};
+
+const importFile = async (file) => {
+    //const file = this.files[0];
+    var data = await readBinaryFile(file);
+    //document.getElementById("demo").innerHTML = data.byteLength;
+
+    //setInputData(data);
+    //alert("Size of data read:");
+    //document.getElementById("demo").innerHTML = inputData.byteLength;
+}
+
+const downloadBinaryFile = (content, fileName) => {
+    const link = document.createElement("a");
+    const file = new Blob([content], { type: "application/octet-stream" });
+    link.href = URL.createObjectURL(file);
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(link.href);
+};
+
+const encryptFile = async () => {
+    //try{
+      var encryptedData = await dbEncryptByte(inputData, rsaKeyPair.publicKey);
+      downloadBinaryFile(encryptedData, "encrypted_file.enc");
+      //document.getElementById("encryptedText").value = encryptedString;
+      
+    //}catch(err){
+    //  alert('Encryption failed.')
+    //}
+};
+
+const decryptFile = async () => {
+    try{
+      var decryptedData = await dbDecryptByte(inputData, rsaKeyPair.privateKey);
+      downloadBinaryFile(decryptedData, "decrypted_file.dec");
+      //document.getElementById("encryptedText").value = encryptedString;
+      
+    }catch(err){
+      alert('Decryption failed.')
+    }
+};
+
+</script>
+<body>
+<h2>DB Crypto Test</h2>
+<div id="demo"></div>
+<button type="button" onclick='generateRSAKey()'>Generate Keys</button><br>
+
+<h3>Public Key</h3>
+<textarea
+  disabled
+  id="rsaPublicKey"
+  rows="6"
+  placeholder="RSA Public Key"
+></textarea>
+<h3>Private Key</h3>
+<textarea
+  disabled
+  id="rsaPrivateKey"
+  rows="6"
+  placeholder="RSA Private Key"
+></textarea>
+
+<br>
+<button
+  type="button"
+  onClick="downloadPemFiles()" 
+>Download Keys</button><br>
+<br>
+
+<h3>Import file to encrypt</h3><br>
+<input
+  id="dropzone-file-pem-public"
+  type="file"
+  style="hidden"
+  onChange="importFile(this.files[0])"
+/>
+
+<br>
+<button type="button" onclick='encryptFile()'>Encrypt File</button><br>
+
+<h3>Text to encrypt</h3>
+<!--input
+  onChange="onKeyInputChange(this.value)"
+  type="text"
+  id="textOriginal"
+/-->
+<textarea
+  id="textOriginal"
+  rows="6"
+  onChange="onKeyInputChange(this.value)"
+></textarea>
+
+
+<br>
+<button type="button" onclick='encryptText()'>Encrypt</button><br>
+
+<h3>Encrypted text</h3>
+<textarea
+  disabled
+  value="encryptedString"
+  id="encryptedText"
+  rows="6"
+  placeholder="Encrypted text"
+></textarea>
+
+<br>
+<button type="button" onclick='decryptText()'>Decrypt</button><br>
+
+<h3>Decrypted text</h3>
+<textarea
+  disabled
+  value="decryptedString"
+  id="decryptedText"
+  rows="6"
+  placeholder="Decrypted text"
+></textarea>
+
+<h3>Import file to decrypt</h3><br>
+<input
+  id="dropzone-decrypt-file"
+  type="file"
+  style="hidden"
+  onChange="importFile(this.files[0])"
+/>
+
+<br>
+<button type="button" onclick='decryptFile()'>Decrypt File</button><br>
+
+
+</body>
+</html>

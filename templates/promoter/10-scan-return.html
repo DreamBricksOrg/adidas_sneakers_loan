@@ -2,9 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promotor - Começar</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/promoter/1-scan-start.css') }}">
 </head>
 <body>
+<div class="container">
+    <h1>Escaneie o QR CODE do usuário para efetuar a devolução</h1>
+    <form action="/promoter/start" method="POST" class="form-container">
+        <div class="qr-code">
+            <select name="user_id" id="user_id">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+        </div>
+        <button class="btn" type="submit">Entrar</button>
+    </form>
 
+</div>
 </body>
 </html>
