@@ -14,8 +14,25 @@ def promoter_scan_start_page():
     return render_template('promoter/1-scan-start.html')
 
 
-@promoter.route('/promoter/login')
+@promoter.route('/promoter/login', methods=['POST', 'GET'])
 def promoter_login_page():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM Promotor WHERE usuario = %s AND senha = %s", (username, password))
+        promotor = cur.fetchone()
+        print(promotor)
+        cur.close()
+
+        if promotor:
+            session['logged_in'] = True
+            session['promotor_id'] = promotor[0]
+            return redirect(url_for('promoter.promoter_local_page'))
+        else:
+            return 'Login Inválido'
+
     return render_template('promoter/2-promoter-login.html')
 
 
