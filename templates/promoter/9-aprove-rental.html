@@ -7,18 +7,20 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/promoter/9-aprove-rental.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>{{ user_name }}</h1>
-        <h1>{{ now }}</h1>
-        <h1>{{ size }}</h1>
+<div class="container">
+    <h1>{{ user_name }}</h1>
+    <h1>{{ now }}</h1>
+    <h1>{{ size }}</h1>
 
-        <form action="/" method="POST" class="form-container">
-            <button type="submit">Aprovar</button>
-        </form>
+    <form action="/promoter/aproverental" method="POST" class="form-container">
+        <button type="submit">Aprovar</button>
+    </form>
 
-        <form action="/" method="POST" class="form-container">
-            <button class="btn-cancelar" type="submit">Cancelar</button>
-        </form>
-    </div>
+
+    <a href="{{ url_for('promoter.promoter_menu_page') }}">
+        <button class="btn-cancelar" type="submit">Cancelar</button>
+    </a>
+
+</div>
 </body>
 </html>
