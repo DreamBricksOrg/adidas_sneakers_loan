@@ -32,7 +32,7 @@ def promoter_login_page():
             session['promotor_id'] = promotor[0]
             return redirect(url_for('promoter.promoter_local_page'))
         else:
-            return 'Login Inválido'
+            return redirect(url_for('promoter.promoter_login_page'))
 
     return render_template('promoter/2-promoter-login.html')
 
@@ -77,7 +77,10 @@ def ready_start_page():
 
 @promoter.route('/promoter/menu')
 def promoter_menu_page():
-    return render_template('promoter/6-promoter-menu.html')
+    if 'logged_in' in session and session['logged_in']:
+        return render_template('promoter/6-promoter-menu.html')
+    else:
+        return redirect(url_for('promoter.promoter_login_page'))
 
 
 @promoter.route('/promoter/rentallist', methods=['GET', 'POST'])
@@ -235,8 +238,32 @@ def scan_return_page():
 
 @promoter.route('/promoter/return', methods=['GET', 'POST'])
 def return_page():
-    # user_id
-    return render_template('promoter/11-return.html')
+    cur = mysql.connection.cursor()
+    user_id = session.get('user_id')
+    cur.execute("SELECT nome_iniciais FROM Usuario WHERE id = %s ", (user_id,))
+    user_name = cur.fetchone()
+
+    cur.execute("SELECT * FROM Locacao WHERE Usuario = %s", (user_id,))
+    locacao = cur.fetchone()
+
+    cur.execute("SELECT tamanho FROM Tenis WHERE id = %s", (locacao[1],))
+    size = cur.fetchone()
+
+    if request.method == 'POST':
+        if locacao[8] == 'ALOCADO' or locacao[8] == 'VENCIDO':
+            cur.execute("UPDATE Locacao SET status = 'DEVOLVIDO' WHERE Usuario = %s", (user_id,))
+            mysql.connection.commit()
+
+            cur.execute('SELECT quantidade FROM Tenis WHERE tamanho = %s', (size[0],))
+            quantidade = cur.fetchone()
+            nova_quantidade = quantidade[0] + 1
+            cur.execute('UPDATE Tenis SET quantidade = %s WHERE tamanho = %s', (nova_quantidade, size[0]))
+            mysql.connection.commit()
+            return redirect(url_for('promoter.promoter_menu_page'))
+        return redirect(url_for('promoter.promoter_menu_page'))
+
+    cur.close()
+    return render_template('promoter/11-return.html', user_name=user_name[0], data_inicio=locacao[6], size=size[0])
 
 
 @promoter.route('/promoter/rentallistexpired', methods=['GET', 'POST'])

@@ -53,9 +53,11 @@
 
     function saveNewValue(input) {
         newValue = input.value;
-        increaseValue();
-        decreaseValue();
-        updateRental();
+        if (parseInt(oldValue) != parseInt(newValue)) {
+            increaseValue();
+            decreaseValue();
+            updateRental();
+        }
     }
 
     function sendPost(route, data) {
