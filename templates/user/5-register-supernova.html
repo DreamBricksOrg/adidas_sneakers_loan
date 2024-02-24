@@ -1,15 +1,25 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/default.css') }}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}"
-          type="image/x-icon">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/default.css') }}"
+    />
+    <link
+            rel="shortcut icon"
+            href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}"
+            type="image/x-icon"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
-          rel="stylesheet">
+          rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
     <title>Supernova - registro</title>
 
     <style>
@@ -79,6 +89,17 @@
             font-family: "Roboto", sans-serif;
         }
 
+        select {
+            background: var(--dark-grey);
+            color: var(--white);
+            font-size: 14px;
+            font-family: "Roboto", sans-serif;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            padding-left: 5px;
+        }
+
         .form-item input:focus {
             border: 0;
             outline: 0;
@@ -120,14 +141,14 @@
                 <div class="form-item">
                     <img src="{{ url_for('static', filename='assets/images/icons/birthdate.png') }}"
                          alt="icone-data-nascimento"/>
-                    <input type="text" id="data_nascimento" name="data_nascimento" maxlength="10"
+                    <input type="tel" id="data_nascimento" name="data_nascimento" maxlength="10"
                            placeholder="Data de nascimento" required/>
                 </div>
 
                 <div class="form-item">
                     <img src="{{ url_for('static', filename='assets/images/icons/document.png') }}"
                          alt="icone-documento"/>
-                    <input type="text" id="documento" name="documento" placeholder="CPF" required/>
+                    <input type="tel" id="documento" name="documento" class="cpf" placeholder="CPF" required/>
                 </div>
 
                 <div class="form-item">
@@ -137,9 +158,17 @@
                 </div>
 
                 <div class="form-item">
-                    <img src="{{ url_for('static', filename='assets/images/icons/gender.png') }}"
-                         alt="icone-genero"/>
-                    <input type="text" id="genero" name="genero" placeholder="Gênero" required/>
+                    <img
+                            src="{{ url_for('static', filename='assets/images/icons/gender.png') }}"
+                            alt="icone-genero"
+                    />
+                    <select name="genero" id="genero">
+                        <option value="">Selecione um gênero</option>
+                        <option value="masculino">Masculino</option>
+                        <option value="feminino">Feminino</option>
+                        <option value="outro">Outro</option>
+                        <option value="prefiro_nao_dizer">Prefiro não dizer</option>
+                    </select>
                 </div>
             </div>
 
@@ -174,28 +203,15 @@
 </script>
 
 <script>
-    document.getElementById('data_nascimento').addEventListener('input', function (e) {
-        var value = e.target.value;
-
-        // Remove qualquer caractere que não seja número
-        var numericValue = value.replace(/\D/g, '');
-
-        // Verifica se o último caractere digitado é um número
-        var lastCharIsNumeric = /\d$/.test(value);
-
-        if (lastCharIsNumeric) {
-            // Verifica se todos os dígitos foram digitados
-            if (numericValue.length === 8) {
-                // Aplica a máscara
-                var day = numericValue.substring(0, 2);
-                var month = numericValue.substring(2, 4);
-                var year = numericValue.substring(4, 8);
-                e.target.value = day + '/' + month + '/' + year;
-            }
-        } else {
-            // Se o último caractere não for um número, não faz nada
-        }
+    $(document).ready(function () {
+        $(".cpf").mask("000.000.000-00", { reverse: true });
+        $("#data_nascimento").mask("00/00/0000");
+        $("#telefone").mask("(00) 00000-0000");
     });
+
+    const changephone = (e) => {
+        console.log(e.value);
+    };
 </script>
 
 <script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>

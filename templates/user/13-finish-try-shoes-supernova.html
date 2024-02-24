@@ -58,24 +58,24 @@
 </head>
 <body>
 <div class="container background">
-    <div class="overlay">
-        <div class="logo">
-            <logo-component></logo-component>
-        </div>
-
-        <div class="qr-code">
-            <h1 class="uppercase">
-                Apresente o QR Code abaixo e devolva o produto
-            </h1>
-
-            <div class="qr-code-image">
-                <img src="data:image/png;base64,{{ qr_code }}" alt="qr-code"/>
-            </div>
-            <a href="{{ url_for('user.thanks_page') }}">
-                <button>Ir para outra rota</button>
-            </a>
-        </div>
+    <div class="overlay"></div>
+    <div class="logo">
+        <logo-component></logo-component>
     </div>
+
+    <div class="qr-code">
+        <h1 class="uppercase">
+            Apresente o QR Code abaixo e devolva o produto
+        </h1>
+
+        <div class="qr-code-image">
+            <img src="data:image/png;base64,{{ qr_code }}" alt="qr-code"/>
+        </div>
+        <a href="{{ url_for('user.thanks_page') }}">
+            <button>Ir para outra rota</button>
+        </a>
+    </div>
+
 </div>
 
 <script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>

@@ -59,24 +59,24 @@
 </head>
 <body>
 <div class="container background">
-    <div class="overlay">
-        <div class="logo">
-            <logo-component></logo-component>
-        </div>
-
-        <div class="time-left">
-            <h1>você ainda tem</h1>
-            <h1 id="timer" class="time-remaining"></h1>
-            <h1>para experimentar o seu Supernova</h1>
-        </div>
-
-        <div class="button-container">
-            <a href="{{ url_for('user.submit_review_page') }}">
-                <button-component id="devolver-btn" onclick="clearCookie()" text="devolver o tênis"
-                                  background="black"></button-component>
-            </a>
-        </div>
+    <div class="overlay"></div>
+    <div class="logo">
+        <logo-component></logo-component>
     </div>
+
+    <div class="time-left">
+        <h1>você ainda tem</h1>
+        <h1 id="timer" class="time-remaining"></h1>
+        <h1>para experimentar o seu Supernova</h1>
+    </div>
+
+    <div class="button-container">
+        <a href="{{ url_for('user.submit_review_page') }}">
+            <button-component id="devolver-btn" onclick="clearCookie()" text="devolver o tênis"
+                              background="black"></button-component>
+        </a>
+    </div>
+
 </div>
 <script>
 
