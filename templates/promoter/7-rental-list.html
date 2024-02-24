@@ -26,8 +26,11 @@
             <tbody>
             {% for rental in rentals %}
             <tr>
-                <td><input type="number" value="{{ rental[1] }}" onfocus="saveOldValue(this)" onblur="saveNewValue(this)">
+                <td onfocusin="saveOldValue(this)" onfocusout="saveNewValue(this)">
+                    <input type="number" value="{{ rental[1] }}">
+                    <input type="hidden" value="{{ rental[0] }}">
                 </td>
+
                 <td>{{ rental[2] }}</td>
                 <td>{{ rental[3] }}</td>
                 <td>{{ rental[4] }}</td>
@@ -46,14 +49,23 @@
 <script>
     let oldValue;
     let newValue;
+    let id;
+    let intOldValue;
+    let intNewValue
 
     function saveOldValue(input) {
-        oldValue = input.value;
+        let inputs = input.getElementsByTagName('input');
+        oldValue = inputs[0].value;
+        id = inputs[1].value;
     }
 
     function saveNewValue(input) {
-        newValue = input.value;
-        if (parseInt(oldValue) != parseInt(newValue)) {
+        let inputs = input.getElementsByTagName('input');
+        newValue = inputs[0].value;
+        intOldValue = parseInt(oldValue);
+        intNewValue = parseInt(newValue);
+
+        if (intOldValue != intNewValue) {
             increaseValue();
             decreaseValue();
             updateRental();
@@ -74,7 +86,7 @@
 
     function increaseValue() {
         if (newValue) {
-            sendPost('/promoter/updatevalue', { tamanho: newValue, action: 'increase' });
+            sendPost('/promoter/updatevalue', { tamanho: intOldValue, action: 'increase' });
         } else {
             console.log('Tamanho de aumento não definido');
         }
@@ -82,7 +94,7 @@
 
     function decreaseValue() {
         if (oldValue) {
-            sendPost('/promoter/updatevalue', { tamanho: oldValue, action: 'decrease' });
+            sendPost('/promoter/updatevalue', { tamanho: intNewValue, action: 'decrease' });
         } else {
             console.log('Tamanho de diminuição não definido');
         }
@@ -90,7 +102,7 @@
 
     function updateRental() {
         if (newValue) {
-            sendPost('/promoter/update_rental', { newValue: newValue, oldValue: oldValue });
+            sendPost('/promoter/update_rental', { newValue: intNewValue, oldValue: intOldValue, rental_id: id });
         } else {
             console.log('Tamanho de aumento não definido');
         }

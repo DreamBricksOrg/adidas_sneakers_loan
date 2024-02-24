@@ -95,6 +95,7 @@ def rental_list_page():
                 "Locacao.Usuario = Usuario.id JOIN Promotor ON Locacao.Promotor = Promotor.id JOIN Local ON "
                 "Locacao.Local = Local.id;")
     rentals = cur.fetchall()
+    print(rentals)
     cur.close()
     return render_template('promoter/7-rental-list.html', rentals=rentals)
 
@@ -132,6 +133,7 @@ def update_rental():
     data = request.json
     oldValue = data.get('oldValue')
     newValue = data.get('newValue')
+    rental_id = data.get('rental_id')
 
     # Connect to the database
     cur = mysql.connection.cursor()
@@ -153,7 +155,7 @@ def update_rental():
         return jsonify({'message': 'New size not found'}), 404
 
     # Update records in the 'Rental' table with the new tennis ID
-    cur.execute('UPDATE Locacao SET Tenis = %s WHERE Tenis = %s', (new_tennis_id[0], old_tennis_id[0]))
+    cur.execute('UPDATE Locacao SET Tenis = %s WHERE Tenis = %s AND id = %s', (new_tennis_id[0], old_tennis_id[0], rental_id))
     mysql.connection.commit()
 
     cur.close()
