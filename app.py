@@ -24,4 +24,5 @@ app.register_blueprint(sms_sender)
 app.register_blueprint(promoter)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    context = ('static/certificate.crt', 'static/privateKey.key')
+    app.run(host='0.0.0.0', port=5000, ssl_context=context)
