@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<script type="text/javascript" src="util.js"></script>
+<script type="text/javascript" src="rsa_encryption.js"></script>
+<!--script type="text/javascript" src="RsaStringEncryptPage.js"></script-->
+<script>
+inputString = ""
+encryptedString = "";
+decryptedString = "";
+rsaKeyPair = 
+{
+    publicKey: "",
+    privateKey: "",
+};
+
+
+const downloadPemFile = (content, fileName) => {
+    const link = document.createElement("a");
+    const file = new Blob([content], { type: "text/plain" });
+    link.href = URL.createObjectURL(file);
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(link.href);
+};
+
+const generateRSAKey = async () => {
+    rsaKeyPair = await generateRSAKeyPair();
+    //document.getElementById("demo").innerHTML = rsaKeyPair.publicKey + "<br><br><br>" + rsaKeyPair.privateKey;
+    document.getElementById("rsaPublicKey").value = rsaKeyPair.publicKey;
+    document.getElementById("rsaPrivateKey").value = rsaKeyPair.privateKey;
+    //setRsaKeyPair(keyPair);
+};
+
+const downloadPemFiles = () => {
+    if (rsaKeyPair.privateKey) {
+      downloadPemFile(rsaKeyPair.privateKey, "rsa_private.pem");
+    }
+    if (rsaKeyPair.publicKey) {
+      downloadPemFile(rsaKeyPair.publicKey, "rsa_public.pem");
+    }
+};
+
+const changeFilePemPublic = (files) => {
+    const file = files[0];
+    if (!file) {
+      return;
+    }
+    if (file.size > 1024 * 1024 * 50) {
+      return alert("file size is too big");
+    }
+    const reader = new FileReader();
+    reader.onload = async function () {
+      const publicKey = reader.result
+      setRsaKeyPair({
+        ...rsaKeyPair,
+        publicKey: publicKey,
+      });
+    };
+    reader.readAsText(file);
+};
+
+const encryptKeyRsa = async () => {
+    try{
+      encryptedString = await encryptStringRsa(inputString, rsaKeyPair.publicKey);
+      document.getElementById("encryptedText").value = encryptedString;
+    }catch(err){
+      alert('Encryption failed.')
+    }
+};
+
+const decryptKeyRsa = async () => {
+    try{
+      decryptedString = await decryptStringRsa(encryptedString, rsaKeyPair.privateKey);
+      document.getElementById("decryptedText").value = decryptedString;
+    }catch(err){
+      alert('Decryption failed.')
+    }
+};
+
+const onKeyInputChange = async (val) =>  {
+    inputString = val;
+    //document.getElementById("demo").innerHTML = inputString;
+};
+
+</script>
+<body>
+<h2>RSA Test</h2>
+<div id="demo"></div>
+<button type="button" onclick='generateRSAKey()'>Generate Keys</button><br>
+
+<h3>Public Key</h3>
+<textarea
+  disabled
+  id="rsaPublicKey"
+  rows="6"
+  placeholder="RSA Public Key"
+></textarea>
+<h3>Private Key</h3>
+<textarea
+  disabled
+  id="rsaPrivateKey"
+  rows="6"
+  placeholder="RSA Private Key"
+></textarea>
+
+<h3>Text to encrypt</h3>
+<!--input
+  onChange="onKeyInputChange(this.value)"
+  type="text"
+  id="textOriginal"
+/-->
+<textarea
+  id="textOriginal"
+  rows="6"
+  onChange="onKeyInputChange(this.value)"
+></textarea>
+
+
+<br>
+<button type="button" onclick='encryptKeyRsa()'>Encrypt</button><br>
+
+<h3>Encrypted text</h3>
+<textarea
+  disabled
+  value="encryptedString"
+  id="encryptedText"
+  rows="6"
+  placeholder="Encrypted text"
+></textarea>
+
+<br>
+<button type="button" onclick='decryptKeyRsa()'>Decrypt</button><br>
+
+<h3>Decrypted text</h3>
+<textarea
+  disabled
+  value="decryptedString"
+  id="decryptedText"
+  rows="6"
+  placeholder="Decrypted text"
+></textarea>
+
+</body>
+</html>
