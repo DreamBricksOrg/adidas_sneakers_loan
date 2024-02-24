@@ -143,15 +143,30 @@ def update_rental():
 def scan_aprove_rental_page():
     if request.method == 'POST':
         user_id = request.form['user_id']
+        size = request.form['size']
         session['user_id'] = user_id
+        session['size'] = size
         return redirect(url_for('promoter.aprove_rental_page'))
     return render_template('promoter/8-scan-aprove-rental.html')
 
 
 @promoter.route('/promoter/aproverental', methods=['GET', 'POST'])
 def aprove_rental_page():
-    # user_id
-    return render_template('promoter/9-aprove-rental.html')
+    user_id = session['user_id']
+    size = session['size']
+
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT Usuario.nome_iniciais "
+                "FROM Usuario "
+                "WHERE Usuario.id = %s;", (user_id,))
+    result = cur.fetchone()
+    cur.close()
+
+    if not result:
+        cur.close()
+        return jsonify({'message': 'user not found'}), 404
+
+    return render_template('promoter/9-aprove-rental.html', name=result[0], size=size)
 
 
 @promoter.route('/promoter/scanreturn', methods=['GET', 'POST'])
@@ -159,6 +174,7 @@ def scan_return_page():
     if request.method == 'POST':
         user_id = request.form['user_id']
         session['user_id'] = user_id
+
         return redirect(url_for('promoter.return_page'))
     return render_template('promoter/10-scan-return.html')
 
