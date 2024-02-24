@@ -167,7 +167,6 @@ def clock_page():
 @user.route('/submit_review', methods=['POST', 'GET'])
 def submit_review_page():
     if request.method == 'POST':
-        print(request.form)
         comfort = request.form['rate_confort']
         stability = request.form['rate_stability']
         style = request.form['rate_style']

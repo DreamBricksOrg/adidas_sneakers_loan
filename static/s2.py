@@ -25,7 +25,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(b"error")
     
     
-server_address = ('192.168.0.102', 4443)
+server_address = ('192.168.15.163', 4443)
 httpd = http.server.HTTPServer(server_address, SimpleHTTPRequestHandler)
 httpd.socket = ssl.wrap_socket(httpd.socket,
                                server_side=True,

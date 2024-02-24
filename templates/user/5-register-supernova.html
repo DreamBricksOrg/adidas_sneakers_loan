@@ -97,59 +97,59 @@
 </head>
 <body>
 <div class="container background">
-    <div class="overlay">
-        <div class="logo">
-            <logo-component></logo-component>
-        </div>
-
-        <div class="register">
-            <h1 class="uppercase">cadastre seus dados</h1>
-
-            <form id="create-user" method="POST" action="/user_register">
-                <div class="register-form">
-                    <div class="form-item">
-                        <img src="{{ url_for('static', filename='assets/images/icons/name.png') }}" alt="icone-nome"/>
-                        <input type="text" id="nome" name="nome" placeholder="Nome completo" required/>
-                    </div>
-
-                    <div class="form-item">
-                        <img src="{{ url_for('static', filename='assets/images/icons/email.png') }}" alt="icone-email"/>
-                        <input type="email" id="email" name="email" placeholder="Email" required/>
-                    </div>
-
-                    <div class="form-item">
-                        <img src="{{ url_for('static', filename='assets/images/icons/birthdate.png') }}"
-                             alt="icone-data-nascimento"/>
-                        <input type="text" id="data_nascimento" name="data_nascimento" maxlength="10"
-                               placeholder="Data de nascimento" required/>
-                    </div>
-
-                    <div class="form-item">
-                        <img src="{{ url_for('static', filename='assets/images/icons/document.png') }}"
-                             alt="icone-documento"/>
-                        <input type="text" id="documento" name="documento" placeholder="CPF" required/>
-                    </div>
-
-                    <div class="form-item">
-                        <img src="{{ url_for('static', filename='assets/images/icons/phone.png') }}"
-                             alt="icone-telefone"/>
-                        <input type="tel" id="telefone" name="telefone" placeholder="Telefone" required/>
-                    </div>
-
-                    <div class="form-item">
-                        <img src="{{ url_for('static', filename='assets/images/icons/gender.png') }}"
-                             alt="icone-genero"/>
-                        <input type="text" id="genero" name="genero" placeholder="Gênero" required/>
-                    </div>
-                </div>
-
-                <div class="button-container">
-                    <button-component text="CONTINUAR" type="submit" onclick="submitForm()"></button-component>
-                </div>
-            </form>
-        </div>
-
+    <div class="overlay"></div>
+    <div class="logo">
+        <logo-component></logo-component>
     </div>
+
+    <div class="register">
+        <h1 class="uppercase">cadastre seus dados</h1>
+
+        <form id="create-user" method="POST" action="/user_register">
+            <div class="register-form">
+                <div class="form-item">
+                    <img src="{{ url_for('static', filename='assets/images/icons/name.png') }}" alt="icone-nome"/>
+                    <input type="text" id="nome" name="nome" placeholder="Nome completo" required/>
+                </div>
+
+                <div class="form-item">
+                    <img src="{{ url_for('static', filename='assets/images/icons/email.png') }}" alt="icone-email"/>
+                    <input type="email" id="email" name="email" placeholder="Email" required/>
+                </div>
+
+                <div class="form-item">
+                    <img src="{{ url_for('static', filename='assets/images/icons/birthdate.png') }}"
+                         alt="icone-data-nascimento"/>
+                    <input type="text" id="data_nascimento" name="data_nascimento" maxlength="10"
+                           placeholder="Data de nascimento" required/>
+                </div>
+
+                <div class="form-item">
+                    <img src="{{ url_for('static', filename='assets/images/icons/document.png') }}"
+                         alt="icone-documento"/>
+                    <input type="text" id="documento" name="documento" placeholder="CPF" required/>
+                </div>
+
+                <div class="form-item">
+                    <img src="{{ url_for('static', filename='assets/images/icons/phone.png') }}"
+                         alt="icone-telefone"/>
+                    <input type="tel" id="telefone" name="telefone" placeholder="Telefone" required/>
+                </div>
+
+                <div class="form-item">
+                    <img src="{{ url_for('static', filename='assets/images/icons/gender.png') }}"
+                         alt="icone-genero"/>
+                    <input type="text" id="genero" name="genero" placeholder="Gênero" required/>
+                </div>
+            </div>
+
+            <div class="button-container">
+                <button-component text="CONTINUAR" type="submit" onclick="submitForm()"></button-component>
+            </div>
+        </form>
+    </div>
+
+
 </div>
 <script>
     function submitForm() {

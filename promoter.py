@@ -1,5 +1,6 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, make_response
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session
 from database import mysql
+from datetime import datetime
 
 promoter = Blueprint('promoter', __name__)
 
@@ -159,16 +160,32 @@ def update_rental():
 @promoter.route('/promoter/scanaproverental', methods=['GET', 'POST'])
 def scan_aprove_rental_page():
     if request.method == 'POST':
+        print(request.form)
         user_id = request.form['user_id']
+        size = request.form['size']
+        session['size'] = size
         session['user_id'] = user_id
+
         return redirect(url_for('promoter.aprove_rental_page'))
     return render_template('promoter/8-scan-aprove-rental.html')
 
 
 @promoter.route('/promoter/aproverental', methods=['GET', 'POST'])
 def aprove_rental_page():
-    # user_id
-    return render_template('promoter/9-aprove-rental.html')
+    now = datetime.now()
+    formatted_date_time = now.strftime('%Y-%m-%d %H:%M:%S')
+    size = session.get('size')
+    user_id = session.get('user_id')
+
+    if request.method == 'POST':
+
+        return ''
+
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT nome_iniciais FROM Usuario WHERE id = %s ", (user_id,))
+    user_name = cur.fetchone()
+    cur.close()
+    return render_template('promoter/9-aprove-rental.html', user_name=user_name[0], now=formatted_date_time, size=size)
 
 
 @promoter.route('/promoter/scanreturn', methods=['GET', 'POST'])
