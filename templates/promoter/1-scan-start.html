@@ -1,57 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-<script>
-var html5QrCode = null;
-
-function onScanSuccess(decodedText, decodedResult) {
-  // handle the scanned code as you like, for example:
-  console.log("Code matched = ${decodedText}", decodedResult);
-  document.getElementById("demo").innerHTML = "<h2>" + decodedText + "</h2>";
-  //document.getElementById("qrcode_out").value = decodedText;
-  html5QrCode.stop();
-}
-
-function onScanFailure(error) {
-  // handle scan failure, usually better to ignore and keep scanning.
-  // for example:
-  console.warn("Code scan error = ${error}");
-}
-
-async function startScan() {
-    html5QrCode = new Html5Qrcode("reader");
-    const config = { fps: 10, qrbox: { width: 200, height: 300 } };
-
-    // If you want to prefer back camera
-    html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailure);
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(startScan(), 3000);
-}, false);
-
-</script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Promotor - Começar</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/promoter/1-scan-start.css') }}">
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="{{url_for('static', filename='util.js')}}"></script>
+    <script src="{{url_for('static', filename='js/promoter/1-scan-start.js')}}"></script>
 </head>
 <body>
 <div class="container">
-    <h1 id="demo">Escaneie o QR CODE do estande para começar</h1>
-    <form action="/promoter/start" method="POST" class="form-container">
-        <div class="qr-code" id="reader">
-            <!--select name="estande" id="estande">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-            </select-->
-        </div>
-        <button class="btn" type="submit">Entrar</button>
-    </form>
+    <h1 id="demo">Escaneie o QR CODE do estande para começar</h1><br>
+    <div class="qr-code" id="reader"></div>
 </div>
 </body>
 </html>
