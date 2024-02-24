@@ -38,7 +38,7 @@ body {
   display: flex;
   flex-direction: column;
   flex: 1;
-  padding-top: 56px;
+  padding-top: 26px;
 }
 
 .uppercase {
@@ -47,21 +47,16 @@ body {
 
 h1 {
   font-weight: 600;
-  font-size: 48px;
   color: var(--white);
   font-family: "ITCF", sans-serif;
   text-transform: uppercase;
+  font-size: 32px;
+  margin: 0 auto;
 }
 
 p {
   font-family: "ITCFThin", sans-serif;
   color: var(--white);
-}
-
-.roboto-thin-italic {
-  font-family: "Roboto", sans-serif;
-  font-weight: 100;
-  font-style: italic;
 }
 
 a {

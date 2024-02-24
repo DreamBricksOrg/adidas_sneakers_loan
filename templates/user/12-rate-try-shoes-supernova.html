@@ -12,22 +12,21 @@
     <style>
         .background {
             background-image: url("{{ url_for('static', filename='assets/images/shoes-2.png') }}");
-            background-position: -350px 0;
+            background-position: -350px;
             background-repeat: no-repeat;
+            position: relative;
         }
 
         .overlay {
             position: absolute;
             inset: 0;
             background: rgba(0, 0, 0, 0.86);
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            padding: 56px 49px 106px;
         }
 
         .logo {
             padding: 0 57px 0;
+            position: relative;
+            z-index: 2;
         }
 
         .experience-rating-text {
@@ -38,6 +37,8 @@
             align-items: center;
             text-align: center;
             padding: 0 34px;
+            position: relative;
+            z-index: 2;
         }
 
         .experience-rating-text h1 {
@@ -55,6 +56,9 @@
             flex-direction: column;
             gap: 13px;
             margin-top: 43px;
+            position: relative;
+            z-index: 2;
+            padding: 0 36px;
         }
 
         .rate-item {
@@ -67,6 +71,10 @@
             padding: 20px;
             font-family: "Roboto", sans-serif;
             font-size: 14px;
+        }
+
+        .rate-item span {
+            max-width: 78px;
         }
 
         .rate-stars {
@@ -106,7 +114,9 @@
         }
 
         .button-container {
-            margin-top: auto;
+            margin-top: 50px;
+            margin-bottom: 46px;
+            padding: 0 36px;
         }
     </style>
 </head>

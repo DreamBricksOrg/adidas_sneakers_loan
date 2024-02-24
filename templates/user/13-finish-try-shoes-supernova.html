@@ -18,29 +18,30 @@
             background-position: -260px center;
             background-repeat: no-repeat;
             position: relative;
+            overflow: auto;
         }
 
         .overlay {
             position: absolute;
             inset: 0;
             background: rgba(0, 0, 0, 0.8);
-            padding-top: 56px;
-            display: flex;
-            flex-direction: column;
-            flex: 1;
         }
 
         .logo {
             padding-left: 57px;
+            position: relative;
+            z-index: 2;
         }
 
         .qr-code {
             width: 100%;
-            padding: 56px 57px 106px;
+            padding: 36px 37px 46px;
             box-sizing: border-box;
             text-align: center;
             color: white;
-            margin-top: 186px;
+            margin-top: 126px;
+            position: relative;
+            z-index: 2;
         }
 
         .qr-code h1 {

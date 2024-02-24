@@ -4,7 +4,7 @@ const logoStyle = `
   .logo{
     display:flex;
     align-items:center;
-    gap:60px;
+    gap:30px;
   }
 
   .adidas-logo{

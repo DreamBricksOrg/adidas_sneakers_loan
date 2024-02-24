@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/default.css') }}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}"
+          type="image/x-icon">
     <title>Supernova - termos</title>
 
     <style>
@@ -15,27 +16,31 @@
             position: relative;
         }
 
+        .logo {
+            padding: 0 57px 0;
+        }
+
         .overlay {
             position: absolute;
             inset: 0;
             background: rgba(0, 0, 0, 0.72);
-            padding-top: 56px;
+            padding-top: 36px;
             display: flex;
             flex-direction: column;
             flex: 1;
         }
 
-        .logo {
-            padding-left: 57px;
-        }
-
         .terms {
             margin-top: auto;
             width: 100%;
-            padding: 56px 57px 106px;
+            padding: 36px 37px 46px;
             box-sizing: border-box;
             text-align: center;
             color: white;
+        }
+
+        .terms h1 {
+            max-width: 160px;
         }
 
         .terms-accept {
@@ -52,6 +57,7 @@
             text-align: left;
             line-height: 25px;
             font-size: 20px;
+            max-width: 270px;
         }
 
         input {
