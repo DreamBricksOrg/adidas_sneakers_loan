@@ -274,3 +274,19 @@ def rental_list_expired_page():
     rentals = cur.fetchall()
     cur.close()
     return render_template('promoter/12-expired-list.html', rentals=rentals)
+
+@promoter.route('/promoter/captureid', methods=['GET', 'POST'])
+def capture_id():
+    if request.method == 'POST':
+        files = request.files
+        file = files.get('file')
+        print(file)
+
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO Fotos (documento) VALUES(%s)", (file.read(),))
+        mysql.connection.commit()
+        cur.close()
+
+        return redirect(url_for('promoter.promoter_menu_page'))
+
+    return render_template('promoter/13-capture-id.html')
