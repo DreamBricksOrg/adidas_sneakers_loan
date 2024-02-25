@@ -11,7 +11,7 @@
     <style>
         .background {
             background-image: url("{{ url_for('static', filename='assets/images/shoes-2.png') }}");
-            background-position: -350px -150px;
+            background-position: -350px;
             background-repeat: no-repeat;
         }
 
@@ -19,14 +19,10 @@
             padding: 0 57px 0;
         }
 
-        .sms-inset-container {
-            padding: 0 20px;
-        }
-
         .sms-code-insert {
             margin-top: auto;
             width: 100%;
-            padding: 56px 57px 106px;
+            padding: 36px 37px 46px;
             background: var(--orange);
             border-radius: 35px 35px 0 0;
             box-sizing: border-box;
@@ -34,15 +30,19 @@
         }
 
         .sms-code-insert h1 {
-            font-size: 32px;
+            font-size: 27px;
             color: white;
         }
 
         .sms-code-insert p {
-            margin-bottom: 37px;
+            margin-bottom: 10px;
             font-size: 16px;
             color: white;
             text-align: left;
+        }
+
+        .sms-inset-container {
+            padding: 0 20px 0;
         }
 
         .fieldset {
@@ -72,8 +72,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 64px;
-            width: 62px;
+            height: 54px;
+            width: 52px;
             border-radius: 7px;
             overflow: hidden;
         }
@@ -116,13 +116,6 @@
             background-color: transparent;
             text-align: center;
         }
-
-        #reenviar-btn {
-            cursor: pointer;
-        }
-        .disabled {
-            pointer-events: none; /* Impede eventos de clique após desativado */
-        }
     </style>
 </head>
 <body>
@@ -137,10 +130,10 @@
             <div class="sms-inset-container">
 
                 <div class="fieldset">
-                    <label class="box"><input class="field" type="text" name="digit_1" maxlength="1" required></label>
-                    <label class="box"><input class="field" type="text" name="digit_2" maxlength="1" required></label>
-                    <label class="box"><input class="field" type="text" name="digit_3" maxlength="1" required></label>
-                    <label class="box"><input class="field" type="text" name="digit_4" maxlength="1" required></label>
+                    <label class="box"><input class="field" type="number" name="digit_1" maxlength="1" required></label>
+                    <label class="box"><input class="field" type="number" name="digit_2" maxlength="1" required></label>
+                    <label class="box"><input class="field" type="number" name="digit_3" maxlength="1" required></label>
+                    <label class="box"><input class="field" type="number" name="digit_4" maxlength="1" required></label>
                 </div>
                 <p id="reenviar-btn">REENVIAR CÓDIGO</p>
 
@@ -155,7 +148,7 @@
 <script src="{{ url_for('static', filename='assets/components/button.js') }}"></script>
 
 <script>
-   function submitForm() {
+    function submitForm() {
         // Obtém todos os campos de entrada
         var inputs = document.querySelectorAll('.sms-inset-container input');
 

@@ -10,7 +10,7 @@
     <style>
         .background {
             background-image: url("{{ url_for('static', filename='assets/images/shoes-2.png') }}");
-            background-position: -350px -150px;
+            background-position: -350px;
             background-repeat: no-repeat;
         }
 
@@ -21,18 +21,22 @@
         .welcome {
             margin-top: auto;
             width: 100%;
-            padding: 56px 57px 106px;
+            padding: 36px 37px 46px;
             background: var(--orange);
             border-radius: 35px 35px 0 0;
             box-sizing: border-box;
             text-align: center;
         }
 
+        .welcome h1 {
+            max-width: 220px;
+        }
+
         .welcome p {
-            margin-top: 22px;
-            margin-bottom: 37px;
+            margin-top: 15px;
+            margin-bottom: 20px;
             display: inline-block;
-            font-size: 24px;
+            font-size: 22px;
         }
     </style>
 </head>

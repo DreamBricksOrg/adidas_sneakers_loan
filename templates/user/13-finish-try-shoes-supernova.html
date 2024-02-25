@@ -18,29 +18,30 @@
             background-position: -260px center;
             background-repeat: no-repeat;
             position: relative;
+            overflow: auto;
         }
 
         .overlay {
             position: absolute;
             inset: 0;
             background: rgba(0, 0, 0, 0.8);
-            padding-top: 56px;
-            display: flex;
-            flex-direction: column;
-            flex: 1;
         }
 
         .logo {
             padding-left: 57px;
+            position: relative;
+            z-index: 2;
         }
 
         .qr-code {
             width: 100%;
-            padding: 56px 57px 106px;
+            padding: 36px 37px 46px;
             box-sizing: border-box;
             text-align: center;
             color: white;
-            margin-top: 186px;
+            margin-top: 126px;
+            position: relative;
+            z-index: 2;
         }
 
         .qr-code h1 {
@@ -57,24 +58,24 @@
 </head>
 <body>
 <div class="container background">
-    <div class="overlay">
-        <div class="logo">
-            <logo-component></logo-component>
-        </div>
-
-        <div class="qr-code">
-            <h1 class="uppercase">
-                Apresente o QR Code abaixo e devolva o produto
-            </h1>
-
-            <div class="qr-code-image">
-                <img src="data:image/png;base64,{{ qr_code }}" alt="qr-code"/>
-            </div>
-            <a href="{{ url_for('user.thanks_page') }}">
-                <button>Ir para outra rota</button>
-            </a>
-        </div>
+    <div class="overlay"></div>
+    <div class="logo">
+        <logo-component></logo-component>
     </div>
+
+    <div class="qr-code">
+        <h1 class="uppercase">
+            Apresente o QR Code abaixo e devolva o produto
+        </h1>
+
+        <div class="qr-code-image">
+            <img src="data:image/png;base64,{{ qr_code }}" alt="qr-code"/>
+        </div>
+        <a href="{{ url_for('user.thanks_page') }}">
+            <button>Ir para outra rota</button>
+        </a>
+    </div>
+
 </div>
 
 <script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>

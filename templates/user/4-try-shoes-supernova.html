@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/default.css') }}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}"
+          type="image/x-icon">
     <title>Supernova - escolha o tamanho</title>
+
 
     <style>
         .background {
@@ -19,7 +21,7 @@
             position: absolute;
             inset: 0;
             background: rgba(0, 0, 0, 0.5);
-            padding-top: 56px;
+            padding-top: 36px;
             display: flex;
             flex-direction: column;
             flex: 1;
@@ -32,10 +34,14 @@
         .experience {
             margin-top: auto;
             width: 100%;
-            padding: 56px 43px 106px;
+            padding: 36px 37px 46px;
             box-sizing: border-box;
             text-align: center;
             color: white;
+        }
+
+        .experience h1 {
+            max-width: 300px;
         }
 
         .experience p {
@@ -62,7 +68,9 @@
             <p class="uppercase">vamos lá?</p>
 
             <div class="button-container">
-              <a href="{{ url_for('user.user_register_page') }}"><button-component text="CONTINUAR"></button-component></a>
+                <a href="{{ url_for('user.user_register_page') }}">
+                    <button-component text="CONTINUAR"></button-component>
+                </a>
             </div>
         </div>
     </div>

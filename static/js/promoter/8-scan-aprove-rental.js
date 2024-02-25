@@ -13,7 +13,7 @@ function onScanSuccess(decodedText, decodedResult) {
     if (user_id != null && size != null) {
         document.getElementById("demo").innerHTML = "<h2>" + user_id + " / " + size + "</h2>";
         html5QrCode.stop();
-        post('/promoter/aproverental', {user_id: user_id, size: size});
+        post('/promoter/scanaproverental', {user_id: user_id, size: size});
     }
   }
   catch(e) {
