@@ -4,99 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Promotor - Começar</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/default.css') }}">
-    <title>Supernova - bem-vindo</title>
-    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}"
-          type="image/x-icon">
-
-    <style>
-        .background {
-            background-image: url("../../static/assets/images/shoes-2.png");
-            background-size: cover;
-            background-repeat: no-repeat;
-            position: relative;
-            overflow: auto;
-        }
-
-        .overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.8);
-        }
-
-        .qr-code {
-            width: 100%;
-            padding: 36px 37px 46px;
-            box-sizing: border-box;
-            text-align: center;
-            color: white;
-            margin-top: 80px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .qr-code h1 {
-            font-size: 40px;
-        }
-
-        .qr-code-image {
-            margin-top: 64px;
-            border-radius: 7px;
-            display: inline-block;
-            overflow: hidden;
-        }
-
-        select {
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            background-color: #fff;
-            font-size: 16px;
-            margin-bottom: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/promoter/1-scan-start.css') }}">
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="{{url_for('static', filename='util.js')}}"></script>
+    <script src="{{url_for('static', filename='js/promoter/1-scan-start.js')}}"></script>
 </head>
 <body>
 <div class="container">
-
-    <form id="submit" action="/promoter/start" method="POST" class="form-container">
-        <div class="container background">
-            <div class="overlay"></div>
-            <div class="qr-code">
-                <h1 class="uppercase">escaneie o qr code do estande para começar</h1>
-                <!--                <div class="qr-code-image">-->
-                <!--                    <img src="../../static/assets/images/qr-code.png" alt="qr-code"/>-->
-                <!--                </div>-->
-                <div class="qr-code-image">
-                    <!--                    Trocar Inicio-->
-                    <div class="qr-code">
-                        <select name="estande" id="estande">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                        </select>
-                    </div>
-                    <!--                    Trocar Fim-->
-
-                    <button-component text="CONTINUAR" onclick="submitForm()"></button-component>
-
-                </div>
-            </div>
-        </div>
-    </form>
-
+    <h1 id="demo">Escaneie o QR CODE do estande para começar</h1><br>
+    <div class="qr-code" id="reader"></div>
 </div>
-<script>
-    function submitForm() {
-        document.getElementById('submit').submit();
-    }
-
-</script>
-
-<script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>
-<script src="{{ url_for('static', filename='assets/components/button.js') }}"></script>
-
 </body>
 </html>

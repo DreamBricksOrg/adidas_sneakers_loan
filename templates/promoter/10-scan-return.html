@@ -1,119 +1,19 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="stylesheet" href="../../static/css/default.css"/>
-
-    <link
-            rel="shortcut icon"
-            href="../../static/assets/images/logos/adidas.png"
-            type="image/x-icon"
-    />
-    <title>Supernova - Devolução</title>
-
-    <style>
-        .background {
-            background-image: url("../../static/assets/images/shoes-2.png");
-            background-size: cover;
-            background-repeat: no-repeat;
-            position: relative;
-            overflow: auto;
-        }
-
-        .overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.8);
-        }
-
-        .qr-code {
-            width: 100%;
-            padding: 36px 37px 46px;
-            box-sizing: border-box;
-            text-align: center;
-            color: white;
-            margin-top: 80px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .qr-code h1 {
-            font-size: 40px;
-        }
-
-        .qr-code-image {
-            margin-top: 64px;
-            border-radius: 7px;
-            display: inline-block;
-            overflow: hidden;
-        }
-
-        select {
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            background-color: #fff;
-            font-size: 16px;
-            margin-bottom: 20px;
-        }
-
-        button{
-            width:100%;
-            color:black;
-            border:1px solid white;
-            border-radius:0;
-            padding:28px 27px 22px;
-            text-align:left;
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            position:relative;
-            top:-5px;
-            left:-5px;
-            font-weight:500;
-            background:white;
-            font-family: "ITCF", sans-serif;
-            font-weight: 600;
-            font-size:15px;
-            letter-spacing:2px;
-            text-transform:uppercase;
-
-        }
-
-        .btn-container{
-            border:1px solid white;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promotor - Começar</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/promoter/1-scan-start.css') }}">
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="{{url_for('static', filename='util.js')}}"></script>
+    <script src="{{url_for('static', filename='js/promoter/10-scan-return.js')}}"></script>
 </head>
 <body>
-<div class="container background">
-    <div class="overlay"></div>
+<div class="container">
+    <h1 id="demo">Escaneie o QR CODE do usuário para efetuar a devolução</h1>
+    <div class="qr-code" id="reader"></div>
 
-    <div class="qr-code">
-        <h1 class="uppercase"> escaneie o qr code do usuário para efetuar a devolução</h1>
-        <!--                <div class="qr-code-image">-->
-        <!--                    <img src="../../static/assets/images/qr-code.png" alt="qr-code"/>-->
-        <!--                </div>-->
-        <div class="qr-code-image">
-            <!--                    Trocar Inicio-->
-            <form action="/promoter/scanreturn" method="POST" class="form-container">
-                <div class="qr-code">
-                    <select name="user_id" id="user_id">
-                        <option value="78">78</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                    </select>
-                </div>
-                <div class="btn-container">
-                    <button type="submit">Continuar</button>
-                </div>
-            </form>
-<!--            TROCAR FIM-->
-        </div>
-    </div>
 </div>
 </body>
 </html>

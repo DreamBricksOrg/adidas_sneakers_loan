@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capturar Retrato do Usuário</title>
+    <!--link rel="stylesheet" href="{{ url_for('static', filename='css/promoter/1-scan-start.css') }}">
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script-->
+    <script src="{{url_for('static', filename='util.js')}}"></script>
+    <script src="{{url_for('static', filename='js/promoter/14-capture-portrait.js')}}"></script>
+<style type="text/css">
+
+button {
+    width: 120px;
+    padding: 10px;
+    display: block;
+    margin: 20px auto;
+    border: 2px solid #111111;
+    cursor: pointer;
+    background-color: white;
+}
+
+#start-camera {
+    margin-top: 50px;
+}
+
+#video {
+    display: none;
+    margin: 50px auto 0 auto;
+}
+
+#click-photo {
+    display: none;
+}
+#approve-photo {
+    display: none;
+}
+
+#dataurl-container {
+    display: none;
+}
+
+#canvas {
+    display: block;
+    margin: 0 auto 20px auto;
+}
+
+#dataurl-header {
+    text-align: center;
+    font-size: 15px;
+}
+
+#dataurl {
+    display: block;
+    height: 100px;
+    width: 320px;
+    margin: 10px auto;
+    resize: none;
+    outline: none;
+    border: 1px solid #111111;
+    padding: 5px;
+    font-size: 13px;
+    box-sizing: border-box;
+}
+
+</style>
+</head>
+<body>
+
+<button id="start-camera" onclick="startCamera()">Iniciar Camera</button>
+<video id="video" width="640" height="480" autoplay></video><br>
+<button id="click-photo" onclick="capturePhoto()">Tirar Foto</button><br>
+<canvas id="canvas" width="480" height="640"></canvas><br>
+<button id="approve-photo" onclick="savePhoto()">Salvar Foto</button><br>
+<a href="{{ url_for('promoter.aprove_rental_page') }}">
+    <button type="submit">Proximo</button>
+</a>
+
+</body>
+</html>
