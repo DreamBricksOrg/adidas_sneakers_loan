@@ -5,14 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Promotor - Começar</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/promoter/1-scan-start.css') }}">
+    <link rel="stylesheet" href="../../static/css/default.css"/>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="{{url_for('static', filename='util.js')}}"></script>
     <script src="{{url_for('static', filename='js/promoter/1-scan-start.js')}}"></script>
+
+    <link
+            rel="shortcut icon"
+            href="../../static/assets/images/logos/adidas.png"
+            type="image/x-icon"
+    />
+    <title>Supernova - Escanear estande</title>
+
+    <style>
+        .background {
+            background-image: url("../../static/assets/images/shoes-2.png");
+            background-size: cover;
+            background-repeat: no-repeat;
+            position: relative;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        h1{
+            position: relative;
+
+        }
+
+    </style>
 </head>
 <body>
-<div class="container">
-    <h1 id="demo">Escaneie o QR CODE do estande para começar</h1><br>
-    <div class="qr-code" id="reader"></div>
+<div class="container background">
+    <div class="overlay"></div>
+    <div class="">
+        <h1 class="uppercase " id="demo">Escaneie o QR CODE do estande para começar</h1><br>
+        <div class="qr-code" id="reader"></div>
+    </div>
 </div>
 </body>
 </html>

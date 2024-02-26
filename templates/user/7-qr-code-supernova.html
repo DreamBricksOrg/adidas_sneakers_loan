@@ -54,10 +54,28 @@
 
         .qr-code-image {
             margin-top: 64px;
+            margin-bottom: 52px;
             border-radius: 7px;
             display: inline-block;
             overflow: hidden;
         }
+
+        button{
+            color:black;
+            border:1px solid white;
+            border-radius:0;
+            padding:28px 27px 22px;
+            text-align:left;
+            font-weight:500;
+            background:white;
+            font-family: "ITCF", sans-serif;
+            font-weight: 600;
+            font-size:15px;
+            letter-spacing:2px;
+            text-transform:uppercase;
+        }
+
+
     </style>
 </head>
 <body>
@@ -75,14 +93,37 @@
         <div class="qr-code-image">
             <img src="data:image/png;base64,{{ qr_code }}" alt="qr-code"/>
         </div>
-        <a href="{{ url_for('user.allright_page') }}">
-            <button>Ir para outra rota</button>
-        </a>
+
     </div>
 
 </div>
+<script>
+    function sendPost(route, data) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', route, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    console.log('POST enviado com sucesso');
+                    window.location.href = "/allright";
+                } else if (xhr.status === 403) {
+                        console.log('Esperando aprovação');
+                }
+            }
+        };
+        xhr.send(JSON.stringify(data));
+    }
 
-<script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>
-<script src="{{ url_for('static', filename='assets/components/button.js') }}"></script>
+    function validate(){
+        var route = '/qr_code_validation';
+        var data = {};
+        sendPost(route,data);
+    }
+
+    setInterval(validate, 5000);
+
+
+</script>
 </body>
 </html>
