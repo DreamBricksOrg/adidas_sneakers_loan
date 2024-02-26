@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, make_response
-from database import mysql
+from config.database import mysql
 from qrcodeaux import generate_qr_code
 from sms_sender import create_verification_code
 import io

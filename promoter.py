@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session
-from database import mysql
+from config.database import mysql
 from datetime import datetime, timedelta
 
 promoter = Blueprint('promoter', __name__)

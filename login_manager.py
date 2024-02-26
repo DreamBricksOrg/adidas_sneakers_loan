@@ -1,6 +1,6 @@
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
 from flask import render_template, redirect, url_for, request, Blueprint
-from database import mysql
+from config.database import mysql
 
 login_manager = LoginManager()
 auth = Blueprint('auth', __name__)
