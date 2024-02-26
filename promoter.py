@@ -330,7 +330,6 @@ def return_page():
 
             cur.execute('SELECT quantidade FROM Tenis WHERE tamanho = %s', (size,))
             quantidade = cur.fetchone()
-            print(quantidade)
 
             nova_quantidade = quantidade[0] + 1
             cur.execute('UPDATE Tenis SET quantidade = %s WHERE tamanho = %s', (nova_quantidade, size))
@@ -338,6 +337,13 @@ def return_page():
 
             cur.execute("UPDATE Locacao SET status = 'DEVOLVIDO' WHERE Usuario = %s", (user_id,))
             mysql.connection.commit()
+
+            cur.execute('SELECT id FROM Usuario WHERE id = %s', (user_id,))
+            user = cur.fetchone()
+            print(user)
+            if user:
+                cur.execute('UPDATE Usuario SET retornado = true WHERE id = %s', (user_id,))
+                mysql.connection.commit()
 
         cur.close()
         return redirect(url_for('promoter.promoter_menu_page'))
