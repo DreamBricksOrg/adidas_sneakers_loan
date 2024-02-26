@@ -73,3 +73,24 @@ function post(path, params, method='post') {
   document.body.appendChild(form);
   form.submit();
 }
+
+function getNameInitials(name) {
+    const names = name.split(" ");
+    var result = names[0] + ' ';
+
+    for (let i = 1; i < names.length; i++) {
+        result += names[i].charAt(0).toUpperCase() + '.';
+        if (i < names.length-1) {
+            result += ' ';
+        }
+    }
+    return result;
+}
+
+function sanitize(value) {
+    return value.replaceAll(',', '.');
+}
+
+function maskDocument(value) {
+    return value.substr(0, 2) + "*.***.**" + value.substr(-4);
+}

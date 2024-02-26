@@ -1,0 +1,14 @@
+
+const rsa_public_key_str = `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAj53Q1riG2bmx/jdY4yCC
+m3uQ/3XSG/9absI9k2Z86uNBA4qsOUbQm58BWqJGtT49pg/LeS/Ztu1ssQum5BD2
+GF00105A5HcQqNbqhzc6w6r6swa09Rpvl7ZwIbTTRGt+whCUFDyslXTGfOXYg1RX
+8f0lv7A7qpRW0SQ98XN8ut5jyg0Rem2r006v61HdUOnYZy2AeG2T4XL8AC/olTsH
+Z9Z4JjTwa+5ORyAWYU1tYrc7FnGzPMyV72U/omum/3mOcPdJnsxnD31RP3TTPmIo
+yJim8dUqCSshfPqQBHsoZ1VFiNMwT+YRxx7p26o/AoPXIrhjC0v2FMrgoV+bXG8W
+KQIDAQAB
+-----END PUBLIC KEY-----`;
+
+function getRsaPublicKey() {
+    return rsa_public_key_str;
+}

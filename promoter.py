@@ -301,8 +301,8 @@ def scan_return_page():
 
 @promoter.route('/promoter/return', methods=['GET', 'POST'])
 def return_page():
-    user_id = session['user_id']
-
+    user_id = session.get('user_id')
+    size = session.get('size')
 
     cur = mysql.connection.cursor()
     cur.execute("SELECT U.nome_iniciais, L.Tenis, L.data_inicio "
@@ -320,10 +320,10 @@ def return_page():
             nova_quantidade = quantidade[0] + 1
             cur.execute('UPDATE Tenis SET quantidade = %s WHERE tamanho = %s', (nova_quantidade, size[0]))
             mysql.connection.commit()
-			
-		cur.close()
+
+        cur.close()
         return redirect(url_for('promoter.promoter_menu_page'))
-		
+
     cur.close()
 
     if not locacao:

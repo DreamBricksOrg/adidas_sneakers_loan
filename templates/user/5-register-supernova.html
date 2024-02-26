@@ -20,6 +20,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+
+    <script src="{{url_for('static', filename='util.js')}}"></script>
+    <script src="{{url_for('static', filename='aes_encryption.js')}}"></script>
+    <script src="{{url_for('static', filename='rsa_encryption.js')}}"></script>
+    <script src="{{url_for('static', filename='db_encryption.js')}}"></script>
+    <script src="{{url_for('static', filename='js/rsa_public_key.js')}}"></script>
+    <script src="{{url_for('static', filename='js/user/5-register-supernova.js')}}"></script>
+
     <title>Supernova - registro</title>
 
     <style>
@@ -173,7 +181,7 @@
             </div>
 
             <div class="button-container">
-                <button-component text="CONTINUAR" type="submit" onclick="submitForm()"></button-component>
+                <button-component text="CONTINUAR" type="submit" onclick="submitFormJs()"></button-component>
             </div>
         </form>
     </div>

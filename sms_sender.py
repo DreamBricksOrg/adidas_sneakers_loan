@@ -37,15 +37,14 @@ def create_verification_code(user_id):
         status = 'ACTIVE'
         user = user_id
 
+        print(code, status, user)
+
         cur = mysql.connection.cursor()
         cur.execute("INSERT INTO CodigoVerificacao (codigo, status, Usuario) VALUES (%s, %s, %s)",
                     (code, status, user))
 
-        cur.execute("SELECT telefone FROM Usuario WHERE id = %s", (user_id,))
-        user = cur.fetchone()
-        if user:
-            tel = user[0]
-            send_sms_code(tel, code)
+        tel = session.get('telefone')
+        send_sms_code(tel, code)
 
         mysql.connection.commit()
         cur.close()
