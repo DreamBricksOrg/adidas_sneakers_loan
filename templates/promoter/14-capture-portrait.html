@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Capturar Imagem do Documento</title>
+    <title>Capturar Retrato do Usuário</title>
     <!--link rel="stylesheet" href="{{ url_for('static', filename='css/promoter/1-scan-start.css') }}">
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script-->
     <script src="{{url_for('static', filename='util.js')}}"></script>
-    <script src="{{url_for('static', filename='js/promoter/13-capture-id.js')}}"></script>
+    <script src="{{url_for('static', filename='js/promoter/14-capture-portrait.js')}}"></script>
 <style type="text/css">
 
 button {
@@ -69,10 +69,10 @@ button {
 
 <button id="start-camera" onclick="startCamera()">Iniciar Camera</button>
 <video id="video" width="640" height="480" autoplay></video><br>
-<button id="click-photo" onclick="capturePhoto()">Tirar Photo</button><br>
+<button id="click-photo" onclick="capturePhoto()">Tirar Foto</button><br>
 <canvas id="canvas" width="480" height="640"></canvas><br>
-<button id="approve-photo" onclick="savePhoto()">Salvar Photo</button><br>
-<a href="{{ url_for('promoter.capture_portrait') }}">
+<button id="approve-photo" onclick="savePhoto()">Salvar Foto</button><br>
+<a href="{{ url_for('promoter.aprove_rental_page') }}">
     <button type="submit">Proximo</button>
 </a>
 

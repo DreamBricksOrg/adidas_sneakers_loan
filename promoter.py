@@ -165,12 +165,12 @@ def scan_aprove_rental_page():
         size = request.form['size']
         session['user_id'] = user_id
         session['size'] = size
-        return redirect(url_for('promoter.aprove_rental_page'))
+        return redirect(url_for('promoter.check_user_size_page'))
     return render_template('promoter/8-scan-aprove-rental.html')
 
 
-@promoter.route('/promoter/aproverentalold', methods=['GET', 'POST'])
-def aprove_rental_page_old():
+@promoter.route('/promoter/checkuser', methods=['GET'])
+def check_user_size_page():
     user_id = session['user_id']
     size = session['size']
 
@@ -188,7 +188,45 @@ def aprove_rental_page_old():
     now = datetime.now()
     start_date = now.strftime('%Y-%m-%d %H:%M:%S')
 
-    return render_template('promoter/9-aprove-rental.html', user_name=result[0], size=size, start_date=start_date)
+    return render_template('promoter/15-check-user.html', user_name=result[0], size=size, start_date=start_date)
+
+@promoter.route('/promoter/captureid', methods=['GET', 'POST'])
+def capture_id():
+    if request.method == 'POST':
+        files = request.files
+        file = files.get('file')
+        print(file)
+
+        user_id = session['user_id']
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO Fotos (Usuario, documento) VALUES(%s, %s)", (user_id, file.read(),))
+        mysql.connection.commit()
+        cur.close()
+
+        return redirect(url_for('promoter.capture_portrait'))
+
+    return render_template('promoter/13-capture-id.html')
+
+
+@promoter.route('/promoter/captureportrait', methods=['GET', 'POST'])
+def capture_portrait():
+    if request.method == 'POST':
+        files = request.files
+        file = files.get('file')
+        print(file)
+
+        user_id = session['user_id']
+
+        cur = mysql.connection.cursor()
+        #cur.execute("INSERT INTO Fotos (Usuario, documento, retrato) VALUES(%s)", (user_id, id_file.read(), file.read(),))
+        cur.execute("UPDATE Fotos SET retrato = %s WHERE Usuario = %s", (file.read(), user_id,))
+        mysql.connection.commit()
+        cur.close()
+
+        return redirect(url_for('promoter.aprove_rental_page'))
+
+    return render_template('promoter/14-capture-portrait.html')
+
 
 @promoter.route('/promoter/aproverental', methods=['GET', 'POST'])
 def aprove_rental_page():
@@ -248,7 +286,9 @@ def aprove_rental_page():
 def scan_return_page():
     if request.method == 'POST':
         user_id = request.form['user_id']
+        size = request.form['size']
         session['user_id'] = user_id
+        session['size'] = size
 
         return redirect(url_for('promoter.return_page'))
     return render_template('promoter/10-scan-return.html')
@@ -256,8 +296,27 @@ def scan_return_page():
 
 @promoter.route('/promoter/return', methods=['GET', 'POST'])
 def return_page():
-    # user_id
-    return render_template('promoter/11-return.html')
+    user_id = session['user_id']
+    size = session['size']
+
+    if request.method == 'POST':
+        pass
+
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT Usuario.nome_iniciais "
+                "FROM Usuario "
+                "WHERE Usuario.id = %s;", (user_id,))
+    result = cur.fetchone()
+    cur.close()
+
+    if not result:
+        cur.close()
+        return jsonify({'message': 'user not found'}), 404
+
+    now = datetime.now()
+    start_date = now.strftime('%Y-%m-%d %H:%M:%S')
+
+    return render_template('promoter/11-return.html', user_name=result[0], size=size, start_date=start_date)
 
 
 @promoter.route('/promoter/rentallistexpired', methods=['GET', 'POST'])
@@ -275,18 +334,3 @@ def rental_list_expired_page():
     cur.close()
     return render_template('promoter/12-expired-list.html', rentals=rentals)
 
-@promoter.route('/promoter/captureid', methods=['GET', 'POST'])
-def capture_id():
-    if request.method == 'POST':
-        files = request.files
-        file = files.get('file')
-        print(file)
-
-        cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO Fotos (documento) VALUES(%s)", (file.read(),))
-        mysql.connection.commit()
-        cur.close()
-
-        return redirect(url_for('promoter.promoter_menu_page'))
-
-    return render_template('promoter/13-capture-id.html')

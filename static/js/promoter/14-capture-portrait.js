@@ -37,15 +37,14 @@ function savePhoto() {
       var data = new FormData()
       data.append('file', blob, 'cam_image.jpg');
 
-
-      fetch('/promoter/captureid', {
+      fetch('/promoter/captureportrait', {
           method: 'POST',
           body: data
+
+      }).then(response => response.json()
+      ).then(json => {
+          console.log(json)
       });
-      //.then(response => response.json()
-      //).then(json => {
-      //    console.log(json)
-      //});
 
     }, 'image/jpeg', 0.95);
 }
