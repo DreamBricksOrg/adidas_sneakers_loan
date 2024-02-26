@@ -8,13 +8,16 @@
 </head>
 <body>
     <div class="container">
-        <h1>Nome</h1>
-        <h1>Data</h1>
-        <h1>Tamanho</h1>
+        <h1>Nome: {{ user_name }}</h1>
+        <h1>Início: {{ start_date }}</h1>
+        <h1>Duração: {{ duration }} minutos</h1>
+        <h1>Tamanho: {{ size }}</h1>
 
         <form action="/promoter/return" method="POST" class="form-container">
             <button type="submit">Devolver</button>
         </form>
+
+        <br><button type="submit">Devolução com Problemas</button><br>
 
         <form action="/" method="POST" class="form-container">
             <button class="btn-cancelar" type="submit">Cancelar</button>

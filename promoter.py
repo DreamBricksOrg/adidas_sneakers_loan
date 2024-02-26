@@ -303,9 +303,10 @@ def return_page():
         pass
 
     cur = mysql.connection.cursor()
-    cur.execute("SELECT Usuario.nome_iniciais "
-                "FROM Usuario "
-                "WHERE Usuario.id = %s;", (user_id,))
+    cur.execute("SELECT U.nome_iniciais, L.data_inicio "
+                "FROM Usuario U, Locacao L "
+                "WHERE U.id = L.Usuario "
+                "AND U.id = %s;", (user_id,))
     result = cur.fetchone()
     cur.close()
 
@@ -313,10 +314,13 @@ def return_page():
         cur.close()
         return jsonify({'message': 'user not found'}), 404
 
-    now = datetime.now()
-    start_date = now.strftime('%Y-%m-%d %H:%M:%S')
+    end_date = datetime.now()
+    end_date_str = end_date.strftime('%Y-%m-%d %H:%M:%S')
+    start_date = result[1]
+    duration = end_date - start_date
+    duration_minutes = int(duration.total_seconds() / 60)
 
-    return render_template('promoter/11-return.html', user_name=result[0], size=size, start_date=start_date)
+    return render_template('promoter/11-return.html', user_name=result[0], size=size, start_date=result[1], duration=duration_minutes)
 
 
 @promoter.route('/promoter/rentallistexpired', methods=['GET', 'POST'])
