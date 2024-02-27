@@ -59,4 +59,4 @@ scheduler.start()
 
 if __name__ == '__main__':
     context = ('static/certificate.crt', 'static/privateKey.key')
-    app.run(host='0.0.0.0', port=5000, ssl_context=context)
+    app.run(host='0.0.0.0', port=443, ssl_context=context)
