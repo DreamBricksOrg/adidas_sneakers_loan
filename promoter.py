@@ -1,6 +1,8 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, make_response
 from config.database import mysql
 from datetime import datetime, timedelta
+import csv
+import io
 
 promoter = Blueprint('promoter', __name__)
 
@@ -30,7 +32,7 @@ def promoter_login_page():
 
         if promotor:
             session['logged_in'] = True
-            session['promotor_id'] = promotor[0]
+            session['promoter_id'] = promotor[0]
             return redirect(url_for('promoter.promoter_local_page'))
         else:
             return redirect(url_for('promoter.promoter_login_page'))
@@ -54,13 +56,25 @@ def promoter_local_page():
 @promoter.route('/promoter/availableshoes', methods=['GET', 'POST'])
 def available_shoes_page():
     if request.method == 'POST':
+        promoter_id = session.get('promoter_id')
+        local_id = session.get('local_id')
+
         cur = mysql.connection.cursor()
         for i in range(1, len(request.form) // 3 + 1):
             corrigir = request.form.get(f'corrigir_quantidade_{i}', '').strip()
             tenis_id = request.form.get(f'tenis_id_{i}')
+            quantidade_antiga = request.form.get(f'quantidade_antiga_{i}')
+            now = datetime.now()
+            change_date = now.strftime('%Y-%m-%d %H:%M:%S')
+
             if corrigir:
                 cur.execute("UPDATE Tenis SET quantidade = %s WHERE id = %s", (corrigir, tenis_id))
-            mysql.connection.commit()
+                mysql.connection.commit()
+
+                cur.execute(
+                    "INSERT INTO LogTenis (Promotor, Local, tamanho, quantidadeOriginal, quantidadeNova, data) VALUES (%s, %s, %s, %s, %s, %s)",
+                    (promoter_id, local_id, tenis_id, quantidade_antiga, corrigir, change_date))
+                mysql.connection.commit()
         cur.close()
         return redirect(url_for('promoter.promoter_menu_page'))
     else:
@@ -244,7 +258,7 @@ def aprove_rental_page():
 
     user_id = session.get('user_id')
 
-    promotor_id = session.get('promotor_id')
+    promoter_id = session.get('promoter_id')
 
     local_id = session.get('local_id')
     cur.execute('SELECT nome FROM Local WHERE id = %s', (local_id,))
@@ -272,7 +286,7 @@ def aprove_rental_page():
         else:
             cur.execute(
                 'INSERT INTO Locacao (Tenis, Usuario, Promotor, Local, Estande, data_inicio, data_fim, status) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s)',
-                (tenis_id[0], user_id, promotor_id, local_id[0], estande, data_inicio, data_fim, status))
+                (tenis_id[0], user_id, promoter_id, local_id[0], estande, data_inicio, data_fim, status))
             mysql.connection.commit()
 
             if cur.lastrowid != 0:
@@ -363,6 +377,50 @@ def return_page():
                            duration=duration_minutes)
 
 
+@promoter.route('/promoter/returnwithproblems', methods=['GET', 'POST'])
+def return_with_problems_page():
+    user_id = session.get('user_id')
+    size = session.get('size')
+
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT U.nome_iniciais, L.Tenis, L.data_inicio, L.status "
+                "FROM Usuario U, Locacao L "
+                "WHERE U.id = L.Usuario "
+                "AND U.id = %s;", (user_id,))
+
+    locacao = cur.fetchone()
+
+    if request.method == 'POST':
+        if locacao[3] == 'ALOCADO' or locacao[3] == 'VENCIDO':
+
+            cur.execute("UPDATE Locacao SET status = 'DEVOLVIDO' WHERE Usuario = %s", (user_id,))
+            mysql.connection.commit()
+
+            cur.execute('SELECT id FROM Usuario WHERE id = %s', (user_id,))
+            user = cur.fetchone()
+            print(user)
+            if user:
+                cur.execute('UPDATE Usuario SET retornado = true WHERE id = %s', (user_id,))
+                mysql.connection.commit()
+
+        cur.close()
+        return redirect(url_for('promoter.promoter_menu_page'))
+
+    cur.close()
+
+    if not locacao:
+        cur.close()
+        return jsonify({'message': 'user not found'}), 404
+
+    end_date = datetime.now()
+    start_date = locacao[2]
+    duration = end_date - start_date
+    duration_minutes = int(duration.total_seconds() / 60)
+
+    return render_template('promoter/11-return.html', user_name=locacao[0], size=size, start_date=start_date,
+                           duration=duration_minutes)
+
+
 @promoter.route('/promoter/rentallistexpired', methods=['GET', 'POST'])
 def rental_list_expired_page():
     if request.method == 'POST':
@@ -374,11 +432,46 @@ def rental_list_expired_page():
                 "Promotor, Locacao.data_inicio AS Inicio, Locacao.data_fim AS Fim, Locacao.status AS Status, "
                 "Local.nome AS Local, Locacao.Estande FROM Locacao JOIN Tenis ON Locacao.Tenis = Tenis.id JOIN Usuario ON "
                 "Locacao.Usuario = Usuario.id JOIN Promotor ON Locacao.Promotor = Promotor.id JOIN Local ON "
-                "Locacao.Local = Local.id WHERE Locacao.status = 'VENCIDO';")
+                "Locacao.Local = Local.id;")
     rentals = cur.fetchall()
     cur.close()
     return render_template('promoter/12-expired-list.html', rentals=rentals)
 
+
 @promoter.route('/promoter/generatekeys', methods=['GET'])
 def generate_keys():
     return render_template('promoter/16-generate-keys.html')
+
+
+@promoter.route('/promoter/baixar_csv', methods=['GET'])
+def baixar_csv():
+    # Execute a consulta SQL
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "SELECT Locacao.id, Tenis.tamanho AS Tenis, Usuario.nome_iniciais AS Usuario, Promotor.nome AS Promotor, "
+        "Locacao.data_inicio AS Inicio, Locacao.data_fim AS Fim, Locacao.status AS Status, Local.nome AS Local, "
+        "Locacao.Estande FROM Locacao JOIN Tenis ON Locacao.Tenis = Tenis.id JOIN Usuario ON Locacao.Usuario = Usuario.id "
+        "JOIN Promotor ON Locacao.Promotor = Promotor.id JOIN Local ON Locacao.Local = Local.id;")
+
+    # Obter os resultados
+    results = cursor.fetchall()
+
+    # Definir os cabeçalhos do CSV
+    fieldnames = [i[0] for i in cursor.description]
+
+    now = datetime.now()
+    now_str = now.strftime('%Y-%m-%d')
+    filename = f'{now_str}_lista_de_locacao.csv'
+
+    # Criar um objeto de resposta CSV
+    response = make_response('')
+    response.headers['Content-Type'] = 'text/csv'
+    response.headers['Content-Disposition'] = f'attachment; filename={filename}'
+
+    # Escrever os resultados no arquivo CSV
+    writer = csv.DictWriter(response.stream, fieldnames=fieldnames)
+    writer.writeheader()
+    for row in results:
+        writer.writerow(dict(zip(fieldnames, row)))
+
+    return response

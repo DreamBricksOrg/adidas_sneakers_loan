@@ -70,10 +70,10 @@
 <body>
 <div class="container">
     <div class="overlay"></div>
-        <h1>Nome: {{ user_name }}</h1>
-        <h1>Início: {{ start_date }}</h1>
-        <h1>Duração: {{ duration }} minutos</h1>
-        <h1>Tamanho: {{ size }}</h1>
+    <h1>Nome: {{ user_name }}</h1>
+    <h1>Início: {{ start_date }}</h1>
+    <h1>Duração: {{ duration }} minutos</h1>
+    <h1>Tamanho: {{ size }}</h1>
 
     <form action="/promoter/return" method="POST" class="form-container">
         <button class="menu-button accept" type="submit">Devolver</button>
@@ -83,7 +83,9 @@
         <button class="menu-button decline">Cancelar</button>
     </a>
 
-    <button class="menu-button problem">Devolução com Problemas</button>
+    <form action="/promoter/returnwithproblems" method="POST" class="form-container">
+        <button class="menu-button problem">Devolução com Problemas</button>
+    </form>
 
 </div>
 </body>

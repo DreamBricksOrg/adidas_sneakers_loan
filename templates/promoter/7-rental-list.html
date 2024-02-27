@@ -107,7 +107,7 @@
             {% for rental in rentals %}
             <tr>
                 <td onfocusin="saveOldValue(this)" onfocusout="saveNewValue(this)">
-                    <input type="number" value="{{ rental[1] }}">
+                    <input type="text" value="{{ rental[1] }}" maxlength="3">
                     <input type="hidden" value="{{ rental[0] }}">
                 </td>
 
@@ -133,7 +133,7 @@
     let newValue;
     let id;
     let intOldValue;
-    let intNewValue
+    let intNewValue;
 
     function saveOldValue(input) {
         let inputs = input.getElementsByTagName('input');
@@ -144,8 +144,8 @@
     function saveNewValue(input) {
         let inputs = input.getElementsByTagName('input');
         newValue = inputs[0].value;
-        intOldValue = parseInt(oldValue);
-        intNewValue = parseInt(newValue);
+        intOldValue = oldValue.toUpperCase();
+        intNewValue = newValue.toUpperCase();
 
         if (intOldValue != intNewValue) {
             increaseValue();

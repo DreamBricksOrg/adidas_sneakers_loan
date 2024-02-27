@@ -181,7 +181,7 @@
             </div>
 
             <div class="button-container">
-                <button-component text="CONTINUAR" type="submit" onclick="submitFormJs()"></button-component>
+                <button-component text="CONTINUAR" type="submit" onclick="submitForm()"></button-component>
             </div>
         </form>
     </div>
@@ -201,12 +201,92 @@
             }
         });
 
-        // Se todos os campos estiverem preenchidos, envia o formulário
+        // Verifica se o CPF é válido
+        var cpfInput = document.getElementById('documento');
+        if (!validarCPF(cpfInput.value)) {
+            alert('CPF inválido. Por favor, insira um CPF válido.');
+            return;
+        }
+
+        // Verifica se a data de nascimento é válida
+        var dataNascimentoInput = document.getElementById('data_nascimento');
+        if (!validarDataNascimento(dataNascimentoInput.value)) {
+            alert('Data de nascimento inválida. Por favor, insira uma data de nascimento válida.');
+            return;
+        }
+
+        // Se todos os campos estiverem preenchidos, o CPF for válido e a data de nascimento for válida, envia o formulário
         if (allFieldsFilled) {
-            document.getElementById('create-user').submit();
+            submitFormJs();
         } else {
             alert('Por favor, preencha todos os campos antes de continuar.');
         }
+    }
+
+    function validarDataNascimento(data) {
+        // Verifica se a data está no formato correto "dd/mm/aaaa"
+        var regexData = /^\d{2}\/\d{2}\/\d{4}$/;
+        if (!regexData.test(data)) return false;
+
+        // Extrai dia, mês e ano da data
+        var partes = data.split('/');
+        var dia = parseInt(partes[0]);
+        var mes = parseInt(partes[1]);
+        var ano = parseInt(partes[2]);
+
+        // Verifica se a data é válida
+        var dataNascimento = new Date(ano, mes - 1, dia); // O mês em JavaScript é indexado a partir de 0 (janeiro = 0, fevereiro = 1, etc.)
+        var hoje = new Date();
+        var idade = hoje.getFullYear() - dataNascimento.getFullYear();
+        var mesAtual = hoje.getMonth() + 1; // Obtemos o mês atual, somamos 1 para estar na mesma base que a entrada do usuário
+        if (mesAtual < mes || (mesAtual == mes && hoje.getDate() < dia)) {
+            idade--; // Ainda não fez aniversário neste ano
+        }
+
+        // Verifica se a idade é maior ou igual a um determinado valor (por exemplo, 18 anos)
+        var idadeMinima = 18;
+        if (idade < idadeMinima) {
+            return false;
+        }
+
+        return true;
+    }
+
+    function validarCPF(cpf) {
+        cpf = cpf.replace(/[^\d]+/g, ''); // Remove caracteres não numéricos
+
+        if (cpf == '' || cpf.length != 11) return false;
+
+        // Elimina CPFs inválidos conhecidos
+        if (
+        cpf == '00000000000' ||
+        cpf == '11111111111' ||
+        cpf == '22222222222' ||
+        cpf == '33333333333' ||
+        cpf == '44444444444' ||
+        cpf == '55555555555' ||
+        cpf == '66666666666' ||
+        cpf == '77777777777' ||
+        cpf == '88888888888' ||
+        cpf == '99999999999'
+        )
+        return false;
+
+        // Valida primeiro dígito verificador
+        var add = 0;
+        for (var i = 0; i < 9; i++) add += parseInt(cpf.charAt(i)) * (10 - i);
+        var rev = 11 - (add % 11);
+        if (rev == 10 || rev == 11) rev = 0;
+        if (rev != parseInt(cpf.charAt(9))) return false;
+
+        // Valida segundo dígito verificador
+        add = 0;
+        for (var i = 0; i < 10; i++) add += parseInt(cpf.charAt(i)) * (11 - i);
+        rev = 11 - (add % 11);
+        if (rev == 10 || rev == 11) rev = 0;
+        if (rev != parseInt(cpf.charAt(10))) return false;
+
+        return true;
     }
 </script>
 
