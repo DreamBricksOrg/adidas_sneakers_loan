@@ -33,19 +33,17 @@ function capturePhoto() {
 function savePhoto() {
     let canvas = document.querySelector("#canvas");
 
-    canvas.toBlob((blob) => {
-      var data = new FormData()
-      data.append('file', blob, 'cam_image.jpg');
-
+    canvas.toBlob(async (blob) => {
+      const publicKey = getRsaPublicKey();
+      const blobArray = await blob.arrayBuffer();
+      const encryptedBlob = await dbEncryptByte(blobArray, publicKey);
+      var data = new FormData();
+      data.append('file', new Blob([encryptedBlob], {type:"application/octet-stream"}), "image.bin");
 
       fetch('/promoter/captureid', {
           method: 'POST',
           body: data
       });
-      //.then(response => response.json()
-      //).then(json => {
-      //    console.log(json)
-      //});
 
     }, 'image/jpeg', 0.95);
 }
