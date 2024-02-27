@@ -378,3 +378,7 @@ def rental_list_expired_page():
     rentals = cur.fetchall()
     cur.close()
     return render_template('promoter/12-expired-list.html', rentals=rentals)
+
+@promoter.route('/promoter/generatekeys', methods=['GET'])
+def generate_keys():
+    return render_template('promoter/16-generate-keys.html')
