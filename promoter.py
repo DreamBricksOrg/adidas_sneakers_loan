@@ -30,7 +30,7 @@ def promoter_login_page():
 
         if promotor:
             session['logged_in'] = True
-            session['promotor_id'] = promotor[0]
+            session['promoter_id'] = promotor[0]
             return redirect(url_for('promoter.promoter_local_page'))
         else:
             return redirect(url_for('promoter.promoter_login_page'))
@@ -54,13 +54,24 @@ def promoter_local_page():
 @promoter.route('/promoter/availableshoes', methods=['GET', 'POST'])
 def available_shoes_page():
     if request.method == 'POST':
+        promoter_id = session.get('promoter_id')
+        local_id = session.get('local_id')
+
         cur = mysql.connection.cursor()
         for i in range(1, len(request.form) // 3 + 1):
             corrigir = request.form.get(f'corrigir_quantidade_{i}', '').strip()
             tenis_id = request.form.get(f'tenis_id_{i}')
+            quantidade_antiga = request.form.get(f'quantidade_antiga_{i}')
+            now = datetime.now()
+            change_date = now.strftime('%Y-%m-%d %H:%M:%S')
+
+            
             if corrigir:
                 cur.execute("UPDATE Tenis SET quantidade = %s WHERE id = %s", (corrigir, tenis_id))
-            mysql.connection.commit()
+                mysql.connection.commit()
+
+                cur.execute("INSERT INTO LogTenis (Promotor, Local, tamanho, quantidadeOriginal, quantidadeNova, data) VALUES (%s, %s, %s, %s, %s, %s)", (promoter_id, local_id, tenis_id, quantidade_antiga, corrigir, change_date))
+                mysql.connection.commit()
         cur.close()
         return redirect(url_for('promoter.promoter_menu_page'))
     else:
@@ -244,7 +255,7 @@ def aprove_rental_page():
 
     user_id = session.get('user_id')
 
-    promotor_id = session.get('promotor_id')
+    promoter_id = session.get('promoter_id')
 
     local_id = session.get('local_id')
     cur.execute('SELECT nome FROM Local WHERE id = %s', (local_id,))
@@ -272,7 +283,7 @@ def aprove_rental_page():
         else:
             cur.execute(
                 'INSERT INTO Locacao (Tenis, Usuario, Promotor, Local, Estande, data_inicio, data_fim, status) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s)',
-                (tenis_id[0], user_id, promotor_id, local_id[0], estande, data_inicio, data_fim, status))
+                (tenis_id[0], user_id, promoter_id, local_id[0], estande, data_inicio, data_fim, status))
             mysql.connection.commit()
 
             if cur.lastrowid != 0:

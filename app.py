@@ -8,7 +8,6 @@ from user import user
 from promoter import promoter
 from datetime import datetime
 
-
 app = Flask(__name__)
 
 # configuration
@@ -27,23 +26,18 @@ app.register_blueprint(sms_sender)
 app.register_blueprint(promoter)
 
 
-
-def atualizar_status():
+def update_status():
     try:
-        # Conectar ao banco de dados
+
         with app.app_context():
             cur = mysql.connection.cursor()
 
-            # Obter a data atual
             now = datetime.now()
 
-            # Consulta SQL para atualizar o status
             cur.execute("UPDATE Locacao SET status = 'VENCIDO' WHERE data_fim < %s AND status != 'DEVOLVIDO' ", (now,))
 
-            # Commit da transação
             mysql.connection.commit()
 
-            # Fechar o cursor
             cur.close()
 
             print('Status atualizado com sucesso.' + now.strftime('%Y-%m-%d %H:%M:%S'))
@@ -52,9 +46,8 @@ def atualizar_status():
         print(str(e))
 
 
-# Configuração do agendador de tarefas
 scheduler = BackgroundScheduler()
-scheduler.add_job(atualizar_status, 'interval', minutes=5)
+scheduler.add_job(update_status, 'interval', minutes=5)
 scheduler.start()
 
 if __name__ == '__main__':
