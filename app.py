@@ -1,7 +1,7 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
 from login_manager import login_manager, auth
-from database import initialize_mysql
+from config.database import initialize_mysql
 from local import local
 from sms_sender import sms_sender
 from user import user

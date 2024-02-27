@@ -3,21 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Screen</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/promoter/9-aprove-rental.css') }}">
+    <title>Supernova - Aprovação</title>
+    <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/promoter/6-promoter-menu.css') }}"
+    />
+    <link rel="stylesheet" href="../../static/css/default.css"/>
+
+    <link
+            rel="shortcut icon"
+            href="../../static/assets/images/logos/adidas.png"
+            type="image/x-icon"
+    />
+
+    <style>
+        .container {
+            background-image: url("../../static/assets/images/shoes-2.png");
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        h1,
+        button {
+            position: relative;
+            z-index: 2;
+        }
+
+        button {
+            padding: 10px 40px;
+            font-size: 14px;
+            border-radius: 7px;
+            text-transform: uppercase;
+            font-family: "Roboto", sans-serif;
+            width: 300px;
+            color: white;
+        }
+
+        .accept {
+            background: green;
+            margin-top: 20px;
+        }
+
+        .decline {
+            background: red;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
 <div class="container">
+    <div class="overlay"></div>
     <h1>{{ user_name }}</h1>
     <h1>{{ start_date }}</h1>
     <h1>{{ size }}</h1>
 
     <a href="{{ url_for('promoter.capture_id') }}">
-        <button type="submit">Foto do Documento</button>
+        <button class="menu-button accept" type="submit">Foto do Documento</button>
     </a>
 
     <a href="{{ url_for('promoter.promoter_menu_page') }}">
-        <button class="btn-cancelar" type="submit">Cancelar</button>
+        <button class="menu-button decline" type="submit">Cancelar</button>
     </a>
 </div>
 </body>

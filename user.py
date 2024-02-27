@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, make_response
-from database import mysql
+from config.database import mysql
 from qrcodeaux import generate_qr_code
 from sms_sender import create_verification_code
 import io
@@ -102,14 +102,15 @@ def user_register_page():
     return render_template('user/5-register-supernova.html')
 
 
-@user.route('/qr_code_validation')
+@user.route('/qr_code_validation', methods=['GET', 'POST'])
 def qr_code_validation_page():
+    cur = mysql.connection.cursor()
     user_id = session.get('user_id')
     if user_id is None:
-        user_id = '0000'
+        user_id = '00'
     size = session.get('size')
     if size is None:
-        size = '0000'
+        size = '00'
     data = {"user_id": user_id, "size": size}
     qr_code_image = generate_qr_code(data)
 
@@ -119,6 +120,16 @@ def qr_code_validation_page():
 
     # Converter o buffer de bytes em uma string base64
     img_str = base64.b64encode(img_buffer.getvalue()).decode()
+
+    if request.method == 'POST':
+        cur.execute("SELECT aprovado FROM Usuario WHERE id = %s", (user_id,))
+        aprovado = cur.fetchone()
+        print(user_id)
+        print(aprovado[0])
+        if aprovado and aprovado[0]:
+            return redirect(url_for('user.allright_page'))
+        else:
+            return '', 403
 
     return render_template('user/7-qr-code-supernova.html', qr_code=img_str)
 
@@ -176,15 +187,16 @@ def submit_review_page():
     return render_template('user/12-rate-try-shoes-supernova.html')
 
 
-@user.route('/qrcodereturn')
+@user.route('/qrcodereturn', methods=['POST', 'GET'])
 def qrcode_return_page():
+    cur = mysql.connection.cursor()
     user_id = session.get('user_id')
     if user_id is None:
-        user_id = '0000'
+        user_id = '00'
 
     size = session.get('size')
     if size is None:
-        size = '0000'
+        size = '00'
     data = {"user_id": user_id, "size": size}
     qr_code_image = generate_qr_code(data)
 
@@ -194,6 +206,16 @@ def qrcode_return_page():
 
     # Converter o buffer de bytes em uma string base64
     img_str = base64.b64encode(img_buffer.getvalue()).decode()
+
+    if request.method == 'POST':
+        cur.execute("SELECT retornado FROM Usuario WHERE id = %s", (user_id,))
+        retornado = cur.fetchone()
+        print(user_id)
+        print(retornado[0])
+        if retornado and retornado[0]:
+            return redirect(url_for('user.thanks_page'))
+        else:
+            return '', 403
 
     return render_template('user/13-finish-try-shoes-supernova.html', qr_code=img_str)
 

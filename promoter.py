@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session
-from database import mysql
+from config.database import mysql
 from datetime import datetime, timedelta
 
 promoter = Blueprint('promoter', __name__)
@@ -10,6 +10,7 @@ def promoter_scan_start_page():
     if request.method == 'POST':
         estande = request.form['estande']
         session['estande'] = estande
+        print(session.get('estande'))
         return redirect(url_for('promoter.promoter_login_page'))
 
     return render_template('promoter/1-scan-start.html')
@@ -40,11 +41,11 @@ def promoter_login_page():
 @promoter.route('/promoter/local', methods=['GET', 'POST'])
 def promoter_local_page():
     if request.method == 'POST':
-        local = request.form['local']
-        session['local'] = local
+        local_id = request.form['local']
+        session['local_id'] = local_id
         return redirect(url_for('promoter.available_shoes_page'))
     cur = mysql.connection.cursor()
-    cur.execute("SELECT nome FROM Local")
+    cur.execute("SELECT * FROM Local")
     locais = cur.fetchall()
     cur.close()
     return render_template('promoter/3-local-confirmation.html', locais=locais)
@@ -61,7 +62,7 @@ def available_shoes_page():
                 cur.execute("UPDATE Tenis SET quantidade = %s WHERE id = %s", (corrigir, tenis_id))
             mysql.connection.commit()
         cur.close()
-        return redirect(url_for('promoter.ready_start_page'))
+        return redirect(url_for('promoter.promoter_menu_page'))
     else:
         cur = mysql.connection.cursor()
         cur.execute("SELECT id, tamanho, quantidade FROM Tenis WHERE Estande = %s", (session.get('estande'),))
@@ -155,7 +156,8 @@ def update_rental():
         return jsonify({'message': 'New size not found'}), 404
 
     # Update records in the 'Rental' table with the new tennis ID
-    cur.execute('UPDATE Locacao SET Tenis = %s WHERE Tenis = %s AND id = %s', (new_tennis_id[0], old_tennis_id[0], rental_id))
+    cur.execute('UPDATE Locacao SET Tenis = %s WHERE Tenis = %s AND id = %s',
+                (new_tennis_id[0], old_tennis_id[0], rental_id))
     mysql.connection.commit()
 
     cur.close()
@@ -195,6 +197,7 @@ def check_user_size_page():
 
     return render_template('promoter/15-check-user.html', user_name=result[0], size=size, start_date=start_date)
 
+
 @promoter.route('/promoter/captureid', methods=['GET', 'POST'])
 def capture_id():
     if request.method == 'POST':
@@ -223,7 +226,7 @@ def capture_portrait():
         user_id = session['user_id']
 
         cur = mysql.connection.cursor()
-        #cur.execute("INSERT INTO Fotos (Usuario, documento, retrato) VALUES(%s)", (user_id, id_file.read(), file.read(),))
+        # cur.execute("INSERT INTO Fotos (Usuario, documento, retrato) VALUES(%s)", (user_id, id_file.read(), file.read(),))
         cur.execute("UPDATE Fotos SET retrato = %s WHERE Usuario = %s", (file.read(), user_id,))
         mysql.connection.commit()
         cur.close()
@@ -238,13 +241,14 @@ def aprove_rental_page():
     cur = mysql.connection.cursor()
 
     size = session.get('size')
+
     user_id = session.get('user_id')
+
     promotor_id = session.get('promotor_id')
 
-    local = session.get('local')
-
-    cur.execute('SELECT id from Local WHERE nome = %s', (local,))
-    local_id = cur.fetchone()
+    local_id = session.get('local_id')
+    cur.execute('SELECT nome FROM Local WHERE id = %s', (local_id,))
+    local = cur.fetchone()
 
     estande = session.get('estande')
 
@@ -264,7 +268,6 @@ def aprove_rental_page():
         result = cur.fetchone()
 
         if result:
-            # sem atualizar
             return redirect(url_for('promoter.rental_list_page'))
         else:
             cur.execute(
@@ -279,6 +282,16 @@ def aprove_rental_page():
                 cur.execute('UPDATE Tenis SET quantidade = %s WHERE tamanho = %s', (nova_quantidade, size))
                 mysql.connection.commit()
 
+                cur.execute('SELECT id FROM Usuario WHERE id = %s', (user_id,))
+                user = cur.fetchone()
+                if user:
+                    cur.execute('UPDATE Usuario SET aprovado = true WHERE id = %s', (user_id,))
+                    mysql.connection.commit()
+
+                    cur.execute('UPDATE Usuario SET local_de_locacao = %s WHERE id = %s', (local[0], user_id))
+                    mysql.connection.commit()
+
+                cur.close()
             return redirect(url_for('promoter.rental_list_page'))
 
     cur.execute("SELECT nome_iniciais FROM Usuario WHERE id = %s ", (user_id,))
@@ -305,21 +318,32 @@ def return_page():
     size = session.get('size')
 
     cur = mysql.connection.cursor()
-    cur.execute("SELECT U.nome_iniciais, L.Tenis, L.data_inicio "
+    cur.execute("SELECT U.nome_iniciais, L.Tenis, L.data_inicio, L.status "
                 "FROM Usuario U, Locacao L "
                 "WHERE U.id = L.Usuario "
                 "AND U.id = %s;", (user_id,))
+
     locacao = cur.fetchone()
+
     if request.method == 'POST':
-        if locacao[8] == 'ALOCADO' or locacao[8] == 'VENCIDO':
+        if locacao[3] == 'ALOCADO' or locacao[3] == 'VENCIDO':
+
+            cur.execute('SELECT quantidade FROM Tenis WHERE tamanho = %s', (size,))
+            quantidade = cur.fetchone()
+
+            nova_quantidade = quantidade[0] + 1
+            cur.execute('UPDATE Tenis SET quantidade = %s WHERE tamanho = %s', (nova_quantidade, size))
+            mysql.connection.commit()
+
             cur.execute("UPDATE Locacao SET status = 'DEVOLVIDO' WHERE Usuario = %s", (user_id,))
             mysql.connection.commit()
 
-            cur.execute('SELECT quantidade FROM Tenis WHERE tamanho = %s', (size[0],))
-            quantidade = cur.fetchone()
-            nova_quantidade = quantidade[0] + 1
-            cur.execute('UPDATE Tenis SET quantidade = %s WHERE tamanho = %s', (nova_quantidade, size[0]))
-            mysql.connection.commit()
+            cur.execute('SELECT id FROM Usuario WHERE id = %s', (user_id,))
+            user = cur.fetchone()
+            print(user)
+            if user:
+                cur.execute('UPDATE Usuario SET retornado = true WHERE id = %s', (user_id,))
+                mysql.connection.commit()
 
         cur.close()
         return redirect(url_for('promoter.promoter_menu_page'))
@@ -331,17 +355,18 @@ def return_page():
         return jsonify({'message': 'user not found'}), 404
 
     end_date = datetime.now()
-    end_date_str = end_date.strftime('%Y-%m-%d %H:%M:%S')
     start_date = locacao[2]
     duration = end_date - start_date
     duration_minutes = int(duration.total_seconds() / 60)
 
-    return render_template('promoter/11-return.html', user_name=locacao[0], size=size, start_date=start_date, duration=duration_minutes)
+    return render_template('promoter/11-return.html', user_name=locacao[0], size=size, start_date=start_date,
+                           duration=duration_minutes)
 
 
 @promoter.route('/promoter/rentallistexpired', methods=['GET', 'POST'])
 def rental_list_expired_page():
     if request.method == 'POST':
+        session.clear()
         return redirect(url_for('promoter.promoter_menu_page'))
 
     cur = mysql.connection.cursor()
@@ -353,4 +378,3 @@ def rental_list_expired_page():
     rentals = cur.fetchall()
     cur.close()
     return render_template('promoter/12-expired-list.html', rentals=rentals)
-
