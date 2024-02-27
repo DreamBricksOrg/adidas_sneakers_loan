@@ -16,9 +16,9 @@ async function submitFormJs() {
     rsa_public_key = getRsaPublicKey();
     dataEncrypted = await dbEncryptString(dataToEncrypt, rsa_public_key);
 
-    console.log(nome_iniciais)
-    console.log(documento_masq)
-    console.log(dataEncrypted);
+    //console.log(nome_iniciais)
+    //console.log(dataToEncrypt)
+    //console.log(dataEncrypted);
 
     post('/user_register', {nome_iniciais: nome_iniciais, documento: documento_masq, telefone: telefone, dados_criptografados: dataEncrypted});
 }
