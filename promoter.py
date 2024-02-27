@@ -65,12 +65,13 @@ def available_shoes_page():
             now = datetime.now()
             change_date = now.strftime('%Y-%m-%d %H:%M:%S')
 
-            
             if corrigir:
                 cur.execute("UPDATE Tenis SET quantidade = %s WHERE id = %s", (corrigir, tenis_id))
                 mysql.connection.commit()
 
-                cur.execute("INSERT INTO LogTenis (Promotor, Local, tamanho, quantidadeOriginal, quantidadeNova, data) VALUES (%s, %s, %s, %s, %s, %s)", (promoter_id, local_id, tenis_id, quantidade_antiga, corrigir, change_date))
+                cur.execute(
+                    "INSERT INTO LogTenis (Promotor, Local, tamanho, quantidadeOriginal, quantidadeNova, data) VALUES (%s, %s, %s, %s, %s, %s)",
+                    (promoter_id, local_id, tenis_id, quantidade_antiga, corrigir, change_date))
                 mysql.connection.commit()
         cur.close()
         return redirect(url_for('promoter.promoter_menu_page'))
@@ -345,6 +346,50 @@ def return_page():
             nova_quantidade = quantidade[0] + 1
             cur.execute('UPDATE Tenis SET quantidade = %s WHERE tamanho = %s', (nova_quantidade, size))
             mysql.connection.commit()
+
+            cur.execute("UPDATE Locacao SET status = 'DEVOLVIDO' WHERE Usuario = %s", (user_id,))
+            mysql.connection.commit()
+
+            cur.execute('SELECT id FROM Usuario WHERE id = %s', (user_id,))
+            user = cur.fetchone()
+            print(user)
+            if user:
+                cur.execute('UPDATE Usuario SET retornado = true WHERE id = %s', (user_id,))
+                mysql.connection.commit()
+
+        cur.close()
+        return redirect(url_for('promoter.promoter_menu_page'))
+
+    cur.close()
+
+    if not locacao:
+        cur.close()
+        return jsonify({'message': 'user not found'}), 404
+
+    end_date = datetime.now()
+    start_date = locacao[2]
+    duration = end_date - start_date
+    duration_minutes = int(duration.total_seconds() / 60)
+
+    return render_template('promoter/11-return.html', user_name=locacao[0], size=size, start_date=start_date,
+                           duration=duration_minutes)
+
+
+@promoter.route('/promoter/returnwithproblems', methods=['GET', 'POST'])
+def return_with_problems_page():
+    user_id = session.get('user_id')
+    size = session.get('size')
+
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT U.nome_iniciais, L.Tenis, L.data_inicio, L.status "
+                "FROM Usuario U, Locacao L "
+                "WHERE U.id = L.Usuario "
+                "AND U.id = %s;", (user_id,))
+
+    locacao = cur.fetchone()
+
+    if request.method == 'POST':
+        if locacao[3] == 'ALOCADO' or locacao[3] == 'VENCIDO':
 
             cur.execute("UPDATE Locacao SET status = 'DEVOLVIDO' WHERE Usuario = %s", (user_id,))
             mysql.connection.commit()
