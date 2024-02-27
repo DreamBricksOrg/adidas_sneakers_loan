@@ -4,10 +4,90 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Tênis Disponíveis</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/promoter/7-rental-list.css') }}">
+    <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/promoter/7-rental-list.css') }}"
+    />
+    <link rel="stylesheet" href="../../static/css/default.css"/>
+
+    <link
+            rel="shortcut icon"
+            href="../../static/assets/images/logos/adidas.png"
+            type="image/x-icon"
+    />
+
 </head>
+<style>
+    .container {
+        background-image: url("../../static/assets/images/shoes-2.png");
+        background-repeat: no-repeat;
+        background-size: cover;
+        position: relative;
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+    }
+
+    table thead th,
+    tbody td {
+        border: 1px solid white;
+    }
+
+    h1,
+    form {
+        position: relative;
+        z-index: 2;
+    }
+
+    form {
+        width: 100%;
+        padding: 36px 27px 46px;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        align-items: center;
+        box-sizing: border-box;
+    }
+
+    button{
+        width:100%;
+        color:black;
+        border:1px solid white;
+        border-radius:0;
+        padding:28px 27px 22px;
+        text-align:left;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        position:relative;
+        top:-5px;
+        left:-5px;
+        font-weight:500;
+        background:white;
+        font-family: "ITCF", sans-serif;
+        font-weight: 600;
+        font-size:15px;
+        letter-spacing:2px;
+        text-transform:uppercase;
+
+    }
+
+    .btn-container{
+        border:1px solid white;
+    }
+</style>
 <body>
 <div class="container">
+    <div class="overlay"></div>
     <h1>Lista de locações</h1>
     <form action="/promoter/rentallist" method="POST">
         <table class="rental-table">
@@ -26,8 +106,11 @@
             <tbody>
             {% for rental in rentals %}
             <tr>
-                <td><input type="number" value="{{ rental[1] }}" onfocus="saveOldValue(this)" onblur="saveNewValue(this)">
+                <td onfocusin="saveOldValue(this)" onfocusout="saveNewValue(this)">
+                    <input type="number" value="{{ rental[1] }}">
+                    <input type="hidden" value="{{ rental[0] }}">
                 </td>
+
                 <td>{{ rental[2] }}</td>
                 <td>{{ rental[3] }}</td>
                 <td>{{ rental[4] }}</td>
@@ -39,23 +122,36 @@
             {% endfor %}
             </tbody>
         </table>
-        <button type="submit">Confirmar</button>
+        <div class="btn-container">
+            <button>CONFIRMAR</button>
+        </div>
     </form>
 </div>
 
 <script>
     let oldValue;
     let newValue;
+    let id;
+    let intOldValue;
+    let intNewValue
 
     function saveOldValue(input) {
-        oldValue = input.value;
+        let inputs = input.getElementsByTagName('input');
+        oldValue = inputs[0].value;
+        id = inputs[1].value;
     }
 
     function saveNewValue(input) {
-        newValue = input.value;
-        increaseValue();
-        decreaseValue();
-        updateRental();
+        let inputs = input.getElementsByTagName('input');
+        newValue = inputs[0].value;
+        intOldValue = parseInt(oldValue);
+        intNewValue = parseInt(newValue);
+
+        if (intOldValue != intNewValue) {
+            increaseValue();
+            decreaseValue();
+            updateRental();
+        }
     }
 
     function sendPost(route, data) {
@@ -72,7 +168,7 @@
 
     function increaseValue() {
         if (newValue) {
-            sendPost('/promoter/updatevalue', { tamanho: newValue, action: 'increase' });
+            sendPost('/promoter/updatevalue', { tamanho: intOldValue, action: 'increase' });
         } else {
             console.log('Tamanho de aumento não definido');
         }
@@ -80,7 +176,7 @@
 
     function decreaseValue() {
         if (oldValue) {
-            sendPost('/promoter/updatevalue', { tamanho: oldValue, action: 'decrease' });
+            sendPost('/promoter/updatevalue', { tamanho: intNewValue, action: 'decrease' });
         } else {
             console.log('Tamanho de diminuição não definido');
         }
@@ -88,7 +184,7 @@
 
     function updateRental() {
         if (newValue) {
-            sendPost('/promoter/update_rental', { newValue: newValue, oldValue: oldValue });
+            sendPost('/promoter/update_rental', { newValue: intNewValue, oldValue: intOldValue, rental_id: id });
         } else {
             console.log('Tamanho de aumento não definido');
         }

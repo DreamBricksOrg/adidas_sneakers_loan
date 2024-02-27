@@ -1,27 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Promotor - Começar</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/promoter/1-scan-start.css') }}">
+    <link rel="stylesheet" href="../../static/css/default.css"/>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="{{url_for('static', filename='util.js')}}"></script>
+    <script src="{{url_for('static', filename='js/promoter/10-scan-return.js')}}"></script>
+    <style>
+        .background {
+            background-image: url("../../static/assets/images/shoes-2.png");
+            background-size: cover;
+            background-repeat: no-repeat;
+            position: relative;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        h1{
+            position: relative;
+
+        }
+
+    </style>
 </head>
 <body>
-<div class="container">
-    <h1>Escaneie o QR CODE do usuário para efetuar a devolução</h1>
-    <form action="/promoter/start" method="POST" class="form-container">
-        <div class="qr-code">
-            <select name="user_id" id="user_id">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-            </select>
-        </div>
-        <button class="btn" type="submit">Entrar</button>
-    </form>
-
+<div class="container background">
+    <div class="overlay"></div>
+    <div class="">
+        <h1 class="uppercase " id="demo">Escaneie o QR CODE do usuário para efetuar a devolução</h1><br>
+        <div class="qr-code" id="reader"></div>
+    </div>
 </div>
+
 </body>
 </html>

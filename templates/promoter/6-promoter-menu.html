@@ -1,19 +1,81 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Menu</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/promoter/6-promoter-menu.css') }}">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/promoter/6-promoter-menu.css') }}"
+    />
+    <link rel="stylesheet" href="../../static/css/default.css"/>
+
+    <link
+            rel="shortcut icon"
+            href="../../static/assets/images/logos/adidas.png"
+            type="image/x-icon"
+    />
+
+    <style>
+        .container {
+            background-image: url("../../static/assets/images/shoes-2.png");
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        h1,
+        button {
+            position: relative;
+            z-index: 2;
+        }
+        h1 {
+            font-size: 68px;
+        }
+
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Menu</h1>
-        <a href="{{ url_for('promoter.available_shoes_page') }}"><button class="menu-button">Lista de tênis disponíveis</button></a>
-        <a href="{{ url_for('promoter.rental_list_page') }}"><button class="menu-button">Lista de locações</button></a>
-        <a href="{{ url_for('promoter.scan_aprove_rental_page') }}"><button class="menu-button">Aprovar locação</button></a>
-        <a href="{{ url_for('promoter.scan_return_page') }}"><button class="menu-button">Devolver Tênis</button></a>
-        <a href="{{ url_for('promoter.available_shoes_page') }}"><button class="menu-button">Finalizar ação</button></a>
-    </div>
+<div class="container">
+    <div class="overlay"></div>
+
+    <h1>Menu</h1>
+    <a href="{{ url_for('promoter.available_shoes_page') }}"
+    >
+        <button class="menu-button">Lista de tênis disponíveis</button>
+    </a
+    >
+    <a href="{{ url_for('promoter.rental_list_page') }}"
+    >
+        <button class="menu-button">Lista de locações</button>
+    </a
+    >
+    <a href="{{ url_for('promoter.scan_aprove_rental_page') }}"
+    >
+        <button class="menu-button">Aprovar locação</button>
+    </a
+    >
+    <a href="{{ url_for('promoter.scan_return_page') }}"
+    >
+        <button class="menu-button">Devolver Tênis</button>
+    </a
+    >
+    <a href="{{ url_for('promoter.rental_list_expired_page') }}"
+    >
+        <button class="menu-button">Finalizar ação</button>
+    </a
+    >
+</div>
 </body>
 </html>

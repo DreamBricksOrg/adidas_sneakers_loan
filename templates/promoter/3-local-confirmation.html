@@ -1,25 +1,117 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="../../static/css/default.css"/>
+
+    <link
+            rel="shortcut icon"
+            href="../../static/assets/images/logos/adidas.png"
+            type="image/x-icon"
+    />
     <title>Confirme o Local</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/promoter/3-local-confirmation.css') }}">
+
+    <style>
+        .container {
+            background-image: url("../../static/assets/images/shoes-2.png");
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            padding-top: 36px;
+        }
+
+        h1,
+        form {
+            position: relative;
+            z-index: 2;
+        }
+
+        form {
+            width: 100%;
+            padding: 36px 27px 46px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .form-item {
+            background: var(--white);
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border-radius: 7px;
+        }
+
+        .form-item select {
+            background: transparent;
+            color: var(--white);
+            font-size: 14px;
+            font-family: "Roboto", sans-serif;
+        }
+
+        button{
+            width:100%;
+            color:black;
+            border:1px solid white;
+            border-radius:0;
+            padding:28px 27px 22px;
+            text-align:left;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            position:relative;
+            top:-5px;
+            left:-5px;
+            font-weight:500;
+            background:white;
+            font-family: "ITCF", sans-serif;
+            font-weight: 600;
+            font-size:15px;
+            letter-spacing:2px;
+            text-transform:uppercase;
+
+        }
+
+        .btn-container{
+            border:1px solid white;
+        }
+
+
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Confirme o Local</h1>
-        <form action="/promoter/local" method="POST">
-            <div class="dropbox">
-                <select name="local" id="local">
-                    <option value="">Selecione o local</option>
-                    {% for local in locais %}
-                        <option value="{{ local[0] }}">{{ local[0] }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+<div class="container">
+    <div class="overlay"></div>
+    <h1>Confirme o Local</h1>
+    <form action="/promoter/local" method="POST">
+        <div class="dropbox">
+            <select name="local" id="local" class="form-item">
+                <option value="">Selecione o local</option>
+                {% for local in locais %}
+                <option value="{{ local[0] }} ">{{ local[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="btn-container">
             <button type="submit">CONFIRMAR</button>
-        </form>
-    </div>
+        </div>
+    </form>
+</div>
 </body>
 </html>

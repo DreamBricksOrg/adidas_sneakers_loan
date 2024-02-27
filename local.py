@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from database import mysql
+from config.database import mysql
 local = Blueprint('local', __name__)
 
 

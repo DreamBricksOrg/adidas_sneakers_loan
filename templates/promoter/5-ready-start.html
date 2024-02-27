@@ -1,15 +1,87 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Tudo pronto para iniciar!</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/promoter/5-ready-start.css') }}">
+
+    <link rel="stylesheet" href="../../static/css/default.css"/>
+
+    <link
+            rel="shortcut icon"
+            href="../../static/assets/images/logos/adidas.png"
+            type="image/x-icon"
+    />
+
+    <style>
+        .container {
+            background-image: url("../../static/assets/images/shoes-2.png");
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            padding-top: 36px;
+        }
+
+        h1,
+        button {
+            position: relative;
+            z-index: 2;
+        }
+
+        h1 {
+            font-size: 68px;
+            margin-bottom: 20px;
+        }
+
+        button{
+            width:100%;
+            color:black;
+            border:1px solid white;
+            border-radius:0;
+            padding:28px 27px 22px;
+            text-align:left;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            position:relative;
+            top:-5px;
+            left:-5px;
+            font-weight:500;
+            background:white;
+            font-family: "ITCF", sans-serif;
+            font-weight: 600;
+            font-size:15px;
+            letter-spacing:2px;
+            text-transform:uppercase;
+
+        }
+
+        .btn-container{
+            border:1px solid white;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Tudo pronto para iniciar!</h1>
-      <a href="{{ url_for('promoter.promoter_menu_page') }}"><button>INICIAR</button></a>
-    </div>
+<div class="container">
+    <div class="overlay"></div>
+
+    <h1>Tudo pronto para iniciar!</h1>
+    <a href="{{ url_for('promoter.promoter_menu_page') }}">
+        <div class="btn-container">
+            <button>INICIAR</button>
+        </div>
+    </a>
+</div>
 </body>
 </html>

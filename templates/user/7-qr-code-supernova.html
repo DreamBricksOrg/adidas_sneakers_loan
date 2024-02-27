@@ -1,86 +1,129 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/default.css') }}" />
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/default.css') }}"/>
 
     <link
-      rel="shortcut icon"
-      href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}"
-      type="image/x-icon"
+            rel="shortcut icon"
+            href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}"
+            type="image/x-icon"
     />
     <title>Supernova - qr-code</title>
 
     <style>
-      .background {
-        background-image: url("{{ url_for('static', filename='assets/images/shoes-2.png') }}");
-        background-position: -260px center;
-        background-repeat: no-repeat;
-        position: relative;
-        overflow: auto;
-      }
+        .background {
+            background-image: url("{{ url_for('static', filename='assets/images/shoes-2.png') }}");
+            background-position: -260px center;
+            background-repeat: no-repeat;
+            position: relative;
+            overflow: auto;
+        }
 
-      .overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.8);
-        padding-top: 26px;
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-      }
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            padding-top: 26px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
 
-      .logo {
-        padding-left: 57px;
-        position: relative;
-        z-index: 2;
-      }
+        .logo {
+            padding-left: 57px;
+            position: relative;
+            z-index: 2;
+        }
 
-      .qr-code {
-        width: 100%;
-        padding: 36px 37px 46px;
-        box-sizing: border-box;
-        text-align: center;
-        color: white;
-        margin-top: 126px;
-        position: relative;
-        z-index: 2;
-      }
+        .qr-code {
+            width: 100%;
+            padding: 36px 37px 46px;
+            box-sizing: border-box;
+            text-align: center;
+            color: white;
+            margin-top: 126px;
+            position: relative;
+            z-index: 2;
+        }
 
-      .qr-code h1 {
-        font-size: 40px;
-      }
+        .qr-code h1 {
+            font-size: 40px;
+        }
 
-      .qr-code-image {
-        margin-top: 64px;
-        border-radius: 7px;
-        display: inline-block;
-        overflow: hidden;
-      }
+        .qr-code-image {
+            margin-top: 64px;
+            margin-bottom: 52px;
+            border-radius: 7px;
+            display: inline-block;
+            overflow: hidden;
+        }
+
+        button{
+            color:black;
+            border:1px solid white;
+            border-radius:0;
+            padding:28px 27px 22px;
+            text-align:left;
+            font-weight:500;
+            background:white;
+            font-family: "ITCF", sans-serif;
+            font-weight: 600;
+            font-size:15px;
+            letter-spacing:2px;
+            text-transform:uppercase;
+        }
+
+
     </style>
-  </head>
-  <body>
-    <div class="container background">
-      <div class="overlay">
-        <div class="logo">
-          <logo-component></logo-component>
-        </div>
-
-        <div class="qr-code">
-          <h1 class="uppercase">
-            agora é só apresentar o qr code abaixo para o promotor
-          </h1>
-
-          <div class="qr-code-image">
-            <img src="data:image/png;base64,{{ qr_code }}" alt="qr-code" />
-          </div>
-          <a href="{{ url_for('user.allright_page') }}"><button>Ir para outra rota</button></a>
-        </div>
-      </div>
+</head>
+<body>
+<div class="container background">
+    <div class="overlay"></div>
+    <div class="logo">
+        <logo-component></logo-component>
     </div>
 
-    <script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>
-    <script src="{{ url_for('static', filename='assets/components/button.js') }}"></script>
-  </body>
+    <div class="qr-code">
+        <h1 class="uppercase">
+            agora é só apresentar o qr code abaixo para o promotor
+        </h1>
+
+        <div class="qr-code-image">
+            <img src="data:image/png;base64,{{ qr_code }}" alt="qr-code"/>
+        </div>
+
+    </div>
+
+</div>
+<script>
+    function sendPost(route, data) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', route, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    console.log('POST enviado com sucesso');
+                    window.location.href = "/allright";
+                } else if (xhr.status === 403) {
+                        console.log('Esperando aprovação');
+                }
+            }
+        };
+        xhr.send(JSON.stringify(data));
+    }
+
+    function validate(){
+        var route = '/qr_code_validation';
+        var data = {};
+        sendPost(route,data);
+    }
+
+    setInterval(validate, 5000);
+
+
+</script>
+</body>
 </html>
