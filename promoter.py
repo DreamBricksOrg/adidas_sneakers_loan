@@ -1,6 +1,8 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, make_response
 from config.database import mysql
 from datetime import datetime, timedelta
+import csv
+import io
 
 promoter = Blueprint('promoter', __name__)
 
@@ -430,11 +432,46 @@ def rental_list_expired_page():
                 "Promotor, Locacao.data_inicio AS Inicio, Locacao.data_fim AS Fim, Locacao.status AS Status, "
                 "Local.nome AS Local, Locacao.Estande FROM Locacao JOIN Tenis ON Locacao.Tenis = Tenis.id JOIN Usuario ON "
                 "Locacao.Usuario = Usuario.id JOIN Promotor ON Locacao.Promotor = Promotor.id JOIN Local ON "
-                "Locacao.Local = Local.id WHERE Locacao.status = 'VENCIDO';")
+                "Locacao.Local = Local.id;")
     rentals = cur.fetchall()
     cur.close()
     return render_template('promoter/12-expired-list.html', rentals=rentals)
 
+
 @promoter.route('/promoter/generatekeys', methods=['GET'])
 def generate_keys():
     return render_template('promoter/16-generate-keys.html')
+
+
+@promoter.route('/promoter/baixar_csv', methods=['GET'])
+def baixar_csv():
+    # Execute a consulta SQL
+    cursor = mysql.connection.cursor()
+    cursor.execute(
+        "SELECT Locacao.id, Tenis.tamanho AS Tenis, Usuario.nome_iniciais AS Usuario, Promotor.nome AS Promotor, "
+        "Locacao.data_inicio AS Inicio, Locacao.data_fim AS Fim, Locacao.status AS Status, Local.nome AS Local, "
+        "Locacao.Estande FROM Locacao JOIN Tenis ON Locacao.Tenis = Tenis.id JOIN Usuario ON Locacao.Usuario = Usuario.id "
+        "JOIN Promotor ON Locacao.Promotor = Promotor.id JOIN Local ON Locacao.Local = Local.id;")
+
+    # Obter os resultados
+    results = cursor.fetchall()
+
+    # Definir os cabeçalhos do CSV
+    fieldnames = [i[0] for i in cursor.description]
+
+    now = datetime.now()
+    now_str = now.strftime('%Y-%m-%d')
+    filename = f'{now_str}_lista_de_locacao.csv'
+
+    # Criar um objeto de resposta CSV
+    response = make_response('')
+    response.headers['Content-Type'] = 'text/csv'
+    response.headers['Content-Disposition'] = f'attachment; filename={filename}'
+
+    # Escrever os resultados no arquivo CSV
+    writer = csv.DictWriter(response.stream, fieldnames=fieldnames)
+    writer.writeheader()
+    for row in results:
+        writer.writerow(dict(zip(fieldnames, row)))
+
+    return response
