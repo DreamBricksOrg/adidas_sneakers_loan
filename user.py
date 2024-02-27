@@ -28,28 +28,19 @@ def get_user_id(id):
 
 
 def create_user(data):
-    data = data
-    nome = data.get('nome')
-    sobrenome = nome.split()[-1] if nome else None  # Obtendo o último nome da entrada do nome completo
-    data_nascimento = data.get('data_nascimento')
-    email = data.get('email')
+    nome_iniciais = data.get('nome_iniciais')
     documento = data.get('documento')
-    telefone = data.get('telefone')
-    genero = data.get('genero')
+    session['telefone'] = data.get('telefone')
+    dados_criptografados = data.get('dados_criptografados')
     confirmacao_sms = False
 
-    if nome:
-        # Obtendo as iniciais do nome
-        if sobrenome:
-            nome_iniciais = nome.split()[0] + ' ' + sobrenome[0]
-        else:
-            nome_iniciais = nome
+    if nome_iniciais:
 
         cursor = mysql.connection.cursor()
         cursor.execute(
-            'INSERT INTO Usuario (nome, nome_iniciais, sobrenome, data_nascimento, email, documento, telefone, genero, confirmacao_sms) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
-            (nome, nome_iniciais, sobrenome, data_nascimento, email, documento, telefone, genero,
-             confirmacao_sms))
+            'INSERT INTO Usuario (nome_iniciais, documento, dados_criptografados, confirmacao_sms) VALUES (%s, %s, %s, %s)',
+            (nome_iniciais, documento, dados_criptografados, confirmacao_sms))
+
         mysql.connection.commit()
         user_id = cursor.lastrowid  # Obtendo o ID do usuário inserido
         cursor.close()

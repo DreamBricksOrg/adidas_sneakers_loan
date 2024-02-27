@@ -11,7 +11,7 @@ function convertPemToBinary(pem) {
             encoded += lines[i].trim();
         }
     }
-    console.log('encoded', encoded);
+    //console.log('encoded', encoded);
     return _base64StringToArrayBuffer(encoded);
 }
 
@@ -67,7 +67,7 @@ const encryptRsa = async (fileArrayBuffer, pemString) => {
     const ciphertextArrayBuffer = await crypto.subtle.encrypt({
         name: 'RSA-OAEP',
     }, secretKey, fileArrayBuffer);
-    console.log('ciphertextArrayBuffer', ciphertextArrayBuffer);
+    //console.log('ciphertextArrayBuffer', ciphertextArrayBuffer);
     return ciphertextArrayBuffer;
 };
 

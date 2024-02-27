@@ -6,9 +6,6 @@
 <script type="text/javascript" src="db_encryption.js"></script>
 <!--script type="text/javascript" src="RsaStringEncryptPage.js"></script-->
 <script>
-inputString = ""
-encryptedString = "";
-decryptedString = "";
 rsaKeyPair = 
 {
     publicKey: "",
@@ -37,6 +34,11 @@ const generateRSAKey = async () => {
     document.getElementById("rsaPrivateKey").value = rsaKeyPair.privateKey;
     //setRsaKeyPair(keyPair);
 };
+
+const updateRsaKeyPair = () => {
+    rsaKeyPair.publicKey = document.getElementById("rsaPublicKey").value;
+    rsaKeyPair.privateKey = document.getElementById("rsaPrivateKey").value;
+}
 
 const downloadPemFiles = () => {
     if (rsaKeyPair.privateKey) {
@@ -69,8 +71,10 @@ const changeFilePemPublic = (files) => {
 };
 
 const encryptText = async () => {
+    updateRsaKeyPair();
     try{
-      encryptedString = await dbEncryptString(inputString, rsaKeyPair.publicKey);
+      const inputString = document.getElementById("textOriginal").value;
+      const encryptedString = await dbEncryptString(inputString, rsaKeyPair.publicKey);
       document.getElementById("encryptedText").value = encryptedString;
     }catch(err){
       alert('Encryption failed.')
@@ -78,17 +82,14 @@ const encryptText = async () => {
 };
 
 const decryptText = async () => {
+    updateRsaKeyPair();
     try{
-      decryptedString = await dbDecryptString(encryptedString, rsaKeyPair.privateKey);
+      const encryptedString = document.getElementById("encryptedText").value;
+      const decryptedString = await dbDecryptString(encryptedString, rsaKeyPair.privateKey);
       document.getElementById("decryptedText").value = decryptedString;
     }catch(err){
       alert('Decryption failed.')
     }
-};
-
-const onKeyInputChange = async (val) =>  {
-    inputString = val;
-    //document.getElementById("demo").innerHTML = inputString;
 };
 
 const readBinaryFile = async (file) => {
@@ -138,21 +139,21 @@ const downloadBinaryFile = (content, fileName) => {
 };
 
 const encryptFile = async () => {
-    //try{
+    updateRsaKeyPair();
+    try{
       var encryptedData = await dbEncryptByte(inputData, rsaKeyPair.publicKey);
       downloadBinaryFile(encryptedData, "encrypted_file.enc");
-      //document.getElementById("encryptedText").value = encryptedString;
       
-    //}catch(err){
-    //  alert('Encryption failed.')
-    //}
+    }catch(err){
+      alert('Encryption failed.')
+    }
 };
 
 const decryptFile = async () => {
+    updateRsaKeyPair();
     try{
       var decryptedData = await dbDecryptByte(inputData, rsaKeyPair.privateKey);
       downloadBinaryFile(decryptedData, "decrypted_file.dec");
-      //document.getElementById("encryptedText").value = encryptedString;
       
     }catch(err){
       alert('Decryption failed.')
@@ -167,14 +168,12 @@ const decryptFile = async () => {
 
 <h3>Public Key</h3>
 <textarea
-  disabled
   id="rsaPublicKey"
   rows="6"
   placeholder="RSA Public Key"
 ></textarea>
 <h3>Private Key</h3>
 <textarea
-  disabled
   id="rsaPrivateKey"
   rows="6"
   placeholder="RSA Private Key"
@@ -199,15 +198,9 @@ const decryptFile = async () => {
 <button type="button" onclick='encryptFile()'>Encrypt File</button><br>
 
 <h3>Text to encrypt</h3>
-<!--input
-  onChange="onKeyInputChange(this.value)"
-  type="text"
-  id="textOriginal"
-/-->
 <textarea
   id="textOriginal"
   rows="6"
-  onChange="onKeyInputChange(this.value)"
 ></textarea>
 
 
@@ -216,7 +209,6 @@ const decryptFile = async () => {
 
 <h3>Encrypted text</h3>
 <textarea
-  disabled
   value="encryptedString"
   id="encryptedText"
   rows="6"
@@ -228,7 +220,6 @@ const decryptFile = async () => {
 
 <h3>Decrypted text</h3>
 <textarea
-  disabled
   value="decryptedString"
   id="decryptedText"
   rows="6"
