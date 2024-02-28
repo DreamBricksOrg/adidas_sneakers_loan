@@ -62,7 +62,10 @@ def welcome_route():
     estande = request.args.get('estande')
     if estande:
         session['estande'] = estande
-    return render_template('user/1-welcome-supernova.html')
+        if 'user_id' in request.cookies:
+            return redirect(url_for('user.clock_page'))
+        else:
+            return render_template('user/1-welcome-supernova.html')
 
 
 @user.route('/terms', methods=['GET'])
@@ -159,7 +162,15 @@ def allright_page():
 
 @user.route('/ready')
 def ready_page():
-    return render_template('user/9-wear-shoes-supernova.html')
+    user_id = session.get('user_id')
+    size = session.get('size')
+
+    response = make_response(
+        render_template('user/9-wear-shoes-supernova.html'))
+
+    response.set_cookie('user_id', str(user_id))
+    response.set_cookie('size', str(size))
+    return response
 
 
 @user.route('/countdownstart')
@@ -241,6 +252,13 @@ def qrcode_return_page():
 @user.route('/thanks')
 def thanks_page():
     session.clear()
-    return render_template('user/14-return-shoes-supernova.html')
+
+    resp = make_response(
+        render_template('user/14-return-shoes-supernova.html'))
+
+    resp.delete_cookie('user_id')
+    resp.delete_cookie('size')
+
+    return resp
 
 
