@@ -51,6 +51,9 @@ def create_user(data):
 
 @user.route('/', methods=['GET'])
 def index_page():
+    estande = request.args.get('estande')
+    if estande:
+        session['estande'] = estande
     return redirect(url_for('user.welcome_route'))
 
 
