@@ -89,9 +89,18 @@
             <div class="sizes">
                 <form id="sizeForm" action="/choose-size" method="POST">
                     <p>Tamanhos</p>
+                    <p>Masculino</p>
                     <div class="table-sizes">
                         {% for tamanho, quantidade in tenis %}
-                        {% if quantidade > 0 %}
+                        {% if quantidade > 0 and tamanho[0] == 'M' %}
+                        <button type="button" class="size-btn">{{ tamanho }}</button>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    <p>Feminino</p>
+                    <div class="table-sizes">
+                        {% for tamanho, quantidade in tenis %}
+                        {% if quantidade > 0 and tamanho[0] == 'F' %}
                         <button type="button" class="size-btn">{{ tamanho }}</button>
                         {% endif %}
                         {% endfor %}
