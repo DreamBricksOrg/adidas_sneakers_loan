@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Tênis Disponíveis</title>
+    <title>Lista de Locações</title>
     <link
             rel="stylesheet"
             href="{{ url_for('static', filename='css/promoter/7-rental-list.css') }}"
@@ -15,6 +15,28 @@
             href="../../static/assets/images/logos/adidas.png"
             type="image/x-icon"
     />
+    <script>
+        function formatarData(data) {
+            if (data === 'None') {
+                return 'N/A';
+            }
+
+            var partes = data.split(' ');
+            var dataPartes = partes[0].split('-');
+            var horaPartes = partes[1].split(':');
+
+            var novaData = dataPartes[2] + '/' + dataPartes[1] + '/' + dataPartes[0] + ' ' + horaPartes.join(':');
+            return novaData;
+        }
+
+        // Use esta função para formatar todas as células de data na tabela
+        document.addEventListener('DOMContentLoaded', function () {
+            var datas = document.querySelectorAll('.data-formatada');
+            datas.forEach(function (data) {
+                data.textContent = formatarData(data.textContent);
+            });
+        });
+    </script>
 
 </head>
 <style>
@@ -119,8 +141,8 @@
                 </td>
                 <td>{{ rental[2] }}</td>
                 <td>{{ rental[3] }}</td>
-                <td>{{ rental[4] }}</td>
-                <td>{{ rental[5] }}</td>
+                <td class="data-formatada">{{ rental[4] }}</td>
+                <td class="data-formatada">{{ rental[5] }}</td>
                 <td>{{ rental[6] }}</td>
                 <td>{{ rental[7] }}</td>
                 <td>{{ rental[8] }}</td>

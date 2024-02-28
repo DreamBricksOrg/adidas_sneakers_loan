@@ -6,8 +6,7 @@ from local import local
 from sms_sender import sms_sender
 from user import user
 from promoter import promoter
-from datetime import datetime
-
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
@@ -27,7 +26,6 @@ app.register_blueprint(sms_sender)
 app.register_blueprint(promoter)
 
 
-
 def atualizar_status():
     try:
         # Conectar ao banco de dados
@@ -36,11 +34,12 @@ def atualizar_status():
 
             # Obter a data atual
             now = datetime.now()
+            expiration = now - timedelta(minutes=45)
 
             # Consulta SQL para atualizar o status
-            cur.execute("UPDATE Locacao SET status = 'VENCIDO' WHERE data_fim < %s AND status = 'ALOCADO' ", (now,))
+            cur.execute("UPDATE Locacao SET status = 'VENCIDO' WHERE data_inicio < %s AND status = 'ALOCADO' ",
+                        (expiration,))
 
-            
             mysql.connection.commit()
 
             # Fechar o cursor

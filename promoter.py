@@ -452,11 +452,15 @@ def rental_list_expired_page():
         return redirect(url_for('promoter.promoter_menu_page'))
 
     cur = mysql.connection.cursor()
-    cur.execute("SELECT Locacao.id,Tenis.tamanho AS Tenis, Usuario.nome_iniciais AS Usuario, Promotor.nome AS "
-                "Promotor, Locacao.data_inicio AS Inicio, Locacao.data_fim AS Fim, Locacao.status AS Status, "
-                "Local.nome AS Local, Locacao.Estande FROM Locacao JOIN Tenis ON Locacao.Tenis = Tenis.id JOIN Usuario ON "
-                "Locacao.Usuario = Usuario.id JOIN Promotor ON Locacao.Promotor = Promotor.id JOIN Local ON "
-                "Locacao.Local = Local.id;")
+    cur.execute("SELECT Locacao.id, Tenis.tamanho AS Tenis, Usuario.nome_iniciais AS Usuario, "
+                "Promotor.nome AS Promotor, Locacao.data_inicio AS Inicio, Locacao.data_fim AS Fim, "
+                "Locacao.status AS Status, Local.nome AS Local, Locacao.Estande, Usuario.id "
+                "FROM Locacao "
+                "JOIN Tenis ON Locacao.Tenis = Tenis.id "
+                "JOIN Usuario ON Locacao.Usuario = Usuario.id "
+                "JOIN Promotor ON Locacao.Promotor = Promotor.id "
+                "JOIN Local ON Locacao.Local = Local.id "
+                "ORDER BY Locacao.data_inicio DESC;")
     rentals = cur.fetchall()
     cur.close()
     return render_template('promoter/12-expired-list.html', rentals=rentals)

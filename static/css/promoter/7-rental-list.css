@@ -32,7 +32,7 @@ body {
     }
 
     .rental-table tbody tr:nth-child(even) {
-        background-color: #989898;
+        background-color: #696969;
     }
     .rental-table tbody tr:hover {
         background-color: #ddd;
