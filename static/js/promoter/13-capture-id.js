@@ -34,20 +34,33 @@ async function savePhoto() {
     let canvas = document.querySelector("#canvas");
 
     canvas.toBlob(async (blob) => {
-      const publicKey = getRsaPublicKey();
-      const blobArray = await blob.arrayBuffer();
-      const encryptedBlob = await dbEncryptByte(blobArray, publicKey);
-      var data = new FormData();
-      data.append('file', new Blob([encryptedBlob], {type:"application/octet-stream"}), "image.bin");
+        const publicKey = getRsaPublicKey();
+        const blobArray = await blob.arrayBuffer();
+        const encryptedBlob = await dbEncryptByte(blobArray, publicKey);
+        var data = new FormData();
+        data.append('file', new Blob([encryptedBlob], {type:"application/octet-stream"}), "image.bin");
 
-      fetch('/promoter/captureid', {
-          method: 'POST',
-          body: data
-      });
+        fetch('/promoter/captureid', {
+            method: 'POST',
+            body: data
+        })
+        .then(response => {
+            if(response.ok) {
+                // Se a solicitação foi bem-sucedida, redirecione para outra página
+                window.location.href = '/promoter/captureportrait';
+            } else {
+                // Se a solicitação falhou, exiba uma mensagem de erro ou tome outra ação apropriada
+                console.error('Erro ao enviar foto');
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao enviar foto:', error);
+        });
 
     }, 'image/jpeg', 0.95);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(startCamera(), 3000);
+    setTimeout(startCamera(), 3000);
 }, false);
+
