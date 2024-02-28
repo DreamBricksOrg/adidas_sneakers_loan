@@ -452,7 +452,7 @@ def return_with_problems_page():
 def rental_list_expired_page():
     if request.method == 'POST':
         session.clear()
-        return redirect(url_for('promoter.promoter_menu_page'))
+        return redirect(url_for('promoter.promoter_scan_start_page'))
 
     local_id = session.get('local_id')
 
