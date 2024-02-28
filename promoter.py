@@ -103,6 +103,8 @@ def rental_list_page():
     if request.method == 'POST':
         return redirect(url_for('promoter.promoter_menu_page'))
 
+    local_id = session.get('local_id')
+
     cur = mysql.connection.cursor()
     cur.execute("SELECT Locacao.id, Tenis.tamanho AS Tenis, Usuario.nome_iniciais AS Usuario, "
                 "Promotor.nome AS Promotor, Locacao.data_inicio AS Inicio, Locacao.data_fim AS Fim, "
@@ -112,7 +114,8 @@ def rental_list_page():
                 "JOIN Usuario ON Locacao.Usuario = Usuario.id "
                 "JOIN Promotor ON Locacao.Promotor = Promotor.id "
                 "JOIN Local ON Locacao.Local = Local.id "
-                "ORDER BY Locacao.data_inicio DESC;")
+                "WHERE Local = %s "
+                "ORDER BY Locacao.data_inicio DESC;", (local_id, ))
     rentals = cur.fetchall()
     print(rentals)
     cur.close()
