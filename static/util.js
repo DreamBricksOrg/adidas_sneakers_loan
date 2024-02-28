@@ -94,3 +94,10 @@ function sanitize(value) {
 function maskDocument(value) {
     return value.substr(0, 2) + "*.***.**" + value.substr(-4);
 }
+
+function createLinkAndClickIt(url) {
+    var link = document.createElement("a");
+    link.id = 'my_auto_link'; //give it an ID!
+    link.href=url;
+    link.click();
+}
