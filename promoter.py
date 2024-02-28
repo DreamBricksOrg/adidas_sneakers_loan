@@ -106,7 +106,7 @@ def rental_list_page():
     cur = mysql.connection.cursor()
     cur.execute("SELECT Locacao.id, Tenis.tamanho AS Tenis, Usuario.nome_iniciais AS Usuario, "
                 "Promotor.nome AS Promotor, Locacao.data_inicio AS Inicio, Locacao.data_fim AS Fim, "
-                "Locacao.status AS Status, Local.nome AS Local, Locacao.Estande "
+                "Locacao.status AS Status, Local.nome AS Local, Locacao.Estande, Usuario.id "
                 "FROM Locacao "
                 "JOIN Tenis ON Locacao.Tenis = Tenis.id "
                 "JOIN Usuario ON Locacao.Usuario = Usuario.id "
@@ -327,6 +327,17 @@ def scan_return_page():
         session['user_id'] = user_id
         session['size'] = size
 
+        return redirect(url_for('promoter.return_page'))
+    return render_template('promoter/10-scan-return.html')
+
+
+@promoter.route('/promoter/scanreturnbtn', methods=['GET', 'POST'])
+def scan_return_btn():
+    if request.method == 'POST':
+        user_id = request.json['user_id']
+        size = request.json['size']
+        session['user_id'] = user_id
+        session['size'] = size
         return redirect(url_for('promoter.return_page'))
     return render_template('promoter/10-scan-return.html')
 
