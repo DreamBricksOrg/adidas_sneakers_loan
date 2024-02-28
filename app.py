@@ -38,7 +38,7 @@ def atualizar_status():
             now = datetime.now()
 
             # Consulta SQL para atualizar o status
-            cur.execute("UPDATE Locacao SET status = 'VENCIDO' WHERE data_fim < %s AND status != 'DEVOLVIDO' ", (now,))
+            cur.execute("UPDATE Locacao SET status = 'VENCIDO' WHERE data_fim < %s AND status = 'ALOCADO' ", (now,))
 
             # Commit da transação
             mysql.connection.commit()

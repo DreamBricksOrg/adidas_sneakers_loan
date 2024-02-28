@@ -269,8 +269,9 @@ def aprove_rental_page():
     now = datetime.now()
     data_inicio = now.strftime('%Y-%m-%d %H:%M:%S')
 
-    future_time = now + timedelta(minutes=45)
-    data_fim = future_time.strftime('%Y-%m-%d %H:%M:%S')
+    # future_time = now + timedelta(minutes=45)
+    # data_fim = future_time.strftime('%Y-%m-%d %H:%M:%S')
+    data_fim = None
 
     status = 'ALOCADO'
 
@@ -349,7 +350,11 @@ def return_page():
             cur.execute('UPDATE Tenis SET quantidade = %s WHERE tamanho = %s', (nova_quantidade, size))
             mysql.connection.commit()
 
-            cur.execute("UPDATE Locacao SET status = 'DEVOLVIDO' WHERE Usuario = %s", (user_id,))
+            now = datetime.now()
+            end_date = now.strftime('%Y-%m-%d %H:%M:%S')
+
+            cur.execute("UPDATE Locacao SET status = 'DEVOLVIDO', data_fim = %s WHERE Usuario = %s",
+                        (end_date, user_id))
             mysql.connection.commit()
 
             cur.execute('SELECT id FROM Usuario WHERE id = %s', (user_id,))
@@ -393,7 +398,11 @@ def return_with_problems_page():
     if request.method == 'POST':
         if locacao[3] == 'ALOCADO' or locacao[3] == 'VENCIDO':
 
-            cur.execute("UPDATE Locacao SET status = 'DEVOLVIDO' WHERE Usuario = %s", (user_id,))
+            now = datetime.now()
+            end_date = now.strftime('%Y-%m-%d %H:%M:%S')
+
+            cur.execute("UPDATE Locacao SET status = 'DEVOLVIDO', data_fim = %s WHERE Usuario = %s",
+                        (end_date, user_id))
             mysql.connection.commit()
 
             cur.execute('SELECT id FROM Usuario WHERE id = %s', (user_id,))

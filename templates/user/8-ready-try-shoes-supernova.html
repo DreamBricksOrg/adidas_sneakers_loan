@@ -67,13 +67,23 @@
                 <a href="{{ url_for('user.ready_page') }}">
                     <button-component text="calçar"></button-component>
                 </a>
-                <a href="{{ url_for('user.thanks_page') }}">
-                    <button-component text="cancelar" background="black"></button-component>
-                </a>
+
+                <form id="cancel" method="POST" action="/allright">
+                    <button-component id="submitButton" text="cancelar" background="black"></button-component>
+                </form>
+
             </div>
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var submitButton = document.querySelector('#submitButton'); // Assuming your submit button has an id "submitButton"
+        submitButton.addEventListener('click', function() {
+            document.getElementById('cancel').submit(); // Submete o formulário com id "myForm"
+        });
+    });
+</script>
 
 <script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>
 <script src="{{ url_for('static', filename='assets/components/button.js') }}"></script>

@@ -137,8 +137,23 @@ def qr_code_validation_page():
     return render_template('user/7-qr-code-supernova.html', qr_code=img_str)
 
 
-@user.route('/allright')
+@user.route('/allright', methods=['GET', 'POST'])
 def allright_page():
+    if request.method == 'POST':
+        cur = mysql.connection.cursor()
+        user_id = session.get('user_id')
+        cur.execute("UPDATE Locacao SET status = 'CANCELADO' WHERE Usuario = %s", (user_id,))
+        mysql.connection.commit()
+
+        size = session.get('size')
+        cur.execute('SELECT quantidade FROM Tenis WHERE tamanho = %s', (size,))
+        quantidade = cur.fetchone()
+
+        nova_quantidade = quantidade[0] + 1
+        cur.execute('UPDATE Tenis SET quantidade = %s WHERE tamanho = %s', (nova_quantidade, size))
+        mysql.connection.commit()
+        return redirect(url_for('user.thanks_page'))
+
     return render_template('user/8-ready-try-shoes-supernova.html')
 
 
@@ -227,3 +242,5 @@ def qrcode_return_page():
 def thanks_page():
     session.clear()
     return render_template('user/14-return-shoes-supernova.html')
+
+
