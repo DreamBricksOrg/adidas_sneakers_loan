@@ -7,7 +7,7 @@ async function startCamera() {
    	let stream = null;
 
     try {
-    	stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    	stream = await navigator.mediaDevices.getUserMedia({ video: {facingMode: "environment"}, audio: false });
     }
     catch(error) {
     	alert(error.message);

@@ -7,7 +7,7 @@ async function startCamera() {
    	let stream = null;
 
     try {
-    	stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    	stream = await navigator.mediaDevices.getUserMedia({ video: {facingMode: "environment"}, audio: false });
     }
     catch(error) {
     	alert(error.message);
@@ -30,7 +30,7 @@ function capturePhoto() {
     approve_button.style.display = 'block';
 }
 
-function savePhoto() {
+async function savePhoto() {
     let canvas = document.querySelector("#canvas");
 
     canvas.toBlob(async (blob) => {
