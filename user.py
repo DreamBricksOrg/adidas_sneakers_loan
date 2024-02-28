@@ -54,6 +54,10 @@ def index_page():
     estande = request.args.get('estande')
     if estande:
         session['estande'] = estande
+        if 'user_id' in request.cookies:
+            return redirect(url_for('user.clock_page'))
+        else:
+            return render_template('user/1-welcome-supernova.html')
     return redirect(url_for('user.welcome_route'))
 
 
