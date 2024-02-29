@@ -508,3 +508,18 @@ def baixar_csv():
         writer.writerow(dict(zip(fieldnames, row)))
 
     return response
+
+@promoter.route('/promoter/statistics', methods=['GET'])
+def statistics_page():
+    local_id = session.get('local_id')
+
+    cur = mysql.connection.cursor()
+    cur.execute('SELECT date_format(data_inicio, "%y-%m-%d") as bdate, adidas_prod.Local.nome nome_local, count(1) as numrentals '
+                'FROM adidas_prod.Locacao, adidas_prod.Local '
+                'WHERE adidas_prod.Locacao.Local = adidas_prod.Local.id '
+                'group by date_format(data_inicio, "%y-%m-%d"), adidas_prod.Local.nome '
+                'order by date_format(data_inicio, "%y-%m-%d") desc, adidas_prod.Local.nome desc;')
+    rentals = cur.fetchall()
+
+    cur.close()
+    return render_template('promoter/17-statistics.html', rentals=rentals)

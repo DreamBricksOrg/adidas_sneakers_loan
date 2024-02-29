@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Locações</title>
+    <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/promoter/7-rental-list.css') }}"
+    />
+    <link rel="stylesheet" href="../../static/css/default.css"/>
+
+    <link
+            rel="shortcut icon"
+            href="../../static/assets/images/logos/adidas.png"
+            type="image/x-icon"
+    />
+    <script>
+        function formatarData(data) {
+            if (data === 'None') {
+                return 'N/A';
+            }
+
+            var dataPartes = data.split('-');
+
+            var novaData = dataPartes[2] + '/' + dataPartes[1] + '/' + dataPartes[0];
+            return novaData;
+        }
+
+        // Use esta função para formatar todas as células de data na tabela
+        document.addEventListener('DOMContentLoaded', function () {
+            var datas = document.querySelectorAll('.data-formatada');
+            datas.forEach(function (data) {
+                data.textContent = formatarData(data.textContent);
+            });
+        });
+    </script>
+
+</head>
+<style>
+    .container {
+        background-image: url("../../static/assets/images/shoes-2.png");
+        background-repeat: no-repeat;
+        background-size: cover;
+        position: relative;
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+    }
+
+    table thead th,
+    tbody td {
+        border: 1px solid white;
+    }
+
+    h1,
+    .table {
+        position: relative;
+        z-index: 2;
+    }
+
+    .table {
+        width: 80%;
+        padding: 36px 27px 46px;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        align-items: center;
+        box-sizing: border-box;
+    }
+
+    button{
+        width:100%;
+        color:black;
+        border:1px solid white;
+        border-radius:0;
+        padding:28px 27px 22px;
+        text-align:left;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        position:relative;
+        top:-5px;
+        left:-5px;
+        font-weight:500;
+        background:white;
+        font-family: "ITCF", sans-serif;
+        font-weight: 600;
+        font-size:15px;
+        letter-spacing:2px;
+        text-transform:uppercase;
+
+    }
+
+    .btn-container{
+        border:1px solid white;
+    }
+
+    .action{
+        cursor: pointer;
+        font-style: italic;
+    }
+
+</style>
+<body>
+<div class="container">
+    <div class="overlay"></div>
+    <h1>Lista de locações</h1>
+    <div class="table">
+        <table class="rental-table">
+            <thead>
+            <tr>
+                <th>Data</th>
+                <th>Local</th>
+                <th>Locações</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for rental in rentals %}
+            <tr>
+                <td class="data-formatada">{{ rental[0] }}</td>
+                <td>{{ rental[1] }}</td>
+                <td>{{ rental[2] }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="btn-container">
+        <a href="{{ url_for('promoter.promoter_menu_page') }}">
+            <button>OK</button>
+        </a>
+    </div>
+</div>
+
+<script>
+    let oldValue;
+    let newValue;
+    let id;
+    let intOldValue;
+    let intNewValue;
+
+    function saveOldValue(input) {
+        let inputs = input.getElementsByTagName('input');
+        oldValue = inputs[0].value;
+        id = inputs[1].value;
+    }
+
+    function saveNewValue(input) {
+        let inputs = input.getElementsByTagName('input');
+        newValue = inputs[0].value;
+        intOldValue = oldValue.toUpperCase();
+        intNewValue = newValue.toUpperCase();
+
+        if (intOldValue != intNewValue) {
+            increaseValue();
+            decreaseValue();
+            updateRental();
+        }
+    }
+
+    function sendPost(route, data) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', route, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                console.log('POST enviado com sucesso');
+            }
+        };
+        xhr.send(JSON.stringify(data));
+    }
+
+    function increaseValue() {
+        if (newValue) {
+            sendPost('/promoter/updatevalue', { tamanho: intOldValue, action: 'increase' });
+        } else {
+            console.log('Tamanho de aumento não definido');
+        }
+    }
+
+    function decreaseValue() {
+        if (oldValue) {
+            sendPost('/promoter/updatevalue', { tamanho: intNewValue, action: 'decrease' });
+        } else {
+            console.log('Tamanho de diminuição não definido');
+        }
+    }
+
+    function updateRental() {
+        if (newValue) {
+            sendPost('/promoter/update_rental', { newValue: intNewValue, oldValue: intOldValue, rental_id: id });
+        } else {
+            console.log('Tamanho de aumento não definido');
+        }
+    }
+
+    function devolver(user_id, size) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/promoter/scanreturnbtn", true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                window.location.href = "/promoter/return";
+            }
+        };
+        var data = JSON.stringify({user_id: user_id, size: size});
+        xhr.send(data);
+    }
+
+</script>
+</body>
+</html>
