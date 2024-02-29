@@ -56,7 +56,27 @@
     </div>
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        var user_id = localStorage.getItem('user_id');
+        var size = localStorage.getItem('size');
+
+        if (user_id && size) {
+
+            var xhr = new XMLHttpRequest();
+            var url = '/save_user_info?user_id=' + user_id + '&size=' + size;
+            xhr.open('GET', url, true);
+            xhr.send();
+
+
+            window.location.href = '/clock';
+        }
+    });
+
+</script>
 <script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>
 <script src="{{ url_for('static', filename='assets/components/button.js') }}"></script>
+
 </body>
 </html>

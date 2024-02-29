@@ -72,7 +72,7 @@
 
     <div class="button-container">
         <a href="{{ url_for('user.submit_review_page') }}">
-            <button-component id="devolver-btn" onclick="clearCookie()" text="devolver o tênis"
+            <button-component id="devolver-btn" onclick="clearLocalStorage()" text="devolver o tênis"
                               background="black"></button-component>
         </a>
     </div>
@@ -81,7 +81,7 @@
 <script>
 
     function getRemainingTime() {
-        var startTime = new Date("{{ start_time.isoformat() }}");
+        var startTime = new Date(localStorage.getItem("start_time"));
         var now = new Date();
         var elapsedTime = now - startTime;
         var remainingTime = (45 * 60 * 1000) - elapsedTime;
@@ -102,12 +102,15 @@
     }
 
 
-    function clearCookie() {
-        document.cookie = "start_time=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    function clearLocalStorage() {
+        localStorage.removeItem("start_time");
     }
 
 
     window.onload = function () {
+        if (!localStorage.getItem("start_time")) {
+            localStorage.setItem("start_time", new Date().toISOString());
+        }
         updateTimer();
     };
 </script>

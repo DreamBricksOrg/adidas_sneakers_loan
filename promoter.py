@@ -12,7 +12,6 @@ def promoter_scan_start_page():
     if request.method == 'POST':
         estande = request.form['estande']
         session['estande'] = estande
-        print(session.get('estande'))
         return redirect(url_for('promoter.promoter_login_page'))
 
     return render_template('promoter/1-scan-start.html')
@@ -27,7 +26,7 @@ def promoter_login_page():
         cur = mysql.connection.cursor()
         cur.execute("SELECT * FROM Promotor WHERE usuario = %s AND senha = %s", (username, password))
         promotor = cur.fetchone()
-        # print(promotor)
+
         cur.close()
 
         if promotor:
@@ -117,7 +116,7 @@ def rental_list_page():
                 "WHERE Local = %s "
                 "ORDER BY Locacao.data_inicio DESC;", (local_id, ))
     rentals = cur.fetchall()
-    print(rentals)
+
     cur.close()
     return render_template('promoter/7-rental-list.html', rentals=rentals)
 
@@ -130,9 +129,9 @@ def update_values():
 
     cur = mysql.connection.cursor()
     cur.execute('SELECT quantidade FROM Tenis WHERE tamanho = %s', (tamanho,))
-    # print(tamanho)
+
     resultado = cur.fetchone()
-    # print(resultado)
+
 
     if resultado:
         if action == 'increase':
@@ -141,7 +140,7 @@ def update_values():
             nova_quantidade = resultado[0] - 1
         else:
             return "Ação inválida. Use 'increase' ou 'decrease'."
-        # print(nova_quantidade)
+
         cur.execute('UPDATE Tenis SET quantidade = %s WHERE tamanho = %s', (nova_quantidade, tamanho))
         mysql.connection.commit()
         cur.close()
@@ -188,7 +187,7 @@ def update_rental():
 @promoter.route('/promoter/scanaproverental', methods=['GET', 'POST'])
 def scan_aprove_rental_page():
     if request.method == 'POST':
-        # print(request.form)
+
         user_id = request.form['user_id']
         size = request.form['size']
         session['user_id'] = user_id
@@ -224,7 +223,7 @@ def capture_id():
     if request.method == 'POST':
         files = request.files
         file = files.get('file')
-        print(file)
+
 
         user_id = session['user_id']
         cur = mysql.connection.cursor()
@@ -242,7 +241,7 @@ def capture_portrait():
     if request.method == 'POST':
         files = request.files
         file = files.get('file')
-        print(file)
+
 
         user_id = session['user_id']
 
@@ -377,7 +376,7 @@ def return_page():
 
             cur.execute('SELECT id FROM Usuario WHERE id = %s', (user_id,))
             user = cur.fetchone()
-            print(user)
+
             if user:
                 cur.execute('UPDATE Usuario SET retornado = true WHERE id = %s', (user_id,))
                 mysql.connection.commit()
@@ -425,7 +424,7 @@ def return_with_problems_page():
 
             cur.execute('SELECT id FROM Usuario WHERE id = %s', (user_id,))
             user = cur.fetchone()
-            print(user)
+
             if user:
                 cur.execute('UPDATE Usuario SET retornado = true WHERE id = %s', (user_id,))
                 mysql.connection.commit()

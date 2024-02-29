@@ -4,7 +4,6 @@ from qrcodeaux import generate_qr_code
 from sms_sender import create_verification_code
 import io
 import base64
-import datetime
 
 user = Blueprint('user', __name__)
 
@@ -54,11 +53,16 @@ def index_page():
     estande = request.args.get('estande')
     if estande:
         session['estande'] = estande
-        if 'user_id' in request.cookies:
-            return redirect(url_for('user.clock_page'))
-        else:
-            return render_template('user/1-welcome-supernova.html')
-    return redirect(url_for('user.welcome_route'))
+    return render_template('user/1-welcome-supernova.html')
+
+
+@user.route('/save_user_info', methods=['GET'])
+def save_user_info():
+    user_id = request.args.get('user_id')
+    size = request.args.get('size')
+    session['user_id'] = user_id
+    session['size'] = size
+    return '', 200
 
 
 @user.route('/welcome', methods=['GET'])
@@ -66,10 +70,7 @@ def welcome_route():
     estande = request.args.get('estande')
     if estande:
         session['estande'] = estande
-        if 'user_id' in request.cookies:
-            return redirect(url_for('user.clock_page'))
-        else:
-            return render_template('user/1-welcome-supernova.html')
+    return render_template('user/1-welcome-supernova.html')
 
 
 @user.route('/terms', methods=['GET'])
@@ -81,7 +82,6 @@ def terms_page():
 def choose_size_page():
     if request.method == 'POST':
         size = request.form['size']
-        print(size)
         session['size'] = size
         return redirect(url_for('user.time_use_page'))
 
@@ -104,7 +104,6 @@ def time_use_page():
 def user_register_page():
     if request.method == 'POST':
         data = request.form
-        print(data)
         user_id = create_user(data)
         session['user_id'] = user_id
         create_verification_code(user_id)
@@ -134,8 +133,6 @@ def qr_code_validation_page():
     if request.method == 'POST':
         cur.execute("SELECT aprovado FROM Usuario WHERE id = %s", (user_id,))
         aprovado = cur.fetchone()
-        print(user_id)
-        print(aprovado[0])
         if aprovado and aprovado[0]:
             return redirect(url_for('user.allright_page'))
         else:
@@ -169,12 +166,7 @@ def ready_page():
     user_id = session.get('user_id')
     size = session.get('size')
 
-    response = make_response(
-        render_template('user/9-wear-shoes-supernova.html'))
-
-    response.set_cookie('user_id', str(user_id))
-    response.set_cookie('size', str(size))
-    return response
+    return render_template('user/9-wear-shoes-supernova.html', user_id=user_id, size=size)
 
 
 @user.route('/countdownstart')
@@ -184,19 +176,7 @@ def countdown_start_page():
 
 @user.route('/clock')
 def clock_page():
-
-    if 'start_time' in request.cookies:
-        start_time = datetime.datetime.fromisoformat(request.cookies.get('start_time'))
-    else:
-        # Define o tempo inicial como o tempo atual se o cookie não estiver definido
-        start_time = datetime.datetime.now()
-        response = make_response(
-            render_template('user/11-time-left-shoes-supernova.html', start_time=start_time))
-        # Define o cookie com o tempo inicial
-        response.set_cookie('start_time', start_time.isoformat())
-        return response
-
-    return render_template('user/11-time-left-shoes-supernova.html', start_time=start_time)
+    return render_template('user/11-time-left-shoes-supernova.html')
 
 
 @user.route('/submit_review', methods=['POST', 'GET'])
@@ -243,8 +223,6 @@ def qrcode_return_page():
     if request.method == 'POST':
         cur.execute("SELECT retornado FROM Usuario WHERE id = %s", (user_id,))
         retornado = cur.fetchone()
-        print(user_id)
-        print(retornado[0])
         if retornado and retornado[0]:
             return redirect(url_for('user.thanks_page'))
         else:
@@ -256,13 +234,4 @@ def qrcode_return_page():
 @user.route('/thanks')
 def thanks_page():
     session.clear()
-
-    resp = make_response(
-        render_template('user/14-return-shoes-supernova.html'))
-
-    resp.delete_cookie('user_id')
-    resp.delete_cookie('size')
-
-    return resp
-
-
+    return render_template('user/14-return-shoes-supernova.html')

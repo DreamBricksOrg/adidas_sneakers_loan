@@ -52,12 +52,22 @@
         <p class="uppercase">Você terá 45 minutos.</p>
         <div class="button-container">
             <a href="{{ url_for('user.countdown_start_page') }}">
-                <button-component text="BORA?"></button-component>
+                <button-component id="startButton" text="BORA?"></button-component>
             </a>
         </div>
     </div>
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Pegar user_id e size do Flask e salvar no LocalStorage
+        var user_id = "{{ user_id }}";
+        var size = "{{ size }}";
+        localStorage.setItem('user_id', user_id);
+        localStorage.setItem('size', size);
+
+    });
+</script>
 <script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>
 <script src="{{ url_for('static', filename='assets/components/button.js') }}"></script>
 </body>

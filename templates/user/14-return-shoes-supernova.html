@@ -80,6 +80,12 @@
 
 </div>
 
+<script>
+    // Limpar user_id e size do localStorage
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('size');
+</script>
+
 <script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>
 <script src="{{ url_for('static', filename='assets/components/button.js') }}"></script>
 </body>
