@@ -143,11 +143,11 @@
                 <td>{{ rental[3] }}</td>
                 <td class="data-formatada">{{ rental[4] }}</td>
                 <td class="data-formatada">{{ rental[5] }}</td>
-                <td>{{ rental[6] }}</td>
+                <td style="color: {{ 'red' if rental[6] == 'VENCIDO' }}">{{ rental[6] }}</td>
                 <td>{{ rental[7] }}</td>
                 <td>{{ rental[8] }}</td>
                 <td class="devolver">
-                   {% if rental[6] == 'ALOCADO' or rental[6] == 'VENCIDO' %}
+                    {% if rental[6] == 'ALOCADO' or rental[6] == 'VENCIDO' %}
                     <span class="action" onclick="devolver('{{ rental[9] }}', '{{ rental[1] }}')">devolver</span>
                     <input type="hidden" value="{{ rental[9] }}">
                     {% endif %}
@@ -230,7 +230,7 @@
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.onreadystatechange = function () {
             if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-                    window.location.href = "/promoter/return";
+                window.location.href = "/promoter/return";
             }
         };
         var data = JSON.stringify({user_id: user_id, size: size});
