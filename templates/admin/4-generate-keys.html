@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/default.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}"
+          type="image/x-icon">
+    <title>Supernova - Gerar chaves</title>
+    <script src="{{url_for('static', filename='util.js')}}"></script>
+    <script src="{{url_for('static', filename='aes_encryption.js')}}"></script>
+    <script src="{{url_for('static', filename='rsa_encryption.js')}}"></script>
+    <script src="{{url_for('static', filename='db_encryption.js')}}"></script>
+    <script src="{{url_for('static', filename='js/promoter/16-generate-keys.js')}}"></script>
+
+
+    <style>
+        .background {
+            background-image: url("{{ url_for('static', filename='assets/images/men.png') }}");
+            background-size: cover;
+            background-repeat: no-repeat;
+            position: relative;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            padding-top: 36px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .logo {
+            padding-left: 57px;
+        }
+
+        .experience {
+            margin-top: auto;
+            width: 100%;
+            padding: 36px 37px 46px;
+            box-sizing: border-box;
+            text-align: center;
+            color: white;
+        }
+
+        .experience h1 {
+            max-width: 300px;
+        }
+
+        .experience p {
+            font-size: 24px;
+            margin-top: 28px;
+            margin-bottom: 43px;
+        }
+
+        .button-container {
+            padding: 0 14px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container background">
+    <div class="overlay">
+        <div class="logo">
+            <logo-component></logo-component>
+        </div>
+
+        <div class="experience">
+            <h1 class="uppercase">Gerador de Chaves</h1>
+            <p class="uppercase">Clique no botão para gerar chaves RSA e baixá-las.</p>
+            <p class="uppercase">Envie o arquivo "rsa_public.pem" para um representante da Dreambricks</p>
+            <p class="uppercase">mantenha o arquivo "rsa_private.pem" em um lugar seguro.</p>
+
+            <div class="button-container">
+                <button-component onclick="generateAndDownloadKeys()" text="GERAR CHAVES"></button-component>
+            </div>
+            <div class="button-container">
+                <button-component onclick="backMenu()" text="VOLTAR PARA MENU"></button-component>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/components/button.js') }}"></script>
+<script>
+    function backMenu(){
+        window.location.href = "/admin/menu"
+    }
+</script>
+</body>
+</html>

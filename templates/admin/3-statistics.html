@@ -136,87 +136,13 @@
         </table>
     </div>
     <div class="btn-container">
-        <a href="{{ url_for('promoter.promoter_menu_page') }}">
-            <button>OK</button>
+        <a href="{{ url_for('admin.admin_menu_page') }}">
+            <button>Retornar</button>
         </a>
     </div>
 </div>
 
 <script>
-    let oldValue;
-    let newValue;
-    let id;
-    let intOldValue;
-    let intNewValue;
-
-    function saveOldValue(input) {
-        let inputs = input.getElementsByTagName('input');
-        oldValue = inputs[0].value;
-        id = inputs[1].value;
-    }
-
-    function saveNewValue(input) {
-        let inputs = input.getElementsByTagName('input');
-        newValue = inputs[0].value;
-        intOldValue = oldValue.toUpperCase();
-        intNewValue = newValue.toUpperCase();
-
-        if (intOldValue != intNewValue) {
-            increaseValue();
-            decreaseValue();
-            updateRental();
-        }
-    }
-
-    function sendPost(route, data) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', route, true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-                console.log('POST enviado com sucesso');
-            }
-        };
-        xhr.send(JSON.stringify(data));
-    }
-
-    function increaseValue() {
-        if (newValue) {
-            sendPost('/promoter/updatevalue', { tamanho: intOldValue, action: 'increase' });
-        } else {
-            console.log('Tamanho de aumento não definido');
-        }
-    }
-
-    function decreaseValue() {
-        if (oldValue) {
-            sendPost('/promoter/updatevalue', { tamanho: intNewValue, action: 'decrease' });
-        } else {
-            console.log('Tamanho de diminuição não definido');
-        }
-    }
-
-    function updateRental() {
-        if (newValue) {
-            sendPost('/promoter/update_rental', { newValue: intNewValue, oldValue: intOldValue, rental_id: id });
-        } else {
-            console.log('Tamanho de aumento não definido');
-        }
-    }
-
-    function devolver(user_id, size) {
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", "/promoter/scanreturnbtn", true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-                window.location.href = "/promoter/return";
-            }
-        };
-        var data = JSON.stringify({user_id: user_id, size: size});
-        xhr.send(data);
-    }
-
 </script>
 </body>
 </html>

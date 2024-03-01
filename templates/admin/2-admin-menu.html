@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Menu</title>
+    <title>Menu - Admin</title>
     <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/promoter/6-promoter-menu.css') }}"
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/promoter/6-promoter-menu.css') }}"
     />
     <link rel="stylesheet" href="../../static/css/default.css"/>
 
@@ -51,31 +51,27 @@
     <div class="overlay"></div>
 
     <h1>Menu</h1>
-    <a href="{{ url_for('promoter.available_shoes_page') }}"
+    <a href="{{ url_for('admin.generate_keys_page') }}"
     >
-        <button class="menu-button">Lista de tênis disponíveis</button>
+        <button class="menu-button">Gerar chaves</button>
     </a
     >
-    <a href="{{ url_for('promoter.rental_list_page') }}"
+    <a href="{{ url_for('admin.statistics_page') }}"
     >
-        <button class="menu-button">Lista de locações</button>
+        <button class="menu-button">Estatísticas</button>
     </a
     >
-    <a href="{{ url_for('promoter.scan_aprove_rental_page') }}"
+    <a href="{{ url_for('admin.users_data_page')}}"
     >
-        <button class="menu-button">Aprovar locação</button>
+        <button class="menu-button">Dados dos usuários</button>
     </a
     >
-    <a href="{{ url_for('promoter.scan_return_page') }}"
+    <a href="{{ url_for('admin.log_mudancas_page')}}"
     >
-        <button class="menu-button">Devolver Tênis</button>
+        <button class="menu-button">Log mudanças</button>
     </a
     >
-    <a href="{{ url_for('promoter.rental_list_expired_page') }}"
-    >
-        <button class="menu-button">Finalizar ação</button>
-    </a
-    >
+
 </div>
 </body>
 </html>

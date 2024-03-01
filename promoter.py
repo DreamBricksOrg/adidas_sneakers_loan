@@ -114,7 +114,7 @@ def rental_list_page():
                 "JOIN Promotor ON Locacao.Promotor = Promotor.id "
                 "JOIN Local ON Locacao.Local = Local.id "
                 "WHERE Local = %s "
-                "ORDER BY Locacao.data_inicio DESC;", (local_id, ))
+                "ORDER BY Locacao.data_inicio DESC;", (local_id,))
     rentals = cur.fetchall()
 
     cur.close()
@@ -131,7 +131,6 @@ def update_values():
     cur.execute('SELECT quantidade FROM Tenis WHERE tamanho = %s', (tamanho,))
 
     resultado = cur.fetchone()
-
 
     if resultado:
         if action == 'increase':
@@ -187,7 +186,6 @@ def update_rental():
 @promoter.route('/promoter/scanaproverental', methods=['GET', 'POST'])
 def scan_aprove_rental_page():
     if request.method == 'POST':
-
         user_id = request.form['user_id']
         size = request.form['size']
         session['user_id'] = user_id
@@ -224,7 +222,6 @@ def capture_id():
         files = request.files
         file = files.get('file')
 
-
         user_id = session['user_id']
         cur = mysql.connection.cursor()
         cur.execute("INSERT INTO Fotos (Usuario, documento) VALUES(%s, %s)", (user_id, file.read(),))
@@ -241,7 +238,6 @@ def capture_portrait():
     if request.method == 'POST':
         files = request.files
         file = files.get('file')
-
 
         user_id = session['user_id']
 
@@ -465,15 +461,10 @@ def rental_list_expired_page():
                 "JOIN Promotor ON Locacao.Promotor = Promotor.id "
                 "JOIN Local ON Locacao.Local = Local.id "
                 "WHERE Local = %s "
-                "ORDER BY Locacao.data_inicio DESC;", (local_id, ))
+                "ORDER BY Locacao.data_inicio DESC;", (local_id,))
     rentals = cur.fetchall()
     cur.close()
     return render_template('promoter/12-expired-list.html', rentals=rentals)
-
-
-@promoter.route('/promoter/generatekeys', methods=['GET'])
-def generate_keys():
-    return render_template('promoter/16-generate-keys.html')
 
 
 @promoter.route('/promoter/baixar_csv', methods=['GET'])
@@ -508,18 +499,3 @@ def baixar_csv():
         writer.writerow(dict(zip(fieldnames, row)))
 
     return response
-
-@promoter.route('/promoter/statistics', methods=['GET'])
-def statistics_page():
-    local_id = session.get('local_id')
-
-    cur = mysql.connection.cursor()
-    cur.execute('SELECT date_format(data_inicio, "%y-%m-%d") as bdate, adidas_prod.Local.nome nome_local, count(1) as numrentals '
-                'FROM adidas_prod.Locacao, adidas_prod.Local '
-                'WHERE adidas_prod.Locacao.Local = adidas_prod.Local.id '
-                'group by date_format(data_inicio, "%y-%m-%d"), adidas_prod.Local.nome '
-                'order by date_format(data_inicio, "%y-%m-%d") desc, adidas_prod.Local.nome desc;')
-    rentals = cur.fetchall()
-
-    cur.close()
-    return render_template('promoter/17-statistics.html', rentals=rentals)

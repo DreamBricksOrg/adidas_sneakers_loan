@@ -6,6 +6,7 @@ from local import local
 from sms_sender import sms_sender
 from user import user
 from promoter import promoter
+from admin import admin
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
@@ -15,7 +16,6 @@ app.secret_key = 'db_secret'
 
 # init apps
 mysql = initialize_mysql(app)
-# socketio = SocketIO(app)
 login_manager.init_app(app)
 
 # register blueprints
@@ -24,6 +24,7 @@ app.register_blueprint(local)
 app.register_blueprint(user)
 app.register_blueprint(sms_sender)
 app.register_blueprint(promoter)
+app.register_blueprint(admin)
 
 
 def atualizar_status():

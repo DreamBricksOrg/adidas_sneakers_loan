@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Login - Admin</title>
+    <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/promoter/2-promoter-login.css') }}"
+    />
+    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}"
+          type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/default.css') }}">
+
+    <style>
+        .container {
+            background-image: url("../../static/assets/images/shoes-2.png");
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        h1,
+        form {
+            position: relative;
+            z-index: 2;
+        }
+
+        form {
+            width: 100%;
+            padding: 36px 27px 46px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .form-group {
+            width: max-content;
+        }
+
+        .register p {
+            font-size: 29px;
+        }
+
+        .register-form {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin: 42px 0 0;
+            padding: 0 35px 0px;
+        }
+
+        .form-item {
+            background: var(--dark-grey);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border-radius: 7px;
+            width: 300px;
+        }
+
+        .form-item input {
+            background: transparent;
+            color: var(--white);
+            font-size: 14px;
+            font-family: "Roboto", sans-serif;
+        }
+
+        .form-item input:focus {
+            border: 0;
+            outline: 0;
+        }
+
+        .form-item input::placeholder {
+            color: var(--white);
+            font-size: 14;
+            font-family: "Roboto", sans-serif;
+        }
+
+        button{
+            width:100%;
+            color:black;
+            border:1px solid white;
+            border-radius:0;
+            padding:28px 27px 22px;
+            text-align:left;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            position:relative;
+            top:-5px;
+            left:-5px;
+            font-weight:500;
+            background:white;
+            font-family: "ITCF", sans-serif;
+            font-weight: 600;
+            font-size:15px;
+            letter-spacing:2px;
+            text-transform:uppercase;
+
+        }
+
+        .btn-container{
+            border:1px solid white;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="overlay"></div>
+    <h1>Login</h1>
+    <form action="#" method="post">
+        <div class="form-group form-item">
+            <input type="text" name="username" placeholder="Usuário" required/>
+        </div>
+        <div class="form-group form-item">
+            <input type="password" name="password" placeholder="Senha" required/>
+        </div>
+        <div class="btn-container">
+            <button type="submit">Entrar</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>

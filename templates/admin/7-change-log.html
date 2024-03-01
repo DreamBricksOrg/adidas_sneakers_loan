@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/default.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}"
           type="image/x-icon">
-    <title>Supernova - escolha o tamanho</title>
+    <title>Supernova - Log Mudanças</title>
     <script src="{{url_for('static', filename='util.js')}}"></script>
     <script src="{{url_for('static', filename='aes_encryption.js')}}"></script>
     <script src="{{url_for('static', filename='rsa_encryption.js')}}"></script>
@@ -20,6 +20,7 @@
             background-size: cover;
             background-repeat: no-repeat;
             position: relative;
+
         }
 
         .overlay {
@@ -27,9 +28,7 @@
             inset: 0;
             background: rgba(0, 0, 0, 0.5);
             padding-top: 36px;
-            display: flex;
-            flex-direction: column;
-            flex: 1;
+
         }
 
         .logo {
@@ -37,7 +36,6 @@
         }
 
         .experience {
-            margin-top: auto;
             width: 100%;
             padding: 36px 37px 46px;
             box-sizing: border-box;
@@ -58,6 +56,13 @@
         .button-container {
             padding: 0 14px 0;
         }
+
+        .container-items {
+            display:flex;
+            flex-direction: column;
+        }
+
+
     </style>
 </head>
 <body>
@@ -67,20 +72,36 @@
             <logo-component></logo-component>
         </div>
 
-        <div class="experience">
-            <h1 class="uppercase">Gerador de Chaves</h1>
-            <p class="uppercase">Clique no botão para gerar chaves RSA e baixá-las.</p>
-            <p class="uppercase">Envie o arquivo "rsa_public.pem" para um representante da Dreambricks</p>
-            <p class="uppercase">mantenha o arquivo "rsa_private.pem" em um lugar seguro.</p>
+        <div class="container-items">
 
-            <div class="button-container">
-                <button-component onclick="generateAndDownloadKeys()" text="GERAR CHAVES"></button-component>
+            <div class="experience">
+                <h1 class="uppercase">Log Mundanças</h1>
+                <p class="uppercase">Clique no botão para baixar o log de mundanças de quantidade</p>
+            </div>
+
+            <div class="buttons">
+                <div class="button-container">
+                    <button-component onclick="downloadLogChanges()" text="GERAR CHAVES"></button-component>
+                </div>
+                <div class="button-container">
+                    <button-component onclick="backMenu()" text="VOLTAR PARA MENU"></button-component>
+                </div>
             </div>
         </div>
     </div>
+
 </div>
 
 <script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>
 <script src="{{ url_for('static', filename='assets/components/button.js') }}"></script>
+<script>
+    function backMenu(){
+        window.location.href = "/admin/menu";
+    }
+
+    function downloadLogChanges(){
+        window.location.href = "/admin/downloadlogchanges";
+    }
+</script>
 </body>
 </html>
