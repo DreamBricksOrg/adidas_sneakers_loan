@@ -123,13 +123,13 @@
             <h1 class="uppercase">Dados dos usuários</h1>
             <div class="line">
                 <p>Selecione o arquivo rsa_private.pem</p>
-                <button> abrir arquivo</button>
-                <p id="nome_arquivo_rsa">(nome)</p>
+                <input type="file" id="file_pem">
             </div>
 
             <div class="line">
                 <p>baixar csv com os dados dos usuários</p>
-                <button>Baixar</button>
+                <button onclick="fetchCSV()">Baixar CSV</button>
+                <div id="csvData" style="display:none;">{{ csv_content }}</div>
             </div>
 
             <form>
@@ -154,6 +154,67 @@
     function backMenu(){
         window.location.href = "/admin/menu"
     }
+</script>
+<script>
+    let private_key;
+    let csv_crypted;
+
+    document.getElementById('file_pem').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function() {
+            const pemContent = reader.result;
+            private_key = pemContent;
+        };
+
+        reader.readAsText(file);
+    });
+
+    async function fetchCSV() {
+        fetch('/admin/downloadcryptedcsv')
+            .then(response => response.text())
+            .then(async csvData => {
+            // Remove o cabeçalho original do CSV
+            var lines = csvData.split('\n').slice(1); // Remove a primeira linha do CSV (cabeçalho original)
+
+            // Define o novo cabeçalho
+            var newHeader = 'id,nome,email,data_nascimento,documento,telefone,genero,tenis,data_inicio,data_fim,confirmacao_sms,status,promotor,estande,local\n';
+
+            var originalLineCount = lines.length; // Conta o número de linhas do CSV original
+            console.log('Número de linhas do CSV original:', originalLineCount);
+
+            var decryptedCSV = ''; // Variável para armazenar o CSV descriptografado
+
+            // Adiciona o novo cabeçalho ao CSV descriptografado
+            decryptedCSV += newHeader;
+
+            // Loop através de cada linha do CSV
+            for (var i = 0; i < lines.length; i++) {
+                var columns = lines[i].split(','); // Divide as colunas da linha
+                if (columns.length >= 2) {
+                    var encryptedString = columns[1].trim(); // A segunda coluna contém os dados criptografados
+                    try {
+                        const decodedData = decodeURIComponent(encryptedString); // Decodifica a string
+                        const decryptedString = await dbDecryptString(decodedData, private_key); // Descriptografa os dados
+                        columns[1] = decryptedString; // Substitui os dados criptografados pelos descriptografados
+                    } catch (error) {
+                        console.error('Erro ao descriptografar:', error);
+                    }
+                }
+                decryptedCSV += columns.join(',') + '\n'; // Adiciona a linha modificada ao CSV descriptografado
+            }
+
+            // Baixa o CSV modificado
+            var blob = new Blob([decryptedCSV], { type: 'text/csv' });
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = 'decrypted_csv.csv';
+            link.click();
+        });
+    }
+
+
 </script>
 </body>
 </html>

@@ -25,6 +25,7 @@ const buttonStyle = `
       font-size:15px;
       letter-spacing:2px;
       text-transform:uppercase;
+      cursor: pointer;
 
   }
 

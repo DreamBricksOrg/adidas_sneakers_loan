@@ -19,6 +19,7 @@
             background-image: url("{{ url_for('static', filename='assets/images/men.png') }}");
             background-size: cover;
             background-repeat: no-repeat;
+            background-position: center -300px;
             position: relative;
 
         }
@@ -33,6 +34,8 @@
 
         .logo {
             padding-left: 57px;
+            position: relative;
+            z-index: 2;
         }
 
         .experience {
@@ -60,14 +63,29 @@
         .container-items {
             display:flex;
             flex-direction: column;
+            position: relative;
+            z-index: 2;
+            flex: 1;
+            align-items: center;
+            padding-bottom: 50px;
         }
+
+        .buttons{
+            display: flex;
+            flex-direction: column;
+            width: 25%;
+            margin-top: auto;
+            gap: 20px;
+        }
+
+
 
 
     </style>
 </head>
 <body>
 <div class="container background">
-    <div class="overlay">
+    <div class="overlay"></div>
         <div class="logo">
             <logo-component></logo-component>
         </div>
@@ -88,7 +106,6 @@
                 </div>
             </div>
         </div>
-    </div>
 
 </div>
 

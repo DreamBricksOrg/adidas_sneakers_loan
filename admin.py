@@ -109,3 +109,45 @@ def download_log_changes():
         writer.writerow(dict(zip(fieldnames, row)))
 
     return response
+
+
+@admin.route('/admin/downloadcryptedcsv', methods=['GET'])
+def download_users_data_csv():
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT Usuario.id,"
+                   " Usuario.dados_criptografados,"
+                   " Tenis.tamanho AS Tenis,"
+                   " Locacao.data_inicio AS Inicio,"
+                   " Locacao.data_fim AS Fim,"
+                   " Usuario.confirmacao_sms,"
+                   " Locacao.status AS Status,"
+                   " Promotor.nome as promotor,"
+                   " Locacao.Estande,"
+                   " Local.nome AS Local"
+                   " FROM Locacao JOIN Tenis "
+                   "ON Locacao.Tenis = Tenis.id JOIN Usuario "
+                   "ON Locacao.Usuario = Usuario.id JOIN Promotor "
+                   "ON Locacao.Promotor = Promotor.id JOIN Local "
+                   "ON Locacao.Local = Local.id ORDER BY Locacao.data_inicio DESC;")
+
+    # Obter os resultados
+    results = cursor.fetchall()
+
+    # Definir os cabeçalhos do CSV
+    fieldnames = [i[0] for i in cursor.description]
+
+    now = datetime.now()
+    now_str = now.strftime('%Y-%m-%d')
+    filename = 'crypted.csv'
+
+    # Criar um objeto de resposta CSV
+    response = make_response('')
+    response.headers['Content-Type'] = 'text/csv'
+    response.headers['Content-Disposition'] = f'attachment; filename={filename}'
+
+    writer = csv.DictWriter(response.stream, fieldnames=fieldnames)
+    writer.writeheader()
+    for row in results:
+        writer.writerow(dict(zip(fieldnames, row)))
+
+    return response
