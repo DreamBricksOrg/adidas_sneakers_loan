@@ -7,6 +7,7 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}"
           type="image/x-icon">
     <title>Supernova - Dados dos usuários</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
     <script src="{{url_for('static', filename='util.js')}}"></script>
     <script src="{{url_for('static', filename='aes_encryption.js')}}"></script>
     <script src="{{url_for('static', filename='rsa_encryption.js')}}"></script>
@@ -47,6 +48,13 @@
             box-sizing: border-box;
             text-align: center;
             color: white;
+            display:flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 2;
+            flex: 1;
+            align-items: center;
+            padding-bottom: 50px;
         }
 
         .experience h1 {
@@ -110,6 +118,14 @@
             outline: 0;
         }
 
+        .buttons{
+            display: flex;
+            flex-direction: column;
+            width: 25%;
+            margin-top: auto;
+            gap: 20px;
+        }
+
     </style>
 </head>
 <body>
@@ -132,17 +148,21 @@
                 <div id="csvData" style="display:none;">{{ csv_content }}</div>
             </div>
 
-            <form>
-                <div class="line form-item">
-                    <p>id do usuário</p>
-                    <input type="number">
-                </div>
 
-                <div class="line">
-                    <p>baixar fotos do usuário</p>
-                    <button>Baixar</button>
-                </div>
-            </form>
+            <div class="line form-item">
+                <p>id do usuário</p>
+                <input id="user_id" type="number">
+            </div>
+
+            <div class="line">
+                <p>baixar fotos do usuário</p>
+                <button onclick="handleDownloadClick()">Baixar</button>
+            </div>
+
+            <div class="buttons">
+                <button-component onclick="backMenu()" text="VOLTAR PARA MENU"></button-component>
+            </div>
+
 
         </div>
     </div>
@@ -199,19 +219,92 @@
                         const decryptedString = await dbDecryptString(decodedData, private_key); // Descriptografa os dados
                         columns[1] = decryptedString; // Substitui os dados criptografados pelos descriptografados
                     } catch (error) {
-                        console.error('Erro ao descriptografar:', error);
+                         alert('arquivo .pem não encontrado')
+                         throw new Error('Erro na solicitação: ' + response.status);
                     }
                 }
                 decryptedCSV += columns.join(',') + '\n'; // Adiciona a linha modificada ao CSV descriptografado
             }
 
-            // Baixa o CSV modificado
             var blob = new Blob([decryptedCSV], { type: 'text/csv' });
             var link = document.createElement('a');
             link.href = window.URL.createObjectURL(blob);
             link.download = 'decrypted_csv.csv';
             link.click();
         });
+    }
+
+
+    async function downloadBlob(user_id) {
+        try {
+            // Dados a serem enviados no corpo da solicitação
+            var formData = new FormData();
+            formData.append('user_id', user_id);
+
+            // Configurações da solicitação
+            var requestOptions = {
+                method: 'POST',
+                body: formData
+            };
+
+            // Fazendo a solicitação usando a API Fetch
+            const response = await fetch('/downloadencryptedblob', requestOptions);
+
+            if (!response.ok) {
+                throw new Error('Erro na solicitação: ' + response.status);
+            }
+
+            const data = await response.json();
+
+            // Decodificar os bytes do documento e do retrato
+            var documentoBytes = atob(data.documento_bytes);
+            var retratoBytes = atob(data.retrato_bytes);
+
+            // Converter os bytes para um ArrayBuffer
+            var documentoArrayBuffer = new Uint8Array(documentoBytes.length);
+            var retratoArrayBuffer = new Uint8Array(retratoBytes.length);
+            for (var i = 0; i < documentoBytes.length; i++) {
+                documentoArrayBuffer[i] = documentoBytes.charCodeAt(i);
+            }
+            for (var j = 0; j < retratoBytes.length; j++) {
+                retratoArrayBuffer[j] = retratoBytes.charCodeAt(j);
+            }
+
+            // Descriptografar os dados, se necessário
+            var documento_decrypted = await dbDecryptByte(documentoArrayBuffer, private_key);
+            var retrato_decrypted = await dbDecryptByte(retratoArrayBuffer, private_key);
+
+            // Criar um arquivo zip
+            var zip = new JSZip();
+            zip.file(user_id + "_documento.jpg", documento_decrypted);
+            zip.file(user_id + "_retrato.jpg", retrato_decrypted);
+
+            // Gerar o conteúdo do zip
+            zip.generateAsync({ type: "blob" })
+                .then(function (content) {
+                // Baixar o arquivo zip
+                downloadBinaryFile(content, user_id + "_fotos.zip");
+            });
+
+            console.log("Download concluído com sucesso!");
+        } catch (error) {
+            console.error("Erro:", error);
+        }
+    }
+
+    const downloadBinaryFile = (content, fileName) => {
+        const link = document.createElement("a");
+        const file = new Blob([content], { type: "application/octet-stream" });
+        link.href = URL.createObjectURL(file);
+        link.download = fileName;
+        link.click();
+        URL.revokeObjectURL(link.href);
+    };
+
+    function handleDownloadClick() {
+        var userIdInput = document.getElementById('user_id');
+        var userId = userIdInput.value;
+        downloadBlob(userId);
     }
 
 

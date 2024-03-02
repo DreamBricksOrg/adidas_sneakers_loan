@@ -1,9 +1,11 @@
 import csv
+import base64
 from datetime import datetime, timedelta
 
-from flask import Blueprint, request, session, redirect, url_for, render_template, make_response
+from flask import Blueprint, request, session, redirect, url_for, render_template, make_response, send_file
 
 from config.database import mysql
+import json
 
 admin = Blueprint('admin', __name__)
 
@@ -71,7 +73,7 @@ def users_data_page():
 @admin.route('/admin/logmudancas', methods=['GET'])
 def log_mudancas_page():
     if 'logged_in' in session and session['logged_in']:
-        return render_template('admin/7-change-log.html')
+        return render_template('admin/6-change-log.html')
     else:
         return redirect(url_for('admin.admin_login_page'))
 
@@ -151,3 +153,29 @@ def download_users_data_csv():
         writer.writerow(dict(zip(fieldnames, row)))
 
     return response
+
+
+@admin.route('/downloadencryptedblob', methods=['POST'])
+def download_blob():
+    user_id = request.form['user_id']
+    cur = mysql.connection.cursor()
+
+    # Executar a consulta SQL para recuperar os dados BLOB
+    cur.execute("SELECT documento, retrato FROM Fotos WHERE Usuario = %s", (user_id,))
+    data = cur.fetchone()
+
+    if data:
+        documento_blob = data[0]
+        retrato_blob = data[1]
+
+        # Codificar os bytes em base64
+        documento_base64 = base64.b64encode(documento_blob).decode('utf-8')
+        retrato_base64 = base64.b64encode(retrato_blob).decode('utf-8')
+
+        response_data = {
+            "documento_bytes": documento_base64,
+            "retrato_bytes": retrato_base64
+        }
+        return json.dumps(response_data)
+    else:
+        return json.dumps({"error": "Dados não encontrados para o usuário fornecido."}), 404
