@@ -179,3 +179,7 @@ def download_blob():
         return json.dumps(response_data)
     else:
         return json.dumps({"error": "Dados não encontrados para o usuário fornecido."}), 404
+
+@admin.route('/alive', methods=['GET'])
+def is_alive():
+    return "YES"
