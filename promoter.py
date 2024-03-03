@@ -257,16 +257,16 @@ def aprove_rental_page():
     cur = mysql.connection.cursor()
 
     size = session.get('size')
-
     user_id = session.get('user_id')
-
     promoter_id = session.get('promoter_id')
-
     local_id = session.get('local_id')
+    estande = session.get('estande')
+    print(f'LOG: /promoter/aproverental - session(size: {size}, user_id:{user_id}, '
+          f'promoter_id:{promoter_id}, local_id:{local_id}), estande:{estande}')
+
     cur.execute('SELECT nome FROM Local WHERE id = %s', (local_id,))
     local = cur.fetchone()
-
-    estande = session.get('estande')
+    print(f'LOG: /promoter/aproverental - local: {local[0]}')
 
     now = datetime.now()
     data_inicio = now.strftime('%Y-%m-%d %H:%M:%S')
@@ -279,12 +279,14 @@ def aprove_rental_page():
 
     cur.execute('SELECT id FROM Tenis WHERE tamanho = %s AND estande = %s', (size, estande))
     tenis_id = cur.fetchone()
+    print(f'LOG: /promoter/aproverental - tenis_id: {tenis_id[0]}')
 
     if request.method == 'POST':
         cur.execute('SELECT Usuario FROM Locacao WHERE Usuario = %s', (user_id,))
         result = cur.fetchone()
 
         if result:
+            print(f'ERROR: /promoter/aproverental - usuario_id: {result[0]} already exists!')
             return redirect(url_for('promoter.rental_list_page'))
         else:
             cur.execute(
