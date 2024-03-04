@@ -72,13 +72,29 @@
 
     <div class="button-container">
         <a href="{{ url_for('user.submit_review_page') }}">
-            <button-component id="devolver-btn" onclick="clearLocalStorage()" text="devolver o tênis"
+            <button-component id="devolver-btn" text="devolver o tênis"
                               background="black"></button-component>
         </a>
     </div>
 
 </div>
 <script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        var user_id = localStorage.getItem('user_id');
+        var size = localStorage.getItem('size');
+
+
+        if (user_id && size) {
+
+            var xhr = new XMLHttpRequest();
+            var url = '/save_user_info?user_id=' + user_id + '&size=' + size;
+            xhr.open('GET', url, true);
+            xhr.send();
+
+        }
+    });
 
     function getRemainingTime() {
         var startTime = new Date(localStorage.getItem("start_time"));
@@ -99,11 +115,6 @@
             document.getElementById("timer").innerText = remainingMinutes + "min";
             setTimeout(updateTimer, 1000);
         }
-    }
-
-
-    function clearLocalStorage() {
-        localStorage.removeItem("start_time");
     }
 
 

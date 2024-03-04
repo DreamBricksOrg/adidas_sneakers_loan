@@ -109,7 +109,13 @@
             {% for tenis in tenis_disponiveis %}
             <tr>
                 <td>{{ tenis[1] }}</td>
-                <td>{{ tenis[2] }}</td>
+                <td>{{ tenis[2] }}
+                    <input
+                            type="hidden"
+                            name="quantidade_antiga_{{ loop.index }}"
+                            value="{{ tenis[2] }}"
+                    />
+                </td>
                 <td>
                     <input
                             class="corrigir"
