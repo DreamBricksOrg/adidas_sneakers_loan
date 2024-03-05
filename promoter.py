@@ -1,8 +1,7 @@
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, make_response
 from config.database import mysql
-from datetime import datetime, timedelta
+from datetime import datetime
 import csv
-import io
 
 promoter = Blueprint('promoter', __name__)
 
@@ -49,10 +48,10 @@ def promoter_local_page():
     cur.execute("SELECT * FROM Local")
     locais = cur.fetchall()
     cur.close()
-    if 'logged_in' in session and session['logged_in']:
+    if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
         return render_template('promoter/3-local-confirmation.html', locais=locais)
     else:
-        return redirect(url_for('promoter.promoter_scan_start_page'))
+        return redirect(url_for('promoter.error_page'))
 
 
 @promoter.route('/promoter/availableshoes', methods=['GET', 'POST'])
@@ -84,10 +83,10 @@ def available_shoes_page():
         cur.execute("SELECT id, tamanho, quantidade FROM Tenis WHERE Estande = %s", (session.get('estande'),))
         tenis_disponiveis = cur.fetchall()
         cur.close()
-        if 'logged_in' in session and session['logged_in']:
+        if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
             return render_template('promoter/4-available-shoes.html', tenis_disponiveis=tenis_disponiveis)
         else:
-            return redirect(url_for('promoter.promoter_scan_start_page'))
+            return redirect(url_for('promoter.error_page'))
 
 
 @promoter.route('/promoter/ready-start')
@@ -97,10 +96,10 @@ def ready_start_page():
 
 @promoter.route('/promoter/menu')
 def promoter_menu_page():
-    if 'logged_in' in session and session['logged_in']:
+    if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
         return render_template('promoter/6-promoter-menu.html')
     else:
-        return redirect(url_for('promoter.promoter_scan_start_page'))
+        return redirect(url_for('promoter.error_page'))
 
 
 @promoter.route('/promoter/rentallist', methods=['GET', 'POST'])
@@ -124,10 +123,10 @@ def rental_list_page():
     rentals = cur.fetchall()
 
     cur.close()
-    if 'logged_in' in session and session['logged_in']:
+    if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
         return render_template('promoter/7-rental-list.html', rentals=rentals)
     else:
-        return redirect(url_for('promoter.promoter_scan_start_page'))
+        return redirect(url_for('promoter.error_page'))
 
 
 @promoter.route('/promoter/updatevalue', methods=['POST'])
@@ -200,10 +199,10 @@ def scan_aprove_rental_page():
         session['user_id'] = user_id
         session['size'] = size
         return redirect(url_for('promoter.check_user_size_page'))
-    if 'logged_in' in session and session['logged_in']:
+    if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
         return render_template('promoter/8-scan-aprove-rental.html')
     else:
-        return redirect(url_for('promoter.promoter_scan_start_page'))
+        return redirect(url_for('promoter.error_page'))
 
 
 @promoter.route('/promoter/checkuser', methods=['GET'])
@@ -220,15 +219,15 @@ def check_user_size_page():
 
     if not result:
         cur.close()
-        return jsonify({'message': 'user not found'}), 404
+        return redirect(url_for('promoter.error_user_not_found_page'), 404)
 
     now = datetime.now()
     start_date = now.strftime('%Y-%m-%d %H:%M:%S')
 
-    if 'logged_in' in session and session['logged_in']:
+    if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
         return render_template('promoter/15-check-user.html', user_name=result[0], size=size, start_date=start_date)
     else:
-        return redirect(url_for('promoter.promoter_scan_start_page'))
+        return redirect(url_for('promoter.error_page'))
 
 
 @promoter.route('/promoter/captureid', methods=['GET', 'POST'])
@@ -245,10 +244,10 @@ def capture_id():
 
         return redirect(url_for('promoter.capture_portrait'))
 
-    if 'logged_in' in session and session['logged_in']:
+    if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
         return render_template('promoter/13-capture-id.html')
     else:
-        return redirect(url_for('promoter.promoter_scan_start_page'))
+        return redirect(url_for('promoter.error_page'))
 
 
 @promoter.route('/promoter/captureportrait', methods=['GET', 'POST'])
@@ -267,10 +266,10 @@ def capture_portrait():
 
         return redirect(url_for('promoter.aprove_rental_page'))
 
-    if 'logged_in' in session and session['logged_in']:
+    if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
         return render_template('promoter/14-capture-portrait.html')
     else:
-        return redirect(url_for('promoter.promoter_scan_start_page'))
+        return redirect(url_for('promoter.error_page'))
 
 
 @promoter.route('/promoter/aproverental', methods=['GET', 'POST'])
@@ -307,7 +306,8 @@ def aprove_rental_page():
         result = cur.fetchone()
 
         if result:
-            print(f'ERROR: /promoter/aproverental - usuario_id: {result[0]} already exists!') if result is not None else None
+            print(
+                f'ERROR: /promoter/aproverental - usuario_id: {result[0]} already exists!') if result is not None else None
             return redirect(url_for('promoter.rental_list_page'))
         else:
             cur.execute(
@@ -337,10 +337,11 @@ def aprove_rental_page():
     cur.execute("SELECT nome_iniciais FROM Usuario WHERE id = %s ", (user_id,))
     user_name = cur.fetchone()
     cur.close()
-    if 'logged_in' in session and session['logged_in']:
-        return render_template('promoter/9-aprove-rental.html', user_name=user_name[0], start_date=data_inicio, size=size)
+    if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
+        return render_template('promoter/9-aprove-rental.html', user_name=user_name[0], start_date=data_inicio,
+                               size=size)
     else:
-        return redirect(url_for('promoter.promoter_scan_start_page'))
+        return redirect(url_for('promoter.error_page'))
 
 
 @promoter.route('/promoter/scanreturn', methods=['GET', 'POST'])
@@ -352,10 +353,10 @@ def scan_return_page():
         session['size'] = size
 
         return redirect(url_for('promoter.return_page'))
-    if 'logged_in' in session and session['logged_in']:
+    if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
         return render_template('promoter/10-scan-return.html')
     else:
-        return redirect(url_for('promoter.promoter_scan_start_page'))
+        return redirect(url_for('promoter.error_page'))
 
 
 @promoter.route('/promoter/scanreturnbtn', methods=['GET', 'POST'])
@@ -366,10 +367,10 @@ def scan_return_btn():
         session['user_id'] = user_id
         session['size'] = size
         return redirect(url_for('promoter.return_page'))
-    if 'logged_in' in session and session['logged_in']:
+    if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
         return render_template('promoter/10-scan-return.html')
     else:
-        return redirect(url_for('promoter.promoter_scan_start_page'))
+        return redirect(url_for('promoter.error_page'))
 
 
 @promoter.route('/promoter/return', methods=['GET', 'POST'])
@@ -416,18 +417,18 @@ def return_page():
 
     if not locacao:
         cur.close()
-        return jsonify({'message': 'user not found'}), 404
+        return redirect(url_for('promoter.error_user_not_found_page'), 404)
 
     end_date = datetime.now()
     start_date = locacao[2]
     duration = end_date - start_date
     duration_minutes = int(duration.total_seconds() / 60)
 
-    if 'logged_in' in session and session['logged_in']:
+    if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
         return render_template('promoter/11-return.html', user_name=locacao[0], size=size, start_date=start_date,
                                duration=duration_minutes)
     else:
-        return redirect(url_for('promoter.promoter_scan_start_page'))
+        return redirect(url_for('promoter.error_page'))
 
 
 @promoter.route('/promoter/returnwithproblems', methods=['GET', 'POST'])
@@ -467,18 +468,18 @@ def return_with_problems_page():
 
     if not locacao:
         cur.close()
-        return jsonify({'message': 'user not found'}), 404
+        return redirect(url_for('promoter.error_user_not_found_page'), 404)
 
     end_date = datetime.now()
     start_date = locacao[2]
     duration = end_date - start_date
     duration_minutes = int(duration.total_seconds() / 60)
 
-    if 'logged_in' in session and session['logged_in']:
+    if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
         return render_template('promoter/11-return.html', user_name=locacao[0], size=size, start_date=start_date,
                                duration=duration_minutes)
     else:
-        return redirect(url_for('promoter.promoter_scan_start_page'))
+        return redirect(url_for('promoter.error_page'))
 
 
 @promoter.route('/promoter/rentallistexpired', methods=['GET', 'POST'])
@@ -502,10 +503,10 @@ def rental_list_expired_page():
                 "ORDER BY Locacao.data_inicio DESC;", (local_id,))
     rentals = cur.fetchall()
     cur.close()
-    if 'logged_in' in session and session['logged_in']:
+    if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
         return render_template('promoter/12-expired-list.html', rentals=rentals)
     else:
-        return redirect(url_for('promoter.promoter_scan_start_page'))
+        return redirect(url_for('promoter.error_page'))
 
 
 @promoter.route('/promoter/baixar_csv', methods=['GET'])
@@ -540,3 +541,13 @@ def baixar_csv():
         writer.writerow(dict(zip(fieldnames, row)))
 
     return response
+
+
+@promoter.route('/promoter/error')
+def error_page():
+    return render_template('promoter/16-error.html')
+
+
+@promoter.route('/promoter/error-user-not-found')
+def error_user_not_found_page():
+    return render_template('promoter/17-error-user-not-found.html')
