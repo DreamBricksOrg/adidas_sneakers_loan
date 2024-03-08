@@ -180,6 +180,12 @@ def download_blob():
     else:
         return json.dumps({"error": "Dados não encontrados para o usuário fornecido."}), 404
 
+
+@admin.route('/admin')
+def redirect_admin():
+    return redirect(url_for('admin.admin_login_page'))
+
+
 @admin.route('/alive', methods=['GET'])
 def is_alive():
     return "YES"

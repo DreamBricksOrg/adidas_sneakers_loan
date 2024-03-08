@@ -551,3 +551,8 @@ def error_page():
 @promoter.route('/promoter/error-user-not-found')
 def error_user_not_found_page():
     return render_template('promoter/17-error-user-not-found.html')
+
+
+@promoter.route('/promotor')
+def redirect_promoter():
+    return redirect(url_for('promoter.promoter_scan_start_page'))
