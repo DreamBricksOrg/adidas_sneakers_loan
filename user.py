@@ -181,29 +181,32 @@ def clock_page():
 
 @user.route('/submit_review', methods=['POST', 'GET'])
 def submit_review_page():
-    cur = mysql.connection.cursor()
     user_id = session.get('user_id')
 
-    if user_id is None:
-        cur.close()
-        return redirect(url_for('user.clearcookie_page'))
-
     if request.method == 'POST':
+        cur = mysql.connection.cursor()
+
         comfort = request.form['rate_confort']
         stability = request.form['rate_stability']
         style = request.form['rate_style']
         would_buy = request.form['rate_buy']
 
-        cur.execute('SELECT Usuario FROM Avaliacao WHERE Usuario = %s', (user_id,))
-        user = cur.fetchone()
+        if user_id is None:
+            cur.execute(
+                "INSERT INTO Avaliacao (conforto, estabilidade, estilo, compraria) VALUES (%s, %s, %s, %s)",
+                (comfort, stability, style, would_buy))
+        else:
+            cur.execute('SELECT Usuario FROM Avaliacao WHERE Usuario = %s', (user_id,))
+            user = cur.fetchone()
 
-        if user:
-            cur.close()
-            return redirect(url_for('user.qrcode_return_page'))
+            if user:
+                cur.close()
+                return redirect(url_for('user.qrcode_return_page'))
 
-        cur.execute(
-            "INSERT INTO Avaliacao (Usuario, conforto, estabilidade, estilo, compraria) VALUES (%s, %s, %s, %s, %s)",
-            (user_id, comfort, stability, style, would_buy))
+            cur.execute(
+                "INSERT INTO Avaliacao (Usuario, conforto, estabilidade, estilo, compraria) VALUES (%s, %s, %s, %s, %s)",
+                (user_id, comfort, stability, style, would_buy))
+
         mysql.connection.commit()
         cur.close()
 
