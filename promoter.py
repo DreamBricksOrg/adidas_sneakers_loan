@@ -286,7 +286,7 @@ def aprove_rental_page():
 
     cur.execute('SELECT nome FROM Local WHERE id = %s', (local_id,))
     local = cur.fetchone()
-    print(f'LOG: /promoter/aproverental - local: {local[0]}') if local is not None else None
+    print(f'LOG: /promoter/aproverental - local: {local[0] if local is not None else "None"}')
 
     now = datetime.now()
     data_inicio = now.strftime('%Y-%m-%d %H:%M:%S')
@@ -299,7 +299,7 @@ def aprove_rental_page():
 
     cur.execute('SELECT id FROM Tenis WHERE tamanho = %s AND estande = %s', (size, estande))
     tenis_id = cur.fetchone()
-    print(f'LOG: /promoter/aproverental - tenis_id: {tenis_id[0]}') if tenis_id is not None else None
+    print(f'LOG: /promoter/aproverental - tenis_id: {tenis_id[0] if tenis_id is not None else "None"} ')
 
     if request.method == 'POST':
         cur.execute('SELECT Usuario FROM Locacao WHERE Usuario = %s', (user_id,))
@@ -307,7 +307,7 @@ def aprove_rental_page():
 
         if result:
             print(
-                f'ERROR: /promoter/aproverental - usuario_id: {result[0]} already exists!') if result is not None else None
+                f'ERROR: /promoter/aproverental - usuario_id: {result[0] if result is not None else "None"} already exists!')
             return redirect(url_for('promoter.rental_list_page'))
         else:
             cur.execute(
