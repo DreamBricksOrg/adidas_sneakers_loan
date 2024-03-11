@@ -191,7 +191,7 @@ def submit_review_page():
         style = request.form['rate_style']
         would_buy = request.form['rate_buy']
 
-        if user_id is None:
+        if user_id is None or not is_int(user_id):
             cur.execute(
                 "INSERT INTO Avaliacao (conforto, estabilidade, estilo, compraria) VALUES (%s, %s, %s, %s)",
                 (comfort, stability, style, would_buy))
@@ -256,3 +256,11 @@ def thanks_page():
 def clearcookie_page():
     session.clear()
     return render_template('user/15-clear-cookie.html')
+
+
+def is_int(value):
+    try:
+        int(value)
+        return True
+    except Exception as e:
+        return False

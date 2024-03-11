@@ -274,74 +274,81 @@ def capture_portrait():
 
 @promoter.route('/promoter/aproverental', methods=['GET', 'POST'])
 def aprove_rental_page():
-    cur = mysql.connection.cursor()
+    cur = None
+    try:
+        cur = mysql.connection.cursor()
 
-    size = session.get('size')
-    user_id = session.get('user_id')
-    promoter_id = session.get('promoter_id')
-    local_id = session.get('local_id')
-    estande = session.get('estande')
-    print(f'LOG: /promoter/aproverental - session(size: {size}, user_id:{user_id}, '
-          f'promoter_id:{promoter_id}, local_id:{local_id}), estande:{estande}')
+        size = session.get('size')
+        user_id = session.get('user_id')
+        promoter_id = session.get('promoter_id')
+        local_id = session.get('local_id')
+        estande = session.get('estande')
+        print(f'LOG: /promoter/aproverental - session(size: {size}, user_id:{user_id}, '
+              f'promoter_id:{promoter_id}, local_id:{local_id}), estande:{estande}')
 
-    cur.execute('SELECT nome FROM Local WHERE id = %s', (local_id,))
-    local = cur.fetchone()
-    print(f'LOG: /promoter/aproverental - local: {local[0] if local is not None else "None"}')
+        cur.execute('SELECT nome FROM Local WHERE id = %s', (local_id,))
+        local = cur.fetchone()
+        print(f'LOG: /promoter/aproverental - local: {local[0] if local is not None else "None"}')
 
-    now = datetime.now()
-    data_inicio = now.strftime('%Y-%m-%d %H:%M:%S')
+        now = datetime.now()
+        data_inicio = now.strftime('%Y-%m-%d %H:%M:%S')
 
-    # future_time = now + timedelta(minutes=45)
-    # data_fim = future_time.strftime('%Y-%m-%d %H:%M:%S')
-    data_fim = None
+        data_fim = None
 
-    status = 'ALOCADO'
+        status = 'ALOCADO'
 
-    cur.execute('SELECT id FROM Tenis WHERE tamanho = %s AND estande = %s', (size, estande))
-    tenis_id = cur.fetchone()
-    print(f'LOG: /promoter/aproverental - tenis_id: {tenis_id[0] if tenis_id is not None else "None"} ')
+        cur.execute('SELECT id FROM Tenis WHERE tamanho = %s AND estande = %s', (size, estande))
+        tenis_id = cur.fetchone()
+        print(f'LOG: /promoter/aproverental - tenis_id: {tenis_id[0] if tenis_id is not None else "None"} ')
 
-    if request.method == 'POST':
-        cur.execute('SELECT Usuario FROM Locacao WHERE Usuario = %s', (user_id,))
-        result = cur.fetchone()
+        if request.method == 'POST':
+            cur.execute('SELECT Usuario FROM Locacao WHERE Usuario = %s', (user_id,))
+            result = cur.fetchone()
 
-        if result:
-            print(
-                f'ERROR: /promoter/aproverental - usuario_id: {result[0] if result is not None else "None"} already exists!')
-            return redirect(url_for('promoter.rental_list_page'))
-        else:
-            cur.execute(
-                'INSERT INTO Locacao (Tenis, Usuario, Promotor, Local, Estande, data_inicio, data_fim, status) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s)',
-                (tenis_id[0], user_id, promoter_id, local_id[0], estande, data_inicio, data_fim, status))
-            mysql.connection.commit()
+            if result:
+                print(
+                    f'ERROR: /promoter/aproverental - usuario_id: {result[0] if result is not None else "None"} already exists!')
 
-            if cur.lastrowid != 0:
-                cur.execute('SELECT quantidade FROM Tenis WHERE tamanho = %s', (size,))
-                quantidade = cur.fetchone()
-                nova_quantidade = quantidade[0] - 1
-                cur.execute('UPDATE Tenis SET quantidade = %s WHERE tamanho = %s', (nova_quantidade, size))
+            else:
+                cur.execute(
+                    'INSERT INTO Locacao (Tenis, Usuario, Promotor, Local, Estande, data_inicio, data_fim, status) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s)',
+                    (tenis_id[0], user_id, promoter_id, local_id, estande, data_inicio, data_fim, status))
                 mysql.connection.commit()
 
-                cur.execute('SELECT id FROM Usuario WHERE id = %s', (user_id,))
-                user = cur.fetchone()
-                if user:
-                    cur.execute('UPDATE Usuario SET aprovado = true WHERE id = %s', (user_id,))
+                if cur.lastrowid != 0:
+                    cur.execute('SELECT quantidade FROM Tenis WHERE tamanho = %s', (size,))
+                    quantidade = cur.fetchone()
+                    nova_quantidade = quantidade[0] - 1
+                    cur.execute('UPDATE Tenis SET quantidade = %s WHERE tamanho = %s', (nova_quantidade, size))
                     mysql.connection.commit()
+
+                    cur.execute('SELECT id FROM Usuario WHERE id = %s', (user_id,))
+                    user = cur.fetchone()
+                    if user:
+                        cur.execute('UPDATE Usuario SET aprovado = true WHERE id = %s', (user_id,))
+                        mysql.connection.commit()
 
                     cur.execute('UPDATE Usuario SET local_de_locacao = %s WHERE id = %s', (local[0], user_id))
                     mysql.connection.commit()
-
-                cur.close()
             return redirect(url_for('promoter.rental_list_page'))
 
-    cur.execute("SELECT nome_iniciais FROM Usuario WHERE id = %s ", (user_id,))
-    user_name = cur.fetchone()
-    cur.close()
-    if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
-        return render_template('promoter/9-aprove-rental.html', user_name=user_name[0], start_date=data_inicio,
-                               size=size)
-    else:
+
+        cur.execute("SELECT nome_iniciais FROM Usuario WHERE id = %s ", (user_id,))
+        user_name = cur.fetchone()
+        if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
+            return render_template('promoter/9-aprove-rental.html', user_name=user_name[0], start_date=data_inicio,
+                                   size=size)
+        else:
+            return redirect(url_for('promoter.error_page'))
+
+    except Exception as e:
+        print(f'ERROR: {str(e)}')
         return redirect(url_for('promoter.error_page'))
+
+    finally:
+        if cur is not None:
+            cur.close()
+
 
 
 @promoter.route('/promoter/scanreturn', methods=['GET', 'POST'])
