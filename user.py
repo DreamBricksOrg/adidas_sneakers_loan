@@ -4,6 +4,7 @@ from qrcodeaux import generate_qr_code
 from sms_sender import create_verification_code
 import io
 import base64
+from datetime import datetime
 
 user = Blueprint('user', __name__)
 
@@ -35,10 +36,13 @@ def create_user(data):
 
     if nome_iniciais:
 
+        now = datetime.now()
+        data_registro = now.strftime('%Y-%m-%d %H:%M:%S')
+
         cursor = mysql.connection.cursor()
         cursor.execute(
-            'INSERT INTO Usuario (nome_iniciais, documento, dados_criptografados, confirmacao_sms) VALUES (%s, %s, %s, %s)',
-            (nome_iniciais, documento, dados_criptografados, confirmacao_sms))
+            'INSERT INTO Usuario (nome_iniciais, documento, dados_criptografados, confirmacao_sms, data_registro) VALUES (%s, %s, %s, %s, %s)',
+            (nome_iniciais, documento, dados_criptografados, confirmacao_sms, data_registro))
 
         mysql.connection.commit()
         user_id = cursor.lastrowid  # Obtendo o ID do usuário inserido
