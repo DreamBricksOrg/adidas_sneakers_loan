@@ -136,6 +136,15 @@
 
         <form id="create-user" method="POST" action="/user_register">
             <div class="register-form">
+
+                <div class="form-item">
+                    <img src="{{ url_for('static', filename='assets/images/icons/phone.png') }}"
+                         alt="icone-telefone"/>
+                    <input type="tel" id="telefone" name="telefone" placeholder="Telefone" onblur="searchHash()"
+                           required/>
+                    <input type="hidden" id="telefone_hash" name="telefone_hash">
+                </div>
+
                 <div class="form-item">
                     <img src="{{ url_for('static', filename='assets/images/icons/name.png') }}" alt="icone-nome"/>
                     <input type="text" id="nome" name="nome" placeholder="Nome completo" required/>
@@ -157,12 +166,6 @@
                     <img src="{{ url_for('static', filename='assets/images/icons/document.png') }}"
                          alt="icone-documento"/>
                     <input type="tel" id="documento" name="documento" class="cpf" placeholder="CPF" required/>
-                </div>
-
-                <div class="form-item">
-                    <img src="{{ url_for('static', filename='assets/images/icons/phone.png') }}"
-                         alt="icone-telefone"/>
-                    <input type="tel" id="telefone" name="telefone" placeholder="Telefone" required/>
                 </div>
 
                 <div class="form-item">
@@ -192,7 +195,7 @@
     function submitForm() {
         // Obtém todos os campos de entrada
         var inputs = document.querySelectorAll('.register-form input');
-
+        gerarHash();
         // Verifica se todos os campos estão preenchidos
         var allFieldsFilled = true;
         inputs.forEach(function(input) {
@@ -288,6 +291,66 @@
 
         return true;
     }
+
+
+    function gerarHash() {
+        var telefone = document.getElementById("telefone").value;
+
+        var hash = hashCode(telefone);
+
+        document.getElementById("telefone_hash").value = hash;
+    }
+
+    function hashCode(str) {
+        var hash = 0;
+        if (str.length === 0) return hash;
+        for (var i = 0; i < str.length; i++) {
+            var char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32bit integer
+        }
+        return hash;
+    }
+
+    function searchHash() {
+        gerarHash();
+        var telefoneHash = document.getElementById("telefone_hash").value;
+
+        // Crie um objeto XMLHttpRequest
+        var xhr = new XMLHttpRequest();
+
+        // Configure a solicitação
+        xhr.open('GET', '/user_register/searchHash/' + telefoneHash, true);
+
+        // Configure a função de retorno de chamada
+        xhr.onload = function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                console.log('Requisição bem sucedida');
+                console.log('Resposta:', xhr.responseText);
+
+                window.location.href = '/user_register/checkuser/' + xhr.responseText;
+            } else {
+                console.log('Erro na requisição');
+            }
+        };
+
+        // Envie a solicitação
+        xhr.send();
+    }
+
+    function removeBlur(){
+
+        var urlParams = new URLSearchParams(window.location.search);
+        var triggerBlur = urlParams.get('triggerBlur');
+
+        // Se o parâmetro triggerBlur for definido como false, remova o evento onblur do campo de telefone
+        if (triggerBlur === 'false') {
+            var campoTelefone = document.getElementById("telefone");
+            campoTelefone.removeAttribute("onblur");
+        }
+    }
+
+    window.onload = removeBlur;
 </script>
 
 <script>

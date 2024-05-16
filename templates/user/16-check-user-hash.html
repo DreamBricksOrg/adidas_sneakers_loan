@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supernova - Aprovação</title>
+    <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/promoter/6-promoter-menu.css') }}"
+    />
+    <link rel="stylesheet" href="../../static/css/default.css"/>
+
+    <link
+            rel="shortcut icon"
+            href="../../static/assets/images/logos/adidas.png"
+            type="image/x-icon"
+    />
+
+    <style>
+        .container {
+            background-image: url("../../static/assets/images/shoes-2.png");
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        h1,
+        button {
+            position: relative;
+            z-index: 2;
+        }
+
+        button {
+            padding: 10px 40px;
+            font-size: 14px;
+            border-radius: 7px;
+            text-transform: uppercase;
+            font-family: "Roboto", sans-serif;
+            width: 300px;
+            color: white;
+        }
+
+        .accept {
+            background: green;
+            margin-top: 20px;
+        }
+
+        .decline {
+            background: red;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="overlay"></div>
+    <h1>Você é:</h1>
+    <h1>{{ user_name }}?</h1>
+
+    <a href="{{ url_for('user.qr_code_validation_page') }}">
+        <button class="menu-button accept" type="submit">SIM</button>
+    </a>
+
+    <a href="javascript:voltar()">
+        <button class="menu-button decline" type="submit">NAO</button>
+    </a>
+</div>
+
+<script>
+    function voltar() {
+        // Obtenha a URL atual
+        var urlAtual = "/user_register";
+
+        // Adicione o parâmetro triggerBlur à URL
+        var urlModificada = adicionarParametroUrl(urlAtual, 'triggerBlur', 'false');
+
+        // Redirecione para a URL modificada
+        window.location.href = urlModificada;
+    }
+
+    // Função para adicionar um parâmetro à URL
+    function adicionarParametroUrl(url, nomeParametro, valorParametro) {
+        // Verifique se a URL já tem parâmetros
+        var separador = (url.indexOf('?') !== -1) ? '&' : '?';
+        // Adicione o parâmetro à URL
+        return url + separador + encodeURIComponent(nomeParametro) + '=' + encodeURIComponent(valorParametro);
+    }
+</script>
+</body>
+</html>

@@ -7,6 +7,7 @@ async function submitFormJs() {
     documento = sanitize(document.getElementById("documento").value);
     telefone = sanitize(document.getElementById("telefone").value);
     genero = sanitize(document.getElementById("genero").value);
+    telefone_hash = sanitize(document.getElementById("telefone_hash").value);
 
     nome_iniciais = getNameInitials(nome);
     documento_masq = maskDocument(documento);
@@ -20,5 +21,5 @@ async function submitFormJs() {
     //console.log(dataToEncrypt)
     //console.log(dataEncrypted);
 
-    post('/user_register', {nome_iniciais: nome_iniciais, documento: documento_masq, telefone: telefone, dados_criptografados: dataEncrypted});
+    post('/user_register', {nome_iniciais: nome_iniciais, documento: documento_masq, telefone: telefone, dados_criptografados: dataEncrypted, telefone_hash: telefone_hash});
 }

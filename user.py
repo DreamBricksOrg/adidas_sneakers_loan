@@ -32,6 +32,7 @@ def create_user(data):
     documento = data.get('documento')
     session['telefone'] = data.get('telefone')
     dados_criptografados = data.get('dados_criptografados')
+    telefone_hash = data.get('telefone_hash')
     confirmacao_sms = False
 
     if nome_iniciais:
@@ -41,8 +42,8 @@ def create_user(data):
 
         cursor = mysql.connection.cursor()
         cursor.execute(
-            'INSERT INTO Usuario (nome_iniciais, documento, dados_criptografados, confirmacao_sms, data_registro) VALUES (%s, %s, %s, %s, %s)',
-            (nome_iniciais, documento, dados_criptografados, confirmacao_sms, data_registro))
+            'INSERT INTO Usuario (nome_iniciais, documento, dados_criptografados, confirmacao_sms, data_registro, telefone_hash) VALUES (%s, %s, %s, %s, %s, %s)',
+            (nome_iniciais, documento, dados_criptografados, confirmacao_sms, data_registro, telefone_hash))
 
         mysql.connection.commit()
         user_id = cursor.lastrowid  # Obtendo o ID do usuário inserido
@@ -113,6 +114,23 @@ def user_register_page():
         create_verification_code(user_id)
         return redirect(url_for('sms_sender.validate_sms'))
     return render_template('user/5-register-supernova.html')
+
+
+@user.route('/user_register/searchHash/<telefone_hash>', methods=['GET'])
+def search_hash(telefone_hash):
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM Usuario WHERE telefone_hash = %s", (telefone_hash,))
+        data = cur.fetchone()
+        if data and data[0]:
+            session['user_id'] = data[0]
+            user_name = data[2]
+            return user_name
+        else:
+            return "", 404
+
+@user.route('/user_register/checkuser/<user_name>', methods=['GET'])
+def user_register_checkuser(user_name):
+    return render_template("user/16-check-user-hash.html", user_name=user_name)
 
 
 @user.route('/qr_code_validation', methods=['GET', 'POST'])
