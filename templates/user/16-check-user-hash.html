@@ -18,10 +18,11 @@
 
     <style>
         .container {
-            background-image: url("../../static/assets/images/shoes-2.png");
+            background-image: url("{{ url_for('static', filename='assets/images/newbg/tennis_fall.png') }}");
+            background-position: -170px -0px;
             background-repeat: no-repeat;
             background-size: cover;
-            position: relative;
+            position:relative;
             overflow: auto;
             display: flex;
             flex-direction: column;

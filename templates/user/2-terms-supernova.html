@@ -15,97 +15,96 @@
     <title>Supernova - termos</title>
 
     <style>
-      .background {
-        background-image: url("{{ url_for('static', filename='assets/images/shoes-2.png') }}");
+        .background {
+            background-image: url("{{ url_for('static', filename='assets/images/newbg/tenis.png') }}");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
 
-        background-position: -300px -100px;
-        background-repeat: no-repeat;
-        position: relative;
-      }
+        .logo {
+            padding: 0 57px 0;
+            position: relative;
+            z-index: 2;
+        }
 
-      .logo {
-        padding: 0 57px 0;
-        position: relative;
-        z-index: 2;
-      }
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.72);
+            padding-top: 36px;
+        }
 
-      .overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.72);
-        padding-top: 36px;
-      }
+        .terms {
+            margin-top: auto;
+            width: 100%;
+            padding: 36px 37px 46px;
+            box-sizing: border-box;
+            text-align: center;
+            color: white;
+            position: relative;
+            z-index: 2;
+        }
 
-      .terms {
-        margin-top: auto;
-        width: 100%;
-        padding: 36px 37px 46px;
-        box-sizing: border-box;
-        text-align: center;
-        color: white;
-        position: relative;
-        z-index: 2;
-      }
+        .terms h1 {
+            max-width: 160px;
+        }
 
-      .terms h1 {
-        max-width: 160px;
-      }
+        .terms-accept {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 0 20px;
+            margin-top: 40px;
+            margin-bottom: 48px;
+        }
 
-      .terms-accept {
-        display: flex;
-        align-items: flex-start;
-        gap: 15px;
-        padding: 0 20px;
-        margin-top: 40px;
-        margin-bottom: 48px;
-      }
+        .terms-accept p {
+            display: inline-block;
+            text-align: left;
+            line-height: 25px;
+            font-size: 20px;
+            max-width: 270px;
+        }
 
-      .terms-accept p {
-        display: inline-block;
-        text-align: left;
-        line-height: 25px;
-        font-size: 20px;
-        max-width: 270px;
-      }
+        input {
+            accent-color: transparent;
+        }
 
-      input {
-        accent-color: transparent;
-      }
+        .terms-read {
+            background: black;
+            width: 80%;
+            padding: 0 15px;
+            color: white;
+            font-family: "ITCFThin", sans-serif;
+            height: 80vh;
+            overflow: scroll;
+            flex-direction: column;
+            border-radius: 7px;
+            position: absolute;
+            z-index: 3;
+            margin: 0 auto;
+            left: 0;
+            right: 0;
+            display: none;
+        }
 
-      .terms-read {
-        background: black;
-        width: 80%;
-        padding: 0 15px;
-        color: white;
-        font-family: "ITCFThin", sans-serif;
-        height: 80vh;
-        overflow: scroll;
-        flex-direction: column;
-        border-radius: 7px;
-        position: absolute;
-        z-index: 3;
-        margin: 0 auto;
-        left: 0;
-        right: 0;
-        display: none;
-      }
+        .terms-read h4,
+        h3 {
+            margin-bottom: 10px;
+            margin-top: 10px;
+        }
 
-      .terms-read h4,
-      h3 {
-        margin-bottom: 10px;
-        margin-top: 10px;
-      }
-
-      .close-terms {
-        background: white;
-        color: black;
-        border: 0;
-        border-radius: 7px;
-        padding: 10px 20px;
-        font-family: "ITCFThin", sans-serif;
-        margin-top: 20px;
-        font-size: 18px;
-      }
+        .close-terms {
+            background: white;
+            color: black;
+            border: 0;
+            border-radius: 7px;
+            padding: 10px 20px;
+            font-family: "ITCFThin", sans-serif;
+            margin-top: 20px;
+            font-size: 18px;
+        }
     </style>
   </head>
   <body>
