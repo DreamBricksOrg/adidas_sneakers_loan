@@ -315,12 +315,13 @@
     function searchHash() {
         gerarHash();
         var telefoneHash = document.getElementById("telefone_hash").value;
+        var telefone = document.getElementById("telefone").value;
 
         // Crie um objeto XMLHttpRequest
         var xhr = new XMLHttpRequest();
 
         // Configure a solicitação
-        xhr.open('GET', '/user_register/searchHash/' + telefoneHash, true);
+        xhr.open('POST', '/user_register/searchHash/' + telefoneHash + '/' + telefone, true);
 
         // Configure a função de retorno de chamada
         xhr.onload = function() {

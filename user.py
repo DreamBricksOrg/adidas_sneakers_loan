@@ -1,7 +1,8 @@
+import requests
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, make_response
 from config.database import mysql
 from qrcodeaux import generate_qr_code
-from sms_sender import create_verification_code
+from sms_sender import create_verification_code, resend_sms
 import io
 import base64
 from datetime import datetime
@@ -116,21 +117,54 @@ def user_register_page():
     return render_template('user/5-register-supernova.html')
 
 
-@user.route('/user_register/searchHash/<telefone_hash>', methods=['GET'])
-def search_hash(telefone_hash):
-        cur = mysql.connection.cursor()
-        cur.execute("SELECT * FROM Usuario WHERE telefone_hash = %s", (telefone_hash,))
-        data = cur.fetchone()
-        if data and data[0]:
-            session['user_id'] = data[0]
-            user_name = data[2]
-            return user_name
-        else:
-            return "", 404
+@user.route('/user_register/searchHash/<telefone_hash>/<telefone>', methods=['POST'])
+def search_hash(telefone_hash, telefone):
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM Usuario WHERE telefone_hash = %s", (telefone_hash,))
+    data = cur.fetchone()
+    if data and data[0]:
+        session['telefone'] = telefone
+        session['user_id'] = data[0]
+        user_name = data[2]
+        return user_name
+    else:
+        return "", 404
+
+
+@user.route('/redirect_by_hash_found', methods=['POST'])
+def redirect_by_hash_found():
+    create_verification_code(session.get('user_id'))
+    return "", 204
+
 
 @user.route('/user_register/checkuser/<user_name>', methods=['GET'])
 def user_register_checkuser(user_name):
     return render_template("user/16-check-user-hash.html", user_name=user_name)
+
+
+@user.route('/user/getuserbycode/', methods=['GET', 'POST'])
+def get_user_by_code():
+    if request.method == 'POST':
+        code = request.form.get('codigo')
+        print(code)
+        cur = mysql.connection.cursor()
+        cur.execute('SELECT Usuario FROM CodigoVerificacao WHERE codigo = %s', (code,))
+        user = cur.fetchone()
+        if user and user[0]:
+            cur.execute(
+                'SELECT Locacao.*, Tenis.tamanho FROM Locacao JOIN Tenis ON Locacao.Tenis = Tenis.id WHERE Locacao.Usuario = %s;',
+                (user[0],))
+            locacao = cur.fetchone()
+            if locacao and locacao[0]:
+                print(locacao)
+                session['user_id'] = locacao[2]
+                session['size'] = locacao[9]
+                return redirect(url_for('user.qrcode_return_page'))
+        else:
+            session['user_id'] = '00'
+            session['size'] = '00'
+            return redirect(url_for('user.qrcode_return_page'))
+    return render_template('user/17-user-get-code.html')
 
 
 @user.route('/qr_code_validation', methods=['GET', 'POST'])
@@ -241,12 +275,10 @@ def submit_review_page():
 def qrcode_return_page():
     cur = mysql.connection.cursor()
     user_id = session.get('user_id')
-    if user_id is None:
-        user_id = '00'
-
     size = session.get('size')
-    if size is None:
-        size = '00'
+    if user_id is None or size is None:
+        return redirect(url_for('user.get_user_by_code'))
+
     data = {"user_id": user_id, "size": size}
     qr_code_image = generate_qr_code(data)
 

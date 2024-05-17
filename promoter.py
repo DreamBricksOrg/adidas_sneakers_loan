@@ -438,14 +438,6 @@ def return_page():
     else:
         return redirect(url_for('promoter.error_page'))
 
-# @promoter.route('/promoter/getuserbycode/<code>')
-# def get_user_by_code(code):
-#     cur = mysql.connection.cursor()
-#     cur.execute('SELECT Usuario FROM CodigoVerificacap WHERE codigo = %s', (code,))
-#     user = cur.fetchone()
-#     if user and user[0]:
-#         cur.execute('SELECT * FROM Locacao WHERE Usuario = %s', (user[0]))
-#         locacao = cur.fetchone()
 
 @promoter.route('/promoter/returnwithproblems', methods=['GET', 'POST'])
 def return_with_problems_page():

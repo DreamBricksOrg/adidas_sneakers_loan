@@ -68,9 +68,7 @@
     <h1>Você é:</h1>
     <h1>{{ user_name }}?</h1>
 
-    <a href="{{ url_for('user.qr_code_validation_page') }}">
-        <button class="menu-button accept" type="submit">SIM</button>
-    </a>
+    <button class="menu-button accept" type="submit" onclick="redirectByHashFound()">SIM</button>
 
     <a href="javascript:voltar()">
         <button class="menu-button decline" type="submit">NAO</button>
@@ -95,6 +93,26 @@
         var separador = (url.indexOf('?') !== -1) ? '&' : '?';
         // Adicione o parâmetro à URL
         return url + separador + encodeURIComponent(nomeParametro) + '=' + encodeURIComponent(valorParametro);
+    }
+
+    function redirectByHashFound() {
+        var xhr = new XMLHttpRequest();
+
+        xhr.open('POST', '/redirect_by_hash_found', true);
+
+        // Configure a função de retorno de chamada
+        xhr.onload = function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                console.log('Requisição bem sucedida');
+                console.log('Resposta:', xhr.responseText);
+
+                window.location.href = '/validatesms';
+            } else {
+                console.log('Erro na requisição');
+            }
+        };
+        // Envie a solicitação
+        xhr.send();
     }
 </script>
 </body>
