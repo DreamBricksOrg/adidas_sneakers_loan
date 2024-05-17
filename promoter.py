@@ -112,12 +112,13 @@ def rental_list_page():
     cur = mysql.connection.cursor()
     cur.execute("SELECT Locacao.id, Tenis.tamanho AS Tenis, Usuario.nome_iniciais AS Usuario, "
                 "Promotor.nome AS Promotor, Locacao.data_inicio AS Inicio, Locacao.data_fim AS Fim, "
-                "Locacao.status AS Status, Local.nome AS Local, Locacao.Estande, Usuario.id "
+                "Locacao.status AS Status, Local.nome AS Local, Locacao.Estande, Usuario.id, CodigoVerificacao.codigo "
                 "FROM Locacao "
                 "JOIN Tenis ON Locacao.Tenis = Tenis.id "
                 "JOIN Usuario ON Locacao.Usuario = Usuario.id "
                 "JOIN Promotor ON Locacao.Promotor = Promotor.id "
                 "JOIN Local ON Locacao.Local = Local.id "
+                "JOIN CodigoVerificacao ON Locacao.Usuario = CodigoVerificacao.Usuario "
                 "WHERE Local = %s "
                 "ORDER BY Locacao.data_inicio DESC;", (local_id,))
     rentals = cur.fetchall()
@@ -437,6 +438,14 @@ def return_page():
     else:
         return redirect(url_for('promoter.error_page'))
 
+# @promoter.route('/promoter/getuserbycode/<code>')
+# def get_user_by_code(code):
+#     cur = mysql.connection.cursor()
+#     cur.execute('SELECT Usuario FROM CodigoVerificacap WHERE codigo = %s', (code,))
+#     user = cur.fetchone()
+#     if user and user[0]:
+#         cur.execute('SELECT * FROM Locacao WHERE Usuario = %s', (user[0]))
+#         locacao = cur.fetchone()
 
 @promoter.route('/promoter/returnwithproblems', methods=['GET', 'POST'])
 def return_with_problems_page():

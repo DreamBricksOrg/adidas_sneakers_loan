@@ -129,6 +129,7 @@
                 <th>Status</th>
                 <th>Local</th>
                 <th>Estande</th>
+                <th>Codigo(SMS)</th>
                 <th>Ação</th>
             </tr>
             </thead>
@@ -146,6 +147,7 @@
                 <td style="color: {{ 'red' if rental[6] == 'VENCIDO' }}">{{ rental[6] }}</td>
                 <td>{{ rental[7] }}</td>
                 <td>{{ rental[8] }}</td>
+                <td>{{ rental[10] }}
                 <td class="devolver">
                     {% if rental[6] == 'ALOCADO' or rental[6] == 'VENCIDO' %}
                     <span class="action" onclick="devolver('{{ rental[9] }}', '{{ rental[1] }}')">devolver</span>
