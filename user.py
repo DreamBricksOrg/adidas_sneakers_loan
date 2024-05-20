@@ -120,15 +120,28 @@ def user_register_page():
 @user.route('/user_register/searchHash/<telefone_hash>/<telefone>', methods=['POST'])
 def search_hash(telefone_hash, telefone):
     cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM Usuario WHERE telefone_hash = %s", (telefone_hash,))
-    data = cur.fetchone()
-    if data and data[0]:
-        session['telefone'] = telefone
-        session['user_id'] = data[0]
-        user_name = data[2]
-        return user_name
-    else:
-        return "", 404
+    try:
+        cur.execute("SELECT * FROM Usuario WHERE telefone_hash = %s", (telefone_hash,))
+        data = cur.fetchone()
+
+        if data and data[0]:
+            # Atualizar os campos confirmacao_sms, aprovado e retornado para False
+            cur.execute("""
+                UPDATE Usuario 
+                SET confirmacao_sms = %s, aprovado = %s, retornado = %s 
+                WHERE telefone_hash = %s
+            """, (False, False, False, telefone_hash))
+            mysql.connection.commit()
+
+            session['telefone'] = telefone
+            session['user_id'] = data[0]
+            user_name = data[2]
+
+            return user_name
+        else:
+            return "", 404
+    finally:
+        cur.close()
 
 
 @user.route('/redirect_by_hash_found', methods=['POST'])

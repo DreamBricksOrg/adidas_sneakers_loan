@@ -17,15 +17,17 @@
             background-image: url("{{ url_for('static', filename='assets/images/newbg/tenis.png') }}");
             background-position: center;
             background-repeat: no-repeat;
-
             position: relative;
-            overflow: auto;
         }
 
         .overlay {
             position: absolute;
             inset: 0;
             background: rgba(0, 0, 0, 0.8);
+            padding-top: 26px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
         }
 
         .logo {
@@ -51,6 +53,7 @@
 
         .qr-code-image {
             margin-top: 64px;
+            margin-bottom: 52px;
             border-radius: 7px;
             display: inline-block;
             overflow: hidden;
@@ -70,7 +73,7 @@
         </h1>
 
         <div class="qr-code-image">
-            <img src="data:image/png;base64,{{ qr_code }}" alt="qr-code"/>
+            <img width="320px" src="data:image/png;base64,{{ qr_code }}" alt="qr-code"/>
         </div>
     </div>
 
