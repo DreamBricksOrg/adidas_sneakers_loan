@@ -54,9 +54,8 @@ def create_user(data):
         return jsonify({'error': 'O nome do usuário é obrigatório!'}), 400
 
 
-@user.route('/', methods=['GET'])
-def index_page():
-    estande = request.args.get('estande')
+@user.route('/<int:estande>', methods=['GET'])
+def index_page(estande):
     if estande:
         session['estande'] = estande
     return render_template('user/1-welcome-supernova.html')

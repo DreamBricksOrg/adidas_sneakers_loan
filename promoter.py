@@ -1,3 +1,4 @@
+import MySQLdb
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, make_response
 from config.database import mysql
 from datetime import datetime
@@ -109,21 +110,46 @@ def rental_list_page():
 
     local_id = session.get('local_id')
 
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT Locacao.id, Tenis.tamanho AS Tenis, Usuario.nome_iniciais AS Usuario, "
-                "Promotor.nome AS Promotor, Locacao.data_inicio AS Inicio, Locacao.data_fim AS Fim, "
-                "Locacao.status AS Status, Local.nome AS Local, Locacao.Estande, Usuario.id, CodigoVerificacao.codigo "
-                "FROM Locacao "
-                "JOIN Tenis ON Locacao.Tenis = Tenis.id "
-                "JOIN Usuario ON Locacao.Usuario = Usuario.id "
-                "JOIN Promotor ON Locacao.Promotor = Promotor.id "
-                "JOIN Local ON Locacao.Local = Local.id "
-                "JOIN CodigoVerificacao ON Locacao.Usuario = CodigoVerificacao.Usuario "
-                "WHERE Local = %s "
-                "ORDER BY Locacao.data_inicio DESC;", (local_id,))
-    rentals = cur.fetchall()
+    if local_id is None:
+        return redirect(url_for('promoter.error_page'))
 
-    cur.close()
+    # Convert local_id to the correct type if necessary
+    try:
+        local_id = int(local_id)  # or str(local_id) if it's supposed to be a string
+    except ValueError:
+        return redirect(url_for('promoter.error_page'))
+
+    cur = mysql.connection.cursor()
+
+    query = """
+    SELECT Locacao.id, 
+           Tenis.tamanho AS Tenis, 
+           Usuario.nome_iniciais AS Usuario, 
+           Promotor.nome AS Promotor, 
+           DATE_FORMAT(Locacao.data_inicio, "%%d/%%m/%%Y %%H:%%i:%%s") AS Inicio, 
+           DATE_FORMAT(Locacao.data_fim, "%%d/%%m/%%Y %%H:%%i:%%s") AS Fim, 
+           Locacao.status AS Status, 
+           Local.nome AS Local, 
+           Locacao.Estande, 
+           Usuario.id 
+    FROM Locacao 
+    JOIN Tenis ON Locacao.Tenis = Tenis.id 
+    JOIN Usuario ON Locacao.Usuario = Usuario.id 
+    JOIN Promotor ON Locacao.Promotor = Promotor.id 
+    JOIN Local ON Locacao.Local = Local.id 
+    WHERE Local.id = %s 
+    ORDER BY Locacao.data_inicio DESC;
+    """
+
+    try:
+        cur.execute(query, (local_id,))
+        rentals = cur.fetchall()
+    except MySQLdb.ProgrammingError as e:
+        print(f"An error occurred: {e}")
+        return redirect(url_for('promoter.error_page'))
+    finally:
+        cur.close()
+
     if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
         return render_template('promoter/7-rental-list.html', rentals=rentals)
     else:
@@ -333,7 +359,6 @@ def aprove_rental_page():
                     mysql.connection.commit()
             return redirect(url_for('promoter.rental_list_page'))
 
-
         cur.execute("SELECT nome_iniciais FROM Usuario WHERE id = %s ", (user_id,))
         user_name = cur.fetchone()
         if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
@@ -349,7 +374,6 @@ def aprove_rental_page():
     finally:
         if cur is not None:
             cur.close()
-
 
 
 @promoter.route('/promoter/scanreturn', methods=['GET', 'POST'])
