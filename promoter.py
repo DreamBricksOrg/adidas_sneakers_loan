@@ -411,10 +411,14 @@ def return_page():
     size = session.get('size')
 
     cur = mysql.connection.cursor()
-    cur.execute("SELECT U.nome_iniciais, L.Tenis, L.data_inicio, L.status "
-                "FROM Usuario U, Locacao L "
-                "WHERE U.id = L.Usuario "
-                "AND U.id = %s;", (user_id,))
+    cur.execute("""
+        SELECT U.nome_iniciais, L.Tenis, L.data_inicio, L.status
+        FROM Usuario U, Locacao L
+        WHERE U.id = L.Usuario
+        AND U.id = %s
+        ORDER BY L.data_inicio DESC
+        LIMIT 1;
+    """, (user_id,))
 
     locacao = cur.fetchone()
 
