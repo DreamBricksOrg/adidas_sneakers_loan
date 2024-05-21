@@ -5,7 +5,8 @@ function onScanSuccess(decodedText, decodedResult) {
   console.log("Code matched = ${decodedText}", decodedResult);
   try {
     const url = new URL(decodedText);
-    const estandeId = url.searchParams.get('estande');
+    const pathname = url.pathname;
+    const estandeId = pathname.split('/')[1];
 
     if (estandeId != null) {
         document.getElementById("demo").innerHTML = "<h2>" + estandeId + "</h2>";
