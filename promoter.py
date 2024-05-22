@@ -44,7 +44,7 @@ def promoter_local_page():
     if request.method == 'POST':
         local_id = request.form['local']
         session['local_id'] = local_id
-        return redirect(url_for('promoter.available_shoes_page'))
+        return redirect(url_for('promoter.available_shoes_page', model="1"))
     cur = mysql.connection.cursor()
     cur.execute("SELECT * FROM Local")
     locais = cur.fetchall()
@@ -55,8 +55,24 @@ def promoter_local_page():
         return redirect(url_for('promoter.error_page'))
 
 
-@promoter.route('/promoter/availableshoes', methods=['GET', 'POST'])
-def available_shoes_page():
+@promoter.route('/promoter/availableshoes/<model>', methods=['GET', 'POST'])
+def available_shoes_page(model):
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM Modelo")
+    models = cur.fetchall()
+
+    cur.execute("SELECT id, tamanho, quantidade FROM Tenis WHERE Estande = %s AND Modelo = %s",
+                (session.get('estande'), model))
+    tenis_disponiveis = cur.fetchall()
+    cur.close()
+    if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
+        return render_template('promoter/4-available-shoes.html', tenis_disponiveis=tenis_disponiveis, models=models)
+    else:
+        return redirect(url_for('promoter.error_page'))
+
+
+@promoter.route('/promoter/availableshoes', methods=['POST'])
+def available_shoes_page_post():
     if request.method == 'POST':
         promoter_id = session.get('promoter_id')
         local_id = session.get('local_id')
@@ -74,20 +90,11 @@ def available_shoes_page():
                 mysql.connection.commit()
 
                 cur.execute(
-                    "INSERT INTO LogTenis (Promotor, Local, tamanho, quantidadeOriginal, quantidadeNova, data) VALUES (%s, %s, %s, %s, %s, %s)",
+                    "INSERT INTO LogTenis (Promotor, Local, Tenis, quantidadeOriginal, quantidadeNova, data) VALUES (%s, %s, %s, %s, %s, %s)",
                     (promoter_id, local_id, tenis_id, quantidade_antiga, corrigir, change_date))
                 mysql.connection.commit()
         cur.close()
         return redirect(url_for('promoter.promoter_menu_page'))
-    else:
-        cur = mysql.connection.cursor()
-        cur.execute("SELECT id, tamanho, quantidade FROM Tenis WHERE Estande = %s", (session.get('estande'),))
-        tenis_disponiveis = cur.fetchall()
-        cur.close()
-        if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
-            return render_template('promoter/4-available-shoes.html', tenis_disponiveis=tenis_disponiveis)
-        else:
-            return redirect(url_for('promoter.error_page'))
 
 
 @promoter.route('/promoter/ready-start')
