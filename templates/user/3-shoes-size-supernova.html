@@ -91,17 +91,17 @@
                     <p>Tamanhos</p>
                     <p>Masculino</p>
                     <div class="table-sizes">
-                        {% for tamanho, quantidade in tenis %}
+                        {% for id, tamanho, quantidade in tenis %}
                         {% if quantidade > 0 and tamanho[0] == 'M' %}
-                        <button type="button" class="size-btn">{{ tamanho }}</button>
+                        <button type="button" class="size-btn" data-id="{{ id }}">{{ tamanho }}</button>
                         {% endif %}
                         {% endfor %}
                     </div>
                     <p>Feminino</p>
                     <div class="table-sizes">
-                        {% for tamanho, quantidade in tenis %}
+                        {% for id, tamanho, quantidade in tenis %}
                         {% if quantidade > 0 and tamanho[0] == 'F' %}
-                        <button type="button" class="size-btn">{{ tamanho }}</button>
+                        <button type="button" class="size-btn" data-id="{{ id }}">{{ tamanho }}</button>
                         {% endif %}
                         {% endfor %}
                     </div>
@@ -121,7 +121,8 @@
         button.addEventListener('click', () => {
             buttons.forEach(btn => btn.style.background = "#313131"); // Reset all button backgrounds
             button.style.background = "#f8ad15"; // Set background of clicked button
-            document.getElementById('selectedSize').value = button.textContent; // Save text of clicked button to hidden input
+            const id = button.getAttribute('data-id');
+            document.getElementById('selectedSize').value = id;
         });
     });
 

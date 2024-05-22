@@ -138,7 +138,8 @@ def rental_list_page():
            Locacao.status AS Status, 
            Local.nome AS Local, 
            Locacao.Estande, 
-           Usuario.id 
+           Usuario.id, 
+           Tenis.Modelo AS Modelo 
     FROM Locacao 
     JOIN Tenis ON Locacao.Tenis = Tenis.id 
     JOIN Usuario ON Locacao.Usuario = Usuario.id 

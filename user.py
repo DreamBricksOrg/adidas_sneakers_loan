@@ -83,17 +83,32 @@ def terms_page():
     return render_template('user/2-terms-supernova.html')
 
 
+@user.route('/selectmodel', methods=['GET', 'POST'])
+def select_model():
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM Modelo")
+    models = cur.fetchall()
+    cur.close()
+    if request.method == "POST":
+        modelo = request.form['model']
+        session['modelo'] = modelo
+        return redirect(url_for('user.choose_size_page'))
+
+    return render_template('user/18-select-model.html', models=models)
+
+
 @user.route('/choose-size', methods=['GET', 'POST'])
 def choose_size_page():
     if request.method == 'POST':
-        size = request.form['size']
-        session['size'] = size
+        tenis_id = request.form['size']
+        session['tenis_id'] = tenis_id
         return redirect(url_for('user.time_use_page'))
 
     estande = session.get('estande')
+    modelo = session.get('modelo')
 
     cur = mysql.connection.cursor()
-    cur.execute("SELECT tamanho, quantidade FROM Tenis WHERE estande = %s", (estande,))
+    cur.execute("SELECT id, tamanho, quantidade FROM Tenis WHERE estande = %s AND Modelo = %s", (estande, modelo))
     tenis = cur.fetchall()
     cur.close()
 
