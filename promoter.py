@@ -329,34 +329,34 @@ def aprove_rental_page():
         print(f'LOG: /promoter/aproverental - tenis_id: {tenis_id[0] if tenis_id is not None else "None"} ')
 
         if request.method == 'POST':
-            cur.execute('SELECT Usuario FROM Locacao WHERE Usuario = %s', (user_id,))
-            result = cur.fetchone()
+            # cur.execute('SELECT Usuario FROM Locacao WHERE Usuario = %s', (user_id,))
+            # result = cur.fetchone()
 
-            if result:
-                print(
-                    f'ERROR: /promoter/aproverental - usuario_id: {result[0] if result is not None else "None"} already exists!')
+            # if result:
+            #     print(
+            #         f'ERROR: /promoter/aproverental - usuario_id: {result[0] if result is not None else "None"} already exists!')
 
-            else:
-                cur.execute(
-                    'INSERT INTO Locacao (Tenis, Usuario, Promotor, Local, Estande, data_inicio, data_fim, status) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s)',
-                    (tenis_id[0], user_id, promoter_id, local_id, estande, data_inicio, data_fim, status))
+            # else:
+            cur.execute(
+                'INSERT INTO Locacao (Tenis, Usuario, Promotor, Local, Estande, data_inicio, data_fim, status) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s)',
+                (tenis_id[0], user_id, promoter_id, local_id, estande, data_inicio, data_fim, status))
+            mysql.connection.commit()
+
+            if cur.lastrowid != 0:
+                cur.execute('SELECT quantidade FROM Tenis WHERE tamanho = %s', (size,))
+                quantidade = cur.fetchone()
+                nova_quantidade = quantidade[0] - 1
+                cur.execute('UPDATE Tenis SET quantidade = %s WHERE tamanho = %s', (nova_quantidade, size))
                 mysql.connection.commit()
 
-                if cur.lastrowid != 0:
-                    cur.execute('SELECT quantidade FROM Tenis WHERE tamanho = %s', (size,))
-                    quantidade = cur.fetchone()
-                    nova_quantidade = quantidade[0] - 1
-                    cur.execute('UPDATE Tenis SET quantidade = %s WHERE tamanho = %s', (nova_quantidade, size))
+                cur.execute('SELECT id FROM Usuario WHERE id = %s', (user_id,))
+                user = cur.fetchone()
+                if user:
+                    cur.execute('UPDATE Usuario SET aprovado = true WHERE id = %s', (user_id,))
                     mysql.connection.commit()
 
-                    cur.execute('SELECT id FROM Usuario WHERE id = %s', (user_id,))
-                    user = cur.fetchone()
-                    if user:
-                        cur.execute('UPDATE Usuario SET aprovado = true WHERE id = %s', (user_id,))
-                        mysql.connection.commit()
-
-                    cur.execute('UPDATE Usuario SET local_de_locacao = %s WHERE id = %s', (local[0], user_id))
-                    mysql.connection.commit()
+                cur.execute('UPDATE Usuario SET local_de_locacao = %s WHERE id = %s', (local[0], user_id))
+                mysql.connection.commit()
             return redirect(url_for('promoter.rental_list_page'))
 
         cur.execute("SELECT nome_iniciais FROM Usuario WHERE id = %s ", (user_id,))
