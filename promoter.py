@@ -17,6 +17,16 @@ def promoter_scan_start_page():
     return render_template('promoter/1-scan-start.html')
 
 
+@promoter.route('/promotor/inicio', methods=['GET', 'POST'])
+def promoter_scan_start_page_pt():
+    if request.method == 'POST':
+        estande = request.form['estande']
+        session['estande'] = estande
+        return redirect(url_for('promoter.promoter_login_page'))
+
+    return render_template('promoter/1-scan-start.html')
+
+
 @promoter.route('/promoter/login', methods=['POST', 'GET'])
 def promoter_login_page():
     if request.method == 'POST':
