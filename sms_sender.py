@@ -9,7 +9,7 @@ key = "86BX1T5ZIZWJW5ZRHQRKO5GNXZ7XGM40F8TIUVRT3M2C5OWF88AF5XR66IUHG9ZY7Q1R1QKLC
 
 
 def send_sms_code(tel, code):
-    msg = "Este é seu código de verificação: " + str(code)
+    msg = "ADIDAS: Este é seu código de verificação: " + str(code)
     data = {
         "key": key,
         "type": 9,
