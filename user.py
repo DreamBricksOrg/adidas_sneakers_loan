@@ -86,7 +86,7 @@ def terms_page():
 @user.route('/selectmodel', methods=['GET', 'POST'])
 def select_model():
     cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM Modelo")
+    cur.execute("SELECT id, nome FROM Modelo")
     models = cur.fetchall()
     cur.close()
     if request.method == "POST":
@@ -110,6 +110,7 @@ def choose_size_page():
     cur = mysql.connection.cursor()
     cur.execute("SELECT id, tamanho, quantidade FROM Tenis WHERE estande = %s AND Modelo = %s", (estande, modelo))
     tenis = cur.fetchall()
+    print(tenis)
     cur.close()
 
     return render_template('user/3-shoes-size-supernova.html', tenis=tenis)

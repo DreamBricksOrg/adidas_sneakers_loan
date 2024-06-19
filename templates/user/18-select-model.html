@@ -1,39 +1,17 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link
-            rel="stylesheet"
-            href="{{ url_for('static', filename='css/default.css') }}"
-    />
-    <link
-            rel="shortcut icon"
-            href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}"
-            type="image/x-icon"
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
-          rel="stylesheet"
-    />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
-
-    <script src="{{url_for('static', filename='util.js')}}"></script>
-    <script src="{{url_for('static', filename='aes_encryption.js')}}"></script>
-    <script src="{{url_for('static', filename='rsa_encryption.js')}}"></script>
-    <script src="{{url_for('static', filename='db_encryption.js')}}"></script>
-    <script src="{{url_for('static', filename='js/rsa_public_key.js')}}"></script>
-    <script src="{{url_for('static', filename='js/user/5-register-supernova.js')}}"></script>
-
-    <title>Supernova - registro</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/default.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}"
+          type="image/x-icon">
+    <title>ADIDAS - modelo</title>
 
     <style>
         .background {
-            background-image: url("{{ url_for('static', filename='assets/images/newbg/tennis_fall.png') }}");
-            background-position: -170px -0px;
+            background-image: url("{{ url_for('static', filename='assets/images/newbg/togheter.png') }}");
+            background-position: center;
             background-repeat: no-repeat;
             background-size: cover;
         }
@@ -41,7 +19,7 @@
         .overlay {
             position: absolute;
             inset: 0;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.72);
             padding-top: 36px;
             display: flex;
             flex-direction: column;
@@ -50,123 +28,126 @@
 
         .logo {
             padding-left: 57px;
-            position: relative;
-            z-index: 2;
         }
 
-        .register {
+        .choose-model {
             margin-top: auto;
             width: 100%;
-            padding: 36px 27px 46px;
+            padding: 36px 37px 46px;
             box-sizing: border-box;
             text-align: center;
             color: white;
-            position: relative;
-            z-index: 2;
         }
 
-        .register h1 {
-            margin-top: 40px;
+        .choose-model p {
+            font-model: 29px;
         }
 
-        .register p {
-            font-size: 29px;
-        }
-
-        .register-form {
+        .sizes {
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            margin: 30px 0 0;
-            padding: 0 35px 0px;
+            gap: 15px;
+            margin-top: 40px;
+            margin-bottom: 48px;
         }
 
-        .form-item {
-            background: var(--dark-grey);
-            padding: 20px;
+        .choose-model h1 {
+            font-size: 42px;
+            max-width: 200px;
+        }
+
+        .sizes p {
+            text-align: left;
+            line-height: 25px;
+            font-model: 24px;
+        }
+
+        /*        .modelForm{*/
+        /*            display: flex;*/
+        /*            flex-direction: column;*/
+        /*            justify-content: center;*/
+        /*        }*/
+
+        .table-models {
             display: flex;
+            flex-direction: column;
+            gap: 10px;
             align-items: center;
-            gap: 14px;
-            border-radius: 7px;
         }
 
-        .form-item input {
-            background: transparent;
-            color: var(--white);
-            font-size: 14px;
-            font-family: "Roboto", sans-serif;
-        }
-
-        select {
+        .table-models button {
             background: var(--dark-grey);
             color: var(--white);
-            font-size: 14px;
-            font-family: "Roboto", sans-serif;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            padding-left: 5px;
-        }
-
-        .form-item input:focus {
-            border: 0;
-            outline: 0;
-        }
-
-        .form-item input::placeholder {
-            color: var(--white);
-            font-size: 14;
-            font-family: "Roboto", sans-serif;
+            padding: 20px 15px;
+            border-radius: 7px;
+            width: 18rem;
         }
 
         .button-container {
-            padding: 50px 0 0;
+            padding: 0 14px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 17px;
         }
     </style>
 </head>
 <body>
 <div class="container background">
-    <div class="overlay"></div>
-    <div class="logo">
-        <logo-component></logo-component>
-    </div>
+    <div class="overlay">
+        <div class="logo">
+            <logo-component></logo-component>
+        </div>
 
-    <div class="register">
-        <h1 class="uppercase">Selecione o modelo desejado</h1>
+        <div class="choose-model">
+            <h1>ESCOLHA O SEU MODELO</h1>
 
-        <form id="get-code" method="POST" action="/selectmodel">
-            <div class="register-form">
-                <select name="model" id="modelos" class="form-item">
-                    <option value="">Selecione o Modelo</option>
-                    {% for model in models %}
-                    <option value="{{ model[0] }}" {% if model[0]== selected_model %} selected {% endif %}>{{
-                        model[1] }}
-                    </option>
-                    {% endfor %}
-                </select>
+            <div class="sizes">
+                <form class="modelForm" id="modelForm" action="/selectmodel" method="POST">
+
+                    <div class="table-models">
+                        {% for id, nome in models %}
+                        <button type="button" class="model-btn" data-id="{{ id }}">{{ nome }}</button>
+                        {% endfor %}
+                    </div>
+
+                    <input type="hidden" id="selectedModel" name="model">
+                    <br><br>
+                    <div class="button-container">
+                        <button-component text="CONTINUAR" type="submit" onclick="submitForm()"></button-component>
+                    </div>
+
+                </form>
             </div>
 
-            <div class="button-container">
-                <button-component text="CONTINUAR" type="submit" onclick="submitForm()"></button-component>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
-
 <script>
-    function submitForm() {
-        // Obtém todos os campos de entrada
-        var inputs = document.querySelectorAll('.register-form select');
-        var allFieldsFilled = true;
+    const buttons = document.querySelectorAll('.model-btn');
 
-        if (allFieldsFilled) {
-            document.getElementById('get-code').submit();
+    buttons.forEach(button => {
+        button.addEventListener('click', () => {
+            buttons.forEach(btn => btn.style.background = "#313131"); // Reset all button backgrounds
+            button.style.background = "#f8ad15"; // Set background of clicked button
+            const id = button.getAttribute('data-id');
+            document.getElementById('selectedModel').value = id;
+        });
+    });
+
+    function submitForm() {
+        const selectedModel = document.getElementById('selectedModel').value;
+        if (selectedModel) {
+            document.getElementById('modelForm').submit();
         } else {
-            alert('Por favor, preencha todos os campos antes de continuar.');
+            alert("Por favor, selecione um tamanho antes de enviar.");
+
         }
     }
-</script>
 
+    function back(){
+        window.history.back();
+    }
+</script>
 <script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>
 <script src="{{ url_for('static', filename='assets/components/button.js') }}"></script>
 </body>
