@@ -149,12 +149,14 @@ def rental_list_page():
            Local.nome AS Local, 
            Locacao.Estande, 
            Usuario.id, 
-           Tenis.Modelo AS Modelo 
+           Modelo.nome AS Modelo, 
+           Tenis.id
     FROM Locacao 
     JOIN Tenis ON Locacao.Tenis = Tenis.id 
     JOIN Usuario ON Locacao.Usuario = Usuario.id 
     JOIN Promotor ON Locacao.Promotor = Promotor.id 
     JOIN Local ON Locacao.Local = Local.id 
+    JOIN Modelo ON Tenis.Modelo = Modelo.id 
     WHERE Local.id = %s 
     ORDER BY Locacao.data_inicio DESC;
     """
@@ -162,6 +164,7 @@ def rental_list_page():
     try:
         cur.execute(query, (local_id,))
         rentals = cur.fetchall()
+        print(rentals)
     except MySQLdb.ProgrammingError as e:
         print(f"An error occurred: {e}")
         return redirect(url_for('promoter.error_page'))
@@ -189,7 +192,8 @@ def update_values():
         if action == 'increase':
             nova_quantidade = resultado[0] + 1
         elif action == 'decrease':
-            nova_quantidade = resultado[0] - 1
+            if resultado > 0:
+                nova_quantidade = resultado[0] - 1
         else:
             return "Ação inválida. Use 'increase' ou 'decrease'."
 
@@ -240,9 +244,9 @@ def update_rental():
 def scan_aprove_rental_page():
     if request.method == 'POST':
         user_id = request.form['user_id']
-        size = request.form['size']
+        tenis_id = request.form['tenis_id']
         session['user_id'] = user_id
-        session['size'] = size
+        session['tenis_id'] = tenis_id
         return redirect(url_for('promoter.check_user_size_page'))
     if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
         return render_template('promoter/8-scan-aprove-rental.html')
@@ -253,13 +257,24 @@ def scan_aprove_rental_page():
 @promoter.route('/promoter/checkuser', methods=['GET'])
 def check_user_size_page():
     user_id = session['user_id']
-    size = session['size']
+    tenis_id = session['tenis_id']
 
     cur = mysql.connection.cursor()
     cur.execute("SELECT Usuario.nome_iniciais "
                 "FROM Usuario "
                 "WHERE Usuario.id = %s;", (user_id,))
     result = cur.fetchone()
+
+    cur.execute("SELECT Modelo, tamanho FROM Tenis WHERE id = %s", (tenis_id,))
+    tenis = cur.fetchone()
+    size = tenis[1]
+    model_id = tenis[0]
+
+    cur.execute("SELECT nome FROM Modelo WHERE id = %s", (model_id,))
+    model_result = cur.fetchone()
+    model = model_result[0]
+
+
     cur.close()
 
     if not result:
@@ -270,7 +285,7 @@ def check_user_size_page():
     start_date = now.strftime('%Y-%m-%d %H:%M:%S')
 
     if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
-        return render_template('promoter/15-check-user.html', user_name=result[0], size=size, start_date=start_date)
+        return render_template('promoter/15-check-user.html', user_name=result[0], model=model, size=size, start_date=start_date)
     else:
         return redirect(url_for('promoter.error_page'))
 
@@ -323,12 +338,12 @@ def aprove_rental_page():
     try:
         cur = mysql.connection.cursor()
 
-        size = session.get('size')
+        tenis_id = session.get('tenis_id')
         user_id = session.get('user_id')
         promoter_id = session.get('promoter_id')
         local_id = session.get('local_id')
         estande = session.get('estande')
-        print(f'LOG: /promoter/aproverental - session(size: {size}, user_id:{user_id}, '
+        print(f'LOG: /promoter/aproverental - session(tenis_id: {tenis_id}, user_id:{user_id}, '
               f'promoter_id:{promoter_id}, local_id:{local_id}), estande:{estande}')
 
         cur.execute('SELECT nome FROM Local WHERE id = %s', (local_id,))
@@ -342,9 +357,16 @@ def aprove_rental_page():
 
         status = 'ALOCADO'
 
-        cur.execute('SELECT id FROM Tenis WHERE tamanho = %s AND estande = %s', (size, estande))
-        tenis_id = cur.fetchone()
-        print(f'LOG: /promoter/aproverental - tenis_id: {tenis_id[0] if tenis_id is not None else "None"} ')
+        cur.execute("SELECT Modelo, tamanho FROM Tenis WHERE id = %s", (tenis_id,))
+        tenis = cur.fetchone()
+        size = tenis[1]
+        model_id = tenis[0]
+
+        cur.execute("SELECT nome FROM Modelo WHERE id = %s", (model_id,))
+        model_result = cur.fetchone()
+        model = model_result[0]
+
+        print(f'LOG: /promoter/aproverental - tenis_id: {tenis_id if tenis_id is not None else "None"} ')
 
         if request.method == 'POST':
             # cur.execute('SELECT Usuario FROM Locacao WHERE Usuario = %s', (user_id,))
@@ -361,11 +383,12 @@ def aprove_rental_page():
             mysql.connection.commit()
 
             if cur.lastrowid != 0:
-                cur.execute('SELECT quantidade FROM Tenis WHERE tamanho = %s', (size,))
+                cur.execute('SELECT quantidade FROM Tenis WHERE id = %s', (tenis_id,))
                 quantidade = cur.fetchone()
-                nova_quantidade = quantidade[0] - 1
-                cur.execute('UPDATE Tenis SET quantidade = %s WHERE tamanho = %s', (nova_quantidade, size))
-                mysql.connection.commit()
+                if quantidade[0] > 0:
+                    nova_quantidade = quantidade[0] - 1
+                    cur.execute('UPDATE Tenis SET quantidade = %s WHERE id = %s', (nova_quantidade, tenis_id))
+                    mysql.connection.commit()
 
                 cur.execute('SELECT id FROM Usuario WHERE id = %s', (user_id,))
                 user = cur.fetchone()
@@ -381,7 +404,7 @@ def aprove_rental_page():
         user_name = cur.fetchone()
         if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
             return render_template('promoter/9-aprove-rental.html', user_name=user_name[0], start_date=data_inicio,
-                                   size=size)
+                                   size=size, model=model)
         else:
             return redirect(url_for('promoter.error_page'))
 
@@ -398,9 +421,9 @@ def aprove_rental_page():
 def scan_return_page():
     if request.method == 'POST':
         user_id = request.form['user_id']
-        size = request.form['size']
+        tenis_id = request.form['tenis_id']
         session['user_id'] = user_id
-        session['size'] = size
+        session['tenis_id'] = tenis_id
 
         return redirect(url_for('promoter.return_page'))
     if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
@@ -413,9 +436,9 @@ def scan_return_page():
 def scan_return_btn():
     if request.method == 'POST':
         user_id = request.json['user_id']
-        size = request.json['size']
+        tenis_id = request.json['tenis_id']
         session['user_id'] = user_id
-        session['size'] = size
+        session['tenis_id'] = tenis_id
         return redirect(url_for('promoter.return_page'))
     if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
         return render_template('promoter/10-scan-return.html')
@@ -426,9 +449,18 @@ def scan_return_btn():
 @promoter.route('/promoter/return', methods=['GET', 'POST'])
 def return_page():
     user_id = session.get('user_id')
-    size = session.get('size')
+    tenis_id = session.get('tenis_id')
 
     cur = mysql.connection.cursor()
+    cur.execute("SELECT Modelo, tamanho FROM Tenis WHERE id = %s", (tenis_id,))
+    tenis = cur.fetchone()
+    model_id = tenis[0]
+    size = tenis[1]
+
+    cur.execute("SELECT nome FROM Modelo WHERE id = %s", (model_id,))
+    model_result = cur.fetchone()
+    model = model_result[0]
+
     cur.execute("""
         SELECT U.nome_iniciais, L.Tenis, L.data_inicio, L.status
         FROM Usuario U, Locacao L
@@ -443,11 +475,11 @@ def return_page():
     if request.method == 'POST':
         if locacao[3] == 'ALOCADO' or locacao[3] == 'VENCIDO':
 
-            cur.execute('SELECT quantidade FROM Tenis WHERE tamanho = %s', (size,))
+            cur.execute('SELECT quantidade FROM Tenis WHERE id = %s', (tenis_id,))
             quantidade = cur.fetchone()
 
             nova_quantidade = quantidade[0] + 1
-            cur.execute('UPDATE Tenis SET quantidade = %s WHERE tamanho = %s', (nova_quantidade, size))
+            cur.execute('UPDATE Tenis SET quantidade = %s WHERE id = %s', (nova_quantidade, tenis_id))
             mysql.connection.commit()
 
             now = datetime.now()
@@ -479,7 +511,7 @@ def return_page():
     duration_minutes = int(duration.total_seconds() / 60)
 
     if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
-        return render_template('promoter/11-return.html', user_name=locacao[0], size=size, start_date=start_date,
+        return render_template('promoter/11-return.html', user_name=locacao[0], size=size, model=model, start_date=start_date,
                                duration=duration_minutes)
     else:
         return redirect(url_for('promoter.error_page'))
@@ -488,9 +520,14 @@ def return_page():
 @promoter.route('/promoter/returnwithproblems', methods=['GET', 'POST'])
 def return_with_problems_page():
     user_id = session.get('user_id')
-    size = session.get('size')
+    tenis_id = session.get('tenis_id')
 
     cur = mysql.connection.cursor()
+    cur.execute("SELECT Modelo, tamanho FROM Tenis WHERE id = %s", (tenis_id,))
+    tenis = cur.fetchone()
+    model = tenis[0]
+    size = tenis[1]
+
     cur.execute("SELECT U.nome_iniciais, L.Tenis, L.data_inicio, L.status "
                 "FROM Usuario U, Locacao L "
                 "WHERE U.id = L.Usuario "
@@ -530,7 +567,7 @@ def return_with_problems_page():
     duration_minutes = int(duration.total_seconds() / 60)
 
     if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
-        return render_template('promoter/11-return.html', user_name=locacao[0], size=size, start_date=start_date,
+        return render_template('promoter/11-return.html', user_name=locacao[0], size=size, model=model, start_date=start_date,
                                duration=duration_minutes)
     else:
         return redirect(url_for('promoter.error_page'))

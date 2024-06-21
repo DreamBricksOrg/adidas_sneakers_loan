@@ -64,9 +64,9 @@ def index_page(estande):
 @user.route('/save_user_info', methods=['GET'])
 def save_user_info():
     user_id = request.args.get('user_id')
-    size = request.args.get('size')
+    tenis_id = request.args.get('tenis_id')
     session['user_id'] = user_id
-    session['size'] = size
+    session['tenis_id'] = tenis_id
     return '', 200
 
 
@@ -100,7 +100,7 @@ def select_model():
 @user.route('/choose-size', methods=['GET', 'POST'])
 def choose_size_page():
     if request.method == 'POST':
-        tenis_id = request.form['size']
+        tenis_id = request.form['tenis_id']
         session['tenis_id'] = tenis_id
         return redirect(url_for('user.time_use_page'))
 
@@ -180,17 +180,17 @@ def get_user_by_code():
         user = cur.fetchone()
         if user and user[0]:
             cur.execute(
-                'SELECT Locacao.*, Tenis.tamanho FROM Locacao JOIN Tenis ON Locacao.Tenis = Tenis.id WHERE Locacao.Usuario = %s;',
+                'SELECT Locacao.*, Tenis.id FROM Locacao JOIN Tenis ON Locacao.Tenis = Tenis.id WHERE Locacao.Usuario = %s;',
                 (user[0],))
             locacao = cur.fetchone()
             if locacao and locacao[0]:
                 print(locacao)
                 session['user_id'] = locacao[2]
-                session['size'] = locacao[9]
+                session['tenis_id'] = locacao[9]
                 return redirect(url_for('user.qrcode_return_page'))
         else:
             session['user_id'] = '00'
-            session['size'] = '00'
+            session['tenis_id'] = '00'
             return redirect(url_for('user.qrcode_return_page'))
     return render_template('user/17-user-get-code.html')
 
@@ -201,10 +201,10 @@ def qr_code_validation_page():
     user_id = session.get('user_id')
     if user_id is None:
         user_id = '00'
-    size = session.get('size')
-    if size is None:
-        size = '00'
-    data = {"user_id": user_id, "size": size}
+    tenis_id = session.get('tenis_id')
+    if tenis_id is None:
+        tenis_id = '00'
+    data = {"user_id": user_id, "tenis_id": tenis_id}
     qr_code_image = generate_qr_code(data)
 
     # Salvar a imagem em um buffer de bytes
@@ -233,12 +233,12 @@ def allright_page():
         cur.execute("UPDATE Locacao SET status = 'CANCELADO' WHERE Usuario = %s", (user_id,))
         mysql.connection.commit()
 
-        size = session.get('size')
-        cur.execute('SELECT quantidade FROM Tenis WHERE tamanho = %s', (size,))
+        tenis_id = session.get('tenis_id')
+        cur.execute('SELECT quantidade FROM Tenis WHERE id = %s', (tenis_id,))
         quantidade = cur.fetchone()
 
         nova_quantidade = quantidade[0] + 1
-        cur.execute('UPDATE Tenis SET quantidade = %s WHERE tamanho = %s', (nova_quantidade, size))
+        cur.execute('UPDATE Tenis SET quantidade = %s WHERE id = %s', (nova_quantidade, tenis_id))
         mysql.connection.commit()
         return redirect(url_for('user.thanks_page'))
 
@@ -248,9 +248,9 @@ def allright_page():
 @user.route('/ready')
 def ready_page():
     user_id = session.get('user_id')
-    size = session.get('size')
+    tenis_id = session.get('tenis_id')
 
-    return render_template('user/9-wear-shoes-supernova.html', user_id=user_id, size=size)
+    return render_template('user/9-wear-shoes-supernova.html', user_id=user_id, tenis_id=tenis_id)
 
 
 @user.route('/countdownstart')
@@ -303,11 +303,11 @@ def submit_review_page():
 def qrcode_return_page():
     cur = mysql.connection.cursor()
     user_id = session.get('user_id')
-    size = session.get('size')
-    if user_id is None or size is None:
+    tenis_id = session.get('tenis_id')
+    if user_id is None or tenis_id is None:
         return redirect(url_for('user.get_user_by_code'))
 
-    data = {"user_id": user_id, "size": size}
+    data = {"user_id": user_id, "tenis_id": tenis_id}
     qr_code_image = generate_qr_code(data)
 
     # Salvar a imagem em um buffer de bytes

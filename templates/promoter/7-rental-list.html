@@ -150,7 +150,7 @@
             <thead>
             <tr>
                 <th>Tenis</th>
-                <th>Tenis Modelo</th>
+                <th>Modelo</th>
                 <th>Usuario</th>
                 <th>Promotor</th>
                 <th>Data Inicio</th>
@@ -178,7 +178,7 @@
                 <td>{{ rental[8] }}</td>
                 <td class="devolver">
                     {% if rental[6] == 'ALOCADO' or rental[6] == 'VENCIDO' %}
-                    <span class="action" onclick="devolver('{{ rental[9] }}', '{{ rental[1] }}')">devolver</span>
+                    <span class="action" onclick="devolver('{{ rental[9] }}', '{{ rental[11] }}')">devolver</span>
                     <input type="hidden" value="{{ rental[9] }}">
                     {% endif %}
                 </td>
@@ -188,7 +188,7 @@
             <tfoot>
             <tr>
                 <th>Tenis</th>
-                <th>Tenis Modelo</th>
+                <th>Modelo</th>
                 <th>Usuario</th>
                 <th>Promotor</th>
                 <th>Data Inicio</th>
@@ -282,7 +282,7 @@
         }
     }
 
-    function devolver(user_id, size) {
+    function devolver(user_id, tenis_id) {
         var xhr = new XMLHttpRequest();
         xhr.open("POST", "/promoter/scanreturnbtn", true);
         xhr.setRequestHeader('Content-Type', 'application/json');
@@ -291,7 +291,7 @@
                 window.location.href = "/promoter/return";
             }
         };
-        var data = JSON.stringify({user_id: user_id, size: size});
+        var data = JSON.stringify({user_id: user_id, tenis_id: tenis_id});
         xhr.send(data);
     }
 
