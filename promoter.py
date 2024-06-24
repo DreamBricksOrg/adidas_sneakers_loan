@@ -150,7 +150,8 @@ def rental_list_page():
            Locacao.Estande, 
            Usuario.id, 
            Modelo.nome AS Modelo, 
-           Tenis.id
+           Tenis.id, 
+           Modelo.id
     FROM Locacao 
     JOIN Tenis ON Locacao.Tenis = Tenis.id 
     JOIN Usuario ON Locacao.Usuario = Usuario.id 
@@ -182,9 +183,10 @@ def update_values():
     data = request.json
     tamanho = data.get('tamanho')
     action = data.get('action')
+    model = data.get('model')
 
     cur = mysql.connection.cursor()
-    cur.execute('SELECT quantidade FROM Tenis WHERE tamanho = %s', (tamanho,))
+    cur.execute('SELECT quantidade FROM Tenis WHERE tamanho = %s AND Modelo = %s', (tamanho, model))
 
     resultado = cur.fetchone()
 
@@ -192,15 +194,15 @@ def update_values():
         if action == 'increase':
             nova_quantidade = resultado[0] + 1
         elif action == 'decrease':
-            if resultado > 0:
+            if resultado[0] > 0:
                 nova_quantidade = resultado[0] - 1
         else:
             return "Ação inválida. Use 'increase' ou 'decrease'."
 
-        cur.execute('UPDATE Tenis SET quantidade = %s WHERE tamanho = %s', (nova_quantidade, tamanho))
+        cur.execute('UPDATE Tenis SET quantidade = %s WHERE tamanho = %s AND Modelo = %s', (nova_quantidade, tamanho, model))
         mysql.connection.commit()
         cur.close()
-        return f'Quantidade para o tamanho {tamanho} atualizada para {nova_quantidade}\n'
+        return f'Quantidade para o tamanho {tamanho} e modelo {model} atualizada para {nova_quantidade}\n'
 
     return redirect(url_for('promoter.promoter_menu_page'))
 
@@ -211,12 +213,13 @@ def update_rental():
     oldValue = data.get('oldValue')
     newValue = data.get('newValue')
     rental_id = data.get('rental_id')
+    model = data.get('model')
 
     # Connect to the database
     cur = mysql.connection.cursor()
 
     # Find the ID of the old tennis
-    cur.execute('SELECT id FROM Tenis WHERE tamanho = %s', (oldValue,))
+    cur.execute('SELECT id FROM Tenis WHERE tamanho = %s AND Modelo = %s', (oldValue, model))
     old_tennis_id = cur.fetchone()
 
     if not old_tennis_id:
@@ -224,7 +227,7 @@ def update_rental():
         return jsonify({'message': 'Old size not found'}), 404
 
     # Find the ID of the new tennis
-    cur.execute('SELECT id FROM Tenis WHERE tamanho = %s', (newValue,))
+    cur.execute('SELECT id FROM Tenis WHERE tamanho = %s AND Modelo = %s', (newValue, model))
     new_tennis_id = cur.fetchone()
 
     if not new_tennis_id:
@@ -379,7 +382,7 @@ def aprove_rental_page():
             # else:
             cur.execute(
                 'INSERT INTO Locacao (Tenis, Usuario, Promotor, Local, Estande, data_inicio, data_fim, status) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s)',
-                (tenis_id[0], user_id, promoter_id, local_id, estande, data_inicio, data_fim, status))
+                (tenis_id, user_id, promoter_id, local_id, estande, data_inicio, data_fim, status))
             mysql.connection.commit()
 
             if cur.lastrowid != 0:

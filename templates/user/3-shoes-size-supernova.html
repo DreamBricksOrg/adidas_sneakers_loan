@@ -120,7 +120,7 @@
                 <div class="table-sizes">
                     {% for id, tamanho, quantidade in tenis %}
                     {% if quantidade > 0 and tamanho[0] == 'U' %}
-                    <button type="button" class="size-btn">{{ tamanho }}</button>
+                    <button type="button" class="size-btn" data-id="{{ id }}">{{ tamanho }}</button>
                     {% endif %}
                     {% endfor %}
                 </div>

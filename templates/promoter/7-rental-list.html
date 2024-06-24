@@ -167,6 +167,7 @@
                 <td onfocusin="saveOldValue(this)" onfocusout="saveNewValue(this)">
                     <input type="text" value="{{ rental[1] }}" maxlength="3">
                     <input type="hidden" value="{{ rental[0] }}">
+                    <input type="hidden" value="{{ rental[12] }}">
                 </td>
                 <td>{{ rental[10] }}</td>
                 <td>{{ rental[2] }}</td>
@@ -226,11 +227,13 @@
     let id;
     let intOldValue;
     let intNewValue;
+    let model;
 
     function saveOldValue(input) {
         let inputs = input.getElementsByTagName('input');
         oldValue = inputs[0].value;
         id = inputs[1].value;
+        model = inputs[2].value;
     }
 
     function saveNewValue(input) {
@@ -260,7 +263,7 @@
 
     function increaseValue() {
         if (newValue) {
-            sendPost('/promoter/updatevalue', { tamanho: intOldValue, action: 'increase' });
+            sendPost('/promoter/updatevalue', { tamanho: intOldValue, action: 'increase', model: model });
         } else {
             console.log('Tamanho de aumento não definido');
         }
@@ -268,7 +271,7 @@
 
     function decreaseValue() {
         if (oldValue) {
-            sendPost('/promoter/updatevalue', { tamanho: intNewValue, action: 'decrease' });
+            sendPost('/promoter/updatevalue', { tamanho: intNewValue, action: 'decrease', model: model });
         } else {
             console.log('Tamanho de diminuição não definido');
         }
@@ -276,7 +279,7 @@
 
     function updateRental() {
         if (newValue) {
-            sendPost('/promoter/update_rental', { newValue: intNewValue, oldValue: intOldValue, rental_id: id });
+            sendPost('/promoter/update_rental', { newValue: intNewValue, oldValue: intOldValue, rental_id: id, model: model });
         } else {
             console.log('Tamanho de aumento não definido');
         }
