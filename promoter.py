@@ -528,13 +528,21 @@ def return_with_problems_page():
     cur = mysql.connection.cursor()
     cur.execute("SELECT Modelo, tamanho FROM Tenis WHERE id = %s", (tenis_id,))
     tenis = cur.fetchone()
-    model = tenis[0]
+    model_id = tenis[0]
     size = tenis[1]
 
-    cur.execute("SELECT U.nome_iniciais, L.Tenis, L.data_inicio, L.status "
-                "FROM Usuario U, Locacao L "
-                "WHERE U.id = L.Usuario "
-                "AND U.id = %s;", (user_id,))
+    cur.execute("SELECT nome FROM Modelo WHERE id = %s", (model_id,))
+    model_result = cur.fetchone()
+    model = model_result[0]
+
+    cur.execute("""
+        SELECT U.nome_iniciais, L.Tenis, L.data_inicio, L.status
+        FROM Usuario U, Locacao L
+        WHERE U.id = L.Usuario
+        AND U.id = %s
+        ORDER BY L.data_inicio DESC
+        LIMIT 1;
+    """, (user_id,))
 
     locacao = cur.fetchone()
 
