@@ -106,7 +106,9 @@
 
                     <div class="table-models">
                         {% for id, nome in models %}
+                        {% if nome != 'OLD' %}
                         <button type="button" class="model-btn" data-id="{{ id }}">{{ nome }}</button>
+                        {% endif %}
                         {% endfor %}
                     </div>
 
