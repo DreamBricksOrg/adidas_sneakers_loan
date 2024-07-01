@@ -488,8 +488,13 @@ def return_page():
             now = datetime.now()
             end_date = now.strftime('%Y-%m-%d %H:%M:%S')
 
-            cur.execute("UPDATE Locacao SET status = 'DEVOLVIDO', data_fim = %s WHERE Usuario = %s",
-                        (end_date, user_id))
+            cur.execute("""
+                UPDATE Locacao
+                SET status = 'DEVOLVIDO', data_fim = %s
+                WHERE Usuario = %s
+                ORDER BY id DESC 
+                LIMIT 1
+            """, (end_date, user_id))
             mysql.connection.commit()
 
             cur.execute('SELECT id FROM Usuario WHERE id = %s', (user_id,))
@@ -552,8 +557,13 @@ def return_with_problems_page():
             now = datetime.now()
             end_date = now.strftime('%Y-%m-%d %H:%M:%S')
 
-            cur.execute("UPDATE Locacao SET status = 'DEVOLVIDO', data_fim = %s WHERE Usuario = %s",
-                        (end_date, user_id))
+            cur.execute("""
+                     UPDATE Locacao
+                     SET status = 'DEVOLVIDO', data_fim = %s
+                     WHERE Usuario = %s
+                     ORDER BY id DESC
+                     LIMIT 1
+                 """, (end_date, user_id))
             mysql.connection.commit()
 
             cur.execute('SELECT id FROM Usuario WHERE id = %s', (user_id,))
