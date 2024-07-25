@@ -100,30 +100,42 @@
         <div class="sizes">
             <form id="sizeForm" action="/choose-size" method="POST">
                 <p>Tamanhos</p>
-                <p>Masculino</p>
+
+                <!--                <p>Masculino</p>-->
+                <!--                <div class="table-sizes">-->
+                <!--                    {% for id, tamanho, quantidade in tenis %}-->
+                <!--                    {% if quantidade > 0 and tamanho[0] == 'M' %}-->
+                <!--                    <button type="button" class="size-btn" data-id="{{ id }}">{{ tamanho }}</button>-->
+                <!--                    {% endif %}-->
+                <!--                    {% endfor %}-->
+                <!--                </div>-->
+                <!--                -->
+                <!--                <p>Feminino</p>-->
+                <!--                <div class="table-sizes">-->
+                <!--                    {% for id, tamanho, quantidade in tenis %}-->
+                <!--                    {% if quantidade > 0 and tamanho[0] == 'F' %}-->
+                <!--                    <button type="button" class="size-btn" data-id="{{ id }}">{{ tamanho }}</button>-->
+                <!--                    {% endif %}-->
+                <!--                    {% endfor %}-->
+                <!--                </div>-->
+                <!--                -->
+                <!--                <p>Unissex</p>-->
+                <!--                <div class="table-sizes">-->
+                <!--                    {% for id, tamanho, quantidade in tenis %}-->
+                <!--                    {% if quantidade > 0 and tamanho[0] == 'U' %}-->
+                <!--                    <button type="button" class="size-btn" data-id="{{ id }}">{{ tamanho }}</button>-->
+                <!--                    {% endif %}-->
+                <!--                    {% endfor %}-->
+                <!--                </div>-->
+
                 <div class="table-sizes">
                     {% for id, tamanho, quantidade in tenis %}
-                    {% if quantidade > 0 and tamanho[0] == 'M' %}
+                    {% if quantidade > 0 %}
                     <button type="button" class="size-btn" data-id="{{ id }}">{{ tamanho }}</button>
                     {% endif %}
                     {% endfor %}
                 </div>
-                <p>Feminino</p>
-                <div class="table-sizes">
-                    {% for id, tamanho, quantidade in tenis %}
-                    {% if quantidade > 0 and tamanho[0] == 'F' %}
-                    <button type="button" class="size-btn" data-id="{{ id }}">{{ tamanho }}</button>
-                    {% endif %}
-                    {% endfor %}
-                </div>
-                <p>Unissex</p>
-                <div class="table-sizes">
-                    {% for id, tamanho, quantidade in tenis %}
-                    {% if quantidade > 0 and tamanho[0] == 'U' %}
-                    <button type="button" class="size-btn" data-id="{{ id }}">{{ tamanho }}</button>
-                    {% endif %}
-                    {% endfor %}
-                </div>
+
                 <input type="hidden" id="selectedSize" name="tenis_id">
                 <br><br>
                 <div class="button-container">

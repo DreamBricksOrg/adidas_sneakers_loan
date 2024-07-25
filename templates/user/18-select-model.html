@@ -14,7 +14,10 @@
             background-position: center;
             background-repeat: no-repeat;
             background-size: cover;
+            position: relative;
+            overflow: auto;
         }
+
 
         .overlay {
             position: absolute;
@@ -28,6 +31,7 @@
 
         .logo {
             padding-left: 57px;
+            z-index:2;
         }
 
         .choose-model {
@@ -37,6 +41,7 @@
             box-sizing: border-box;
             text-align: center;
             color: white;
+            z-index:2;
         }
 
         .choose-model p {
@@ -93,7 +98,7 @@
 </head>
 <body>
 <div class="container background">
-    <div class="overlay">
+    <div class="overlay">  </div>
         <div class="logo">
             <logo-component></logo-component>
         </div>
@@ -105,9 +110,11 @@
                 <form class="modelForm" id="modelForm" action="/selectmodel" method="POST">
 
                     <div class="table-models">
-                        {% for id, nome in models %}
+                        {% for id, nome, status in models %}
                         {% if nome != 'OLD' %}
+                        {% if status != 'INATIVO' %}
                         <button type="button" class="model-btn" data-id="{{ id }}">{{ nome }}</button>
+                        {% endif %}
                         {% endif %}
                         {% endfor %}
                     </div>
@@ -123,34 +130,33 @@
 
         </div>
     </div>
-</div>
-<script>
-    const buttons = document.querySelectorAll('.model-btn');
+    <script>
+        const buttons = document.querySelectorAll('.model-btn');
 
-    buttons.forEach(button => {
-        button.addEventListener('click', () => {
-            buttons.forEach(btn => btn.style.background = "#313131"); // Reset all button backgrounds
-            button.style.background = "#f8ad15"; // Set background of clicked button
-            const id = button.getAttribute('data-id');
-            document.getElementById('selectedModel').value = id;
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                buttons.forEach(btn => btn.style.background = "#313131"); // Reset all button backgrounds
+                button.style.background = "#f8ad15"; // Set background of clicked button
+                const id = button.getAttribute('data-id');
+                document.getElementById('selectedModel').value = id;
+            });
         });
-    });
 
-    function submitForm() {
-        const selectedModel = document.getElementById('selectedModel').value;
-        if (selectedModel) {
-            document.getElementById('modelForm').submit();
-        } else {
-            alert("Por favor, selecione um tamanho antes de enviar.");
+        function submitForm() {
+            const selectedModel = document.getElementById('selectedModel').value;
+            if (selectedModel) {
+                document.getElementById('modelForm').submit();
+            } else {
+                alert("Por favor, selecione um tamanho antes de enviar.");
 
+            }
         }
-    }
 
-    function back(){
-        window.history.back();
-    }
-</script>
-<script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>
-<script src="{{ url_for('static', filename='assets/components/button.js') }}"></script>
+        function back(){
+            window.history.back();
+        }
+    </script>
+    <script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/components/button.js') }}"></script>
 </body>
 </html>

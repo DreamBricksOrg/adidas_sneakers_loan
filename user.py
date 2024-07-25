@@ -86,7 +86,7 @@ def terms_page():
 @user.route('/selectmodel', methods=['GET', 'POST'])
 def select_model():
     cur = mysql.connection.cursor()
-    cur.execute("SELECT id, nome FROM Modelo")
+    cur.execute("SELECT id, nome, status FROM Modelo")
     models = cur.fetchall()
     cur.close()
     if request.method == "POST":
