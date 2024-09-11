@@ -43,11 +43,11 @@ def admin_menu_page():
 def statistics_page():
     cur = mysql.connection.cursor()
     cur.execute(
-        'SELECT date_format(data_inicio, "%y-%m-%d") as bdate, adidas_prod.Local.nome nome_local, count(1) as numrentals '
-        'FROM adidas_prod.Locacao, adidas_prod.Local '
-        'WHERE adidas_prod.Locacao.Local = adidas_prod.Local.id '
-        'group by date_format(data_inicio, "%y-%m-%d"), adidas_prod.Local.nome '
-        'order by date_format(data_inicio, "%y-%m-%d") desc, adidas_prod.Local.nome desc;')
+        'SELECT date_format(data_inicio, "%y-%m-%d") as bdate, Local.nome nome_local, count(1) as numrentals '
+        'FROM Locacao, Local '
+        'WHERE Locacao.Local = Local.id '
+        'group by date_format(data_inicio, "%y-%m-%d"), Local.nome '
+        'order by date_format(data_inicio, "%y-%m-%d") desc, Local.nome desc;')
     rentals = cur.fetchall()
 
     cur.close()

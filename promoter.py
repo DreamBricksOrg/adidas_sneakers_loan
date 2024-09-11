@@ -199,7 +199,8 @@ def update_values():
         else:
             return "Ação inválida. Use 'increase' ou 'decrease'."
 
-        cur.execute('UPDATE Tenis SET quantidade = %s WHERE tamanho = %s AND Modelo = %s', (nova_quantidade, tamanho, model))
+        cur.execute('UPDATE Tenis SET quantidade = %s WHERE tamanho = %s AND Modelo = %s',
+                    (nova_quantidade, tamanho, model))
         mysql.connection.commit()
         cur.close()
         return f'Quantidade para o tamanho {tamanho} e modelo {model} atualizada para {nova_quantidade}\n'
@@ -277,7 +278,6 @@ def check_user_size_page():
     model_result = cur.fetchone()
     model = model_result[0]
 
-
     cur.close()
 
     if not result:
@@ -288,7 +288,8 @@ def check_user_size_page():
     start_date = now.strftime('%Y-%m-%d %H:%M:%S')
 
     if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
-        return render_template('promoter/15-check-user.html', user_name=result[0], model=model, size=size, start_date=start_date)
+        return render_template('promoter/15-check-user.html', user_name=result[0], model=model, size=size,
+                               start_date=start_date)
     else:
         return redirect(url_for('promoter.error_page'))
 
@@ -519,7 +520,8 @@ def return_page():
     duration_minutes = int(duration.total_seconds() / 60)
 
     if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
-        return render_template('promoter/11-return.html', user_name=locacao[0], size=size, model=model, start_date=start_date,
+        return render_template('promoter/11-return.html', user_name=locacao[0], size=size, model=model,
+                               start_date=start_date,
                                duration=duration_minutes)
     else:
         return redirect(url_for('promoter.error_page'))
@@ -588,7 +590,8 @@ def return_with_problems_page():
     duration_minutes = int(duration.total_seconds() / 60)
 
     if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
-        return render_template('promoter/11-return.html', user_name=locacao[0], size=size, model=model, start_date=start_date,
+        return render_template('promoter/11-return.html', user_name=locacao[0], size=size, model=model,
+                               start_date=start_date,
                                duration=duration_minutes)
     else:
         return redirect(url_for('promoter.error_page'))
@@ -625,11 +628,26 @@ def rental_list_expired_page():
 def baixar_csv():
     # Execute a consulta SQL
     cursor = mysql.connection.cursor()
-    cursor.execute(
-        "SELECT Locacao.id, Tenis.tamanho AS Tenis, Usuario.nome_iniciais AS Usuario, Promotor.nome AS Promotor, "
-        "Locacao.data_inicio AS Inicio, Locacao.data_fim AS Fim, Locacao.status AS Status, Local.nome AS Local, "
-        "Locacao.Estande FROM Locacao JOIN Tenis ON Locacao.Tenis = Tenis.id JOIN Usuario ON Locacao.Usuario = Usuario.id "
-        "JOIN Promotor ON Locacao.Promotor = Promotor.id JOIN Local ON Locacao.Local = Local.id;")
+    query = """
+    SELECT Promotor.nome AS Promotor, 
+           Usuario.nome_iniciais AS Usuario, 
+           Locacao.data_inicio AS Inicio, 
+           Locacao.data_fim AS Fim, 
+           Local.nome AS Local, 
+           Locacao.Estande, 
+           Tenis.tamanho AS Tamanho, 
+           Modelo.nome AS Modelo, 
+           Locacao.status AS Status  
+    FROM Locacao 
+    JOIN Tenis ON Locacao.Tenis = Tenis.id 
+    JOIN Usuario ON Locacao.Usuario = Usuario.id 
+    JOIN Promotor ON Locacao.Promotor = Promotor.id 
+    JOIN Local ON Locacao.Local = Local.id 
+    JOIN Modelo ON Tenis.Modelo = Modelo.id 
+    ORDER BY Locacao.data_inicio DESC;
+    """
+
+    cursor.execute(query)
 
     # Obter os resultados
     results = cursor.fetchall()
