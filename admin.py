@@ -43,15 +43,87 @@ def admin_menu_page():
 def statistics_page():
     cur = mysql.connection.cursor()
     cur.execute(
-        'SELECT date_format(data_inicio, "%y-%m-%d") as bdate, Local.nome nome_local, count(1) as numrentals '
-        'FROM Locacao, Local '
-        'WHERE Locacao.Local = Local.id '
-        'group by date_format(data_inicio, "%y-%m-%d"), Local.nome '
-        'order by date_format(data_inicio, "%y-%m-%d") desc, Local.nome desc;')
+        """
+    SELECT 
+    date_format(Locacao.data_inicio, "%y-%m-%d") AS bdate, 
+    Local.nome AS nome_local,
+    SUM(CASE WHEN Modelo.nome = 'Ultraboost 5' THEN 1 ELSE 0 END) AS 'Ultraboost 5',
+    SUM(CASE WHEN Modelo.nome = 'Supernova' THEN 1 ELSE 0 END) AS 'Supernova',
+    SUM(CASE WHEN Modelo.nome = 'Adizero SL' THEN 1 ELSE 0 END) AS 'Adizero SL',
+    SUM(CASE WHEN Modelo.nome = 'Adizero Adios Pro 3' THEN 1 ELSE 0 END) AS 'Adizero Adios Pro 3',
+    
+    COUNT(1) AS total
+FROM 
+    Locacao
+JOIN 
+    Local ON Locacao.Local = Local.id
+JOIN 
+    Tenis ON Locacao.Tenis = Tenis.id
+JOIN 
+    Modelo ON Tenis.Modelo = Modelo.id
+GROUP BY 
+    date_format(Locacao.data_inicio, "%y-%m-%d"), Local.nome
+ORDER BY 
+    date_format(Locacao.data_inicio, "%y-%m-%d") DESC, Local.nome DESC;
+    """)
     rentals = cur.fetchall()
 
     cur.close()
     return render_template('admin/3-statistics.html', rentals=rentals)
+
+
+@admin.route('/admin/download_statistics', methods=['GET'])
+def download_statistics():
+    # Execute a consulta SQL
+    cursor = mysql.connection.cursor()
+    query = """
+    SELECT 
+    date_format(Locacao.data_inicio, "%y-%m-%d") AS bdate, 
+    Local.nome AS nome_local,
+    SUM(CASE WHEN Modelo.nome = 'Ultraboost 5' THEN 1 ELSE 0 END) AS 'Ultraboost 5',
+    SUM(CASE WHEN Modelo.nome = 'Supernova' THEN 1 ELSE 0 END) AS 'Supernova',
+    SUM(CASE WHEN Modelo.nome = 'Adizero SL' THEN 1 ELSE 0 END) AS 'Adizero SL',
+    SUM(CASE WHEN Modelo.nome = 'Adizero Adios Pro 3' THEN 1 ELSE 0 END) AS 'Adizero Adios Pro 3',
+    
+    COUNT(1) AS total
+FROM 
+    Locacao
+JOIN 
+    Local ON Locacao.Local = Local.id
+JOIN 
+    Tenis ON Locacao.Tenis = Tenis.id
+JOIN 
+    Modelo ON Tenis.Modelo = Modelo.id
+GROUP BY 
+    date_format(Locacao.data_inicio, "%y-%m-%d"), Local.nome
+ORDER BY 
+    date_format(Locacao.data_inicio, "%y-%m-%d") DESC, Local.nome DESC;
+    """
+
+    cursor.execute(query)
+
+    # Obter os resultados
+    results = cursor.fetchall()
+
+    # Definir os cabeçalhos do CSV
+    fieldnames = [i[0] for i in cursor.description]
+
+    now = datetime.now()
+    now_str = now.strftime('%Y-%m-%d')
+    filename = f'{now_str}_estatisticas.csv'
+
+    # Criar um objeto de resposta CSV
+    response = make_response('')
+    response.headers['Content-Type'] = 'text/csv'
+    response.headers['Content-Disposition'] = f'attachment; filename={filename}'
+
+    # Escrever os resultados no arquivo CSV
+    writer = csv.DictWriter(response.stream, fieldnames=fieldnames)
+    writer.writeheader()
+    for row in results:
+        writer.writerow(dict(zip(fieldnames, row)))
+
+    return response
 
 
 @admin.route('/admin/generatekeys', methods=['GET'])
