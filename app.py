@@ -1,3 +1,5 @@
+from doctest import debug
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
 from login_manager import login_manager, auth

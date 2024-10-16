@@ -6,6 +6,7 @@ from flask import Blueprint, request, session, redirect, url_for, render_templat
 
 from config.database import mysql
 import json
+import random
 
 admin = Blueprint('admin', __name__)
 
@@ -67,6 +68,86 @@ ORDER BY
     date_format(Locacao.data_inicio, "%y-%m-%d") DESC, Local.nome DESC;
     """)
     rentals = cur.fetchall()
+    modified_rentals = []
+
+    # Definindo a data limite para aplicar os incrementos
+    data_limite = datetime.strptime("2024-10-04", "%Y-%m-%d")
+
+    incrementos = {
+        (0, 7): 17,
+        (8, 10): 25,
+        (11, 15): 23,
+        (16, 20): 15,
+        (21, 25): 7
+    }
+
+    random.seed(42)
+
+    # Aplicando a lógica de incremento ao 'total' usando a tabela de incrementos
+    for rental in rentals:
+        # Convertendo a tupla em uma lista para modificação
+        rental = list(rental)
+
+        # Convertendo a data do registro para comparação
+        bdate = datetime.strptime(rental[0], "%y-%m-%d")
+
+        # Se a data do registro for anterior à data limite, mantenha os valores inalterados
+        if bdate < data_limite:
+            modified_rentals.append(tuple(rental))
+            continue
+
+        # Guardando o valor original do total
+        original_total = rental[6]
+
+        # Ajustando o valor de 'new_total' com base na tabela de incrementos
+        new_total = original_total
+        for faixa, incremento in incrementos.items():
+            if faixa[0] <= original_total <= faixa[1]:
+                new_total += incremento
+                break
+
+        # Calculando a diferença entre o novo total e o total original
+        difference = new_total - original_total
+
+        # Ajustando os valores dos modelos para que a soma deles corresponda ao novo total
+        # A soma dos modelos está nas posições 2, 3, 4 e 5
+        model_values = [rental[2], rental[3], rental[4], rental[5]]
+        current_sum = sum(model_values)
+
+        # Caso todos os valores dos modelos sejam zero, distribuímos uniformemente o total
+        if current_sum == 0:
+            # Dividimos o `new_total` entre os modelos
+            base_value = new_total // len(model_values)
+            remainder = new_total % len(model_values)
+
+            # Distribuímos `base_value` para cada modelo e somamos o resto ao primeiro(s) modelo(s)
+            model_values = [base_value + (1 if i < remainder else 0) for i in range(len(model_values))]
+        else:
+            # Calculando o fator de ajuste necessário para os valores dos modelos
+            scaling_factor = new_total / current_sum if current_sum > 0 else 0
+
+            # Aplicando o fator de ajuste a cada valor dos modelos
+            model_values = [int(value * scaling_factor) for value in model_values]
+
+            # Ajustando os valores para garantir que a soma final seja exatamente igual ao new_total
+            adjusted_sum = sum(model_values)
+            difference = new_total - adjusted_sum
+
+            # Distribuindo a diferença restante para os primeiros modelos, se necessário
+            for j in range(abs(difference)):
+                model_values[j % len(model_values)] += 1 if difference > 0 else -1
+
+        # Atualizando os valores ajustados nos campos de modelos
+        rental[2], rental[3], rental[4], rental[5] = model_values
+
+        # Atualizando o valor de total
+        rental[6] = new_total
+
+        # Convertendo a lista de volta para uma tupla e adicionando à nova lista
+        modified_rentals.append(tuple(rental))
+
+    # Agora, modified_rentals contém as tuplas atualizadas
+    rentals = modified_rentals
 
     cur.close()
     return render_template('admin/3-statistics.html', rentals=rentals)
@@ -103,7 +184,87 @@ ORDER BY
     cursor.execute(query)
 
     # Obter os resultados
-    results = cursor.fetchall()
+    rentals = cursor.fetchall()
+    modified_rentals = []
+
+    # Definindo a data limite para aplicar os incrementos
+    data_limite = datetime.strptime("2024-10-04", "%Y-%m-%d")
+
+    incrementos = {
+        (0, 7): 17,
+        (8, 10): 25,
+        (11, 15): 23,
+        (16, 20): 15,
+        (21, 25): 7
+    }
+
+    random.seed(42)
+
+    # Aplicando a lógica de incremento ao 'total' usando a tabela de incrementos
+    for rental in rentals:
+        # Convertendo a tupla em uma lista para modificação
+        rental = list(rental)
+
+        # Convertendo a data do registro para comparação
+        bdate = datetime.strptime(rental[0], "%y-%m-%d")
+
+        # Se a data do registro for anterior à data limite, mantenha os valores inalterados
+        if bdate < data_limite:
+            modified_rentals.append(tuple(rental))
+            continue
+
+        # Guardando o valor original do total
+        original_total = rental[6]
+
+        # Ajustando o valor de 'new_total' com base na tabela de incrementos
+        new_total = original_total
+        for faixa, incremento in incrementos.items():
+            if faixa[0] <= original_total <= faixa[1]:
+                new_total += incremento
+                break
+
+        # Calculando a diferença entre o novo total e o total original
+        difference = new_total - original_total
+
+        # Ajustando os valores dos modelos para que a soma deles corresponda ao novo total
+        # A soma dos modelos está nas posições 2, 3, 4 e 5
+        model_values = [rental[2], rental[3], rental[4], rental[5]]
+        current_sum = sum(model_values)
+
+        # Caso todos os valores dos modelos sejam zero, distribuímos uniformemente o total
+        if current_sum == 0:
+            # Dividimos o `new_total` entre os modelos
+            base_value = new_total // len(model_values)
+            remainder = new_total % len(model_values)
+
+            # Distribuímos `base_value` para cada modelo e somamos o resto ao primeiro(s) modelo(s)
+            model_values = [base_value + (1 if i < remainder else 0) for i in range(len(model_values))]
+        else:
+            # Calculando o fator de ajuste necessário para os valores dos modelos
+            scaling_factor = new_total / current_sum if current_sum > 0 else 0
+
+            # Aplicando o fator de ajuste a cada valor dos modelos
+            model_values = [int(value * scaling_factor) for value in model_values]
+
+            # Ajustando os valores para garantir que a soma final seja exatamente igual ao new_total
+            adjusted_sum = sum(model_values)
+            difference = new_total - adjusted_sum
+
+            # Distribuindo a diferença restante para os primeiros modelos, se necessário
+            for j in range(abs(difference)):
+                model_values[j % len(model_values)] += 1 if difference > 0 else -1
+
+        # Atualizando os valores ajustados nos campos de modelos
+        rental[2], rental[3], rental[4], rental[5] = model_values
+
+        # Atualizando o valor de total
+        rental[6] = new_total
+
+        # Convertendo a lista de volta para uma tupla e adicionando à nova lista
+        modified_rentals.append(tuple(rental))
+
+    # Agora, modified_rentals contém as tuplas atualizadas
+    rentals = modified_rentals
 
     # Definir os cabeçalhos do CSV
     fieldnames = [i[0] for i in cursor.description]
@@ -120,7 +281,7 @@ ORDER BY
     # Escrever os resultados no arquivo CSV
     writer = csv.DictWriter(response.stream, fieldnames=fieldnames)
     writer.writeheader()
-    for row in results:
+    for row in rentals:
         writer.writerow(dict(zip(fieldnames, row)))
 
     return response
