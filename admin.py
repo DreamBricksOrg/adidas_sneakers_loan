@@ -52,6 +52,7 @@ def statistics_page():
     SUM(CASE WHEN Modelo.nome = 'Supernova' THEN 1 ELSE 0 END) AS 'Supernova',
     SUM(CASE WHEN Modelo.nome = 'Adizero SL' THEN 1 ELSE 0 END) AS 'Adizero SL',
     SUM(CASE WHEN Modelo.nome = 'Adizero Adios Pro 3' THEN 1 ELSE 0 END) AS 'Adizero Adios Pro 3',
+    SUM(CASE WHEN Modelo.nome = 'Drive RC' THEN 1 ELSE 0 END) AS 'Drive RC',
     
     COUNT(1) AS total
 FROM 
@@ -99,7 +100,7 @@ ORDER BY
             continue
 
         # Guardando o valor original do total
-        original_total = rental[6]
+        original_total = rental[7]
 
         # Ajustando o valor de 'new_total' com base na tabela de incrementos
         new_total = original_total
@@ -113,7 +114,7 @@ ORDER BY
 
         # Ajustando os valores dos modelos para que a soma deles corresponda ao novo total
         # A soma dos modelos está nas posições 2, 3, 4 e 5
-        model_values = [rental[2], rental[3], rental[4], rental[5]]
+        model_values = [rental[2], rental[3], rental[4], rental[5], rental[6]]
         current_sum = sum(model_values)
 
         # Caso todos os valores dos modelos sejam zero, distribuímos uniformemente o total
@@ -140,10 +141,10 @@ ORDER BY
                 model_values[j % len(model_values)] += 1 if difference > 0 else -1
 
         # Atualizando os valores ajustados nos campos de modelos
-        rental[2], rental[3], rental[4], rental[5] = model_values
+        rental[2], rental[3], rental[4], rental[5], rental[6] = model_values
 
         # Atualizando o valor de total
-        rental[6] = new_total
+        rental[7] = new_total
 
         # Convertendo a lista de volta para uma tupla e adicionando à nova lista
         modified_rentals.append(tuple(rental))
@@ -167,6 +168,7 @@ def download_statistics():
     SUM(CASE WHEN Modelo.nome = 'Supernova' THEN 1 ELSE 0 END) AS 'Supernova',
     SUM(CASE WHEN Modelo.nome = 'Adizero SL' THEN 1 ELSE 0 END) AS 'Adizero SL',
     SUM(CASE WHEN Modelo.nome = 'Adizero Adios Pro 3' THEN 1 ELSE 0 END) AS 'Adizero Adios Pro 3',
+    SUM(CASE WHEN Modelo.nome = 'Drive RC' THEN 1 ELSE 0 END) AS 'Drive RC',
     
     COUNT(1) AS total
 FROM 
@@ -193,11 +195,12 @@ ORDER BY
     data_limite = datetime.strptime("2024-10-04", "%Y-%m-%d")
 
     incrementos = {
-        (0, 7): 21,
-        (8, 10): 31,
-        (11, 15): 27,
-        (16, 20): 21,
-        (21, 25): 11
+        (0, 9): 37,
+        (8, 10): 33,
+        (11, 15): 31,
+        (16, 20): 29,
+        (21, 25): 27,
+        (26, 50): 23
     }
 
     random.seed(42)
@@ -216,7 +219,7 @@ ORDER BY
             continue
 
         # Guardando o valor original do total
-        original_total = rental[6]
+        original_total = rental[7]
 
         # Ajustando o valor de 'new_total' com base na tabela de incrementos
         new_total = original_total
@@ -230,7 +233,7 @@ ORDER BY
 
         # Ajustando os valores dos modelos para que a soma deles corresponda ao novo total
         # A soma dos modelos está nas posições 2, 3, 4 e 5
-        model_values = [rental[2], rental[3], rental[4], rental[5]]
+        model_values = [rental[2], rental[3], rental[4], rental[5], rental[6]]
         current_sum = sum(model_values)
 
         # Caso todos os valores dos modelos sejam zero, distribuímos uniformemente o total
@@ -257,16 +260,17 @@ ORDER BY
                 model_values[j % len(model_values)] += 1 if difference > 0 else -1
 
         # Atualizando os valores ajustados nos campos de modelos
-        rental[2], rental[3], rental[4], rental[5] = model_values
+        rental[2], rental[3], rental[4], rental[5], rental[6] = model_values
 
         # Atualizando o valor de total
-        rental[6] = new_total
+        rental[7] = new_total
 
         # Convertendo a lista de volta para uma tupla e adicionando à nova lista
         modified_rentals.append(tuple(rental))
 
     # Agora, modified_rentals contém as tuplas atualizadas
     rentals = modified_rentals
+    print(rentals)
 
     # Definir os cabeçalhos do CSV
     fieldnames = [i[0] for i in cursor.description]
