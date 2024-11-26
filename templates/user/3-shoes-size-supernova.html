@@ -78,51 +78,76 @@
             padding: 10px 15px;
             border: 1px solid rgba(255, 255, 255, 0.5);
         }
+
+        .button-container {
+            padding: 0 14px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 17px;
+        }
     </style>
 </head>
 <body>
 <div class="container background">
-    <div class="overlay"> </div>
-        <div class="logo">
-            <logo-component></logo-component>
-        </div>
+    <div class="overlay"></div>
+    <div class="logo">
+        <logo-component></logo-component>
+    </div>
 
-        <div class="choose-size">
-            <h1>ESCOLHA O TAMANHO DO SEU CALÇADO</h1>
+    <div class="choose-size">
+        <h1>ESCOLHA O TAMANHO DO SEU CALÇADO</h1>
 
-            <div class="sizes">
-                <form id="sizeForm" action="/choose-size" method="POST">
-                    <p>Tamanhos</p>
-                    <p>Masculino</p>
-                    <div class="table-sizes">
-                        {% for tamanho, quantidade in tenis %}
-                        {% if quantidade > 0 and tamanho[0] == 'M' %}
-                        <button type="button" class="size-btn">{{ tamanho }}</button>
-                        {% endif %}
-                        {% endfor %}
-                    </div>
-                    <p>Feminino</p>
-                    <div class="table-sizes">
-                        {% for tamanho, quantidade in tenis %}
-                        {% if quantidade > 0 and tamanho[0] == 'F' %}
-                        <button type="button" class="size-btn">{{ tamanho }}</button>
-                        {% endif %}
-                        {% endfor %}
-                    </div>
-                    <p>Unissex</p>
-                    <div class="table-sizes">
-                        {% for tamanho, quantidade in tenis %}
-                        {% if quantidade > 0 and tamanho[0] == 'U' %}
-                        <button type="button" class="size-btn">{{ tamanho }}</button>
-                        {% endif %}
-                        {% endfor %}
-                    </div>
-                    <input type="hidden" id="selectedSize" name="size">
-                    <br><br>
+        <div class="sizes">
+            <form id="sizeForm" action="/choose-size" method="POST">
+                <p>Tamanhos</p>
+
+                <!--                <p>Masculino</p>-->
+                <!--                <div class="table-sizes">-->
+                <!--                    {% for id, tamanho, quantidade in tenis %}-->
+                <!--                    {% if quantidade > 0 and tamanho[0] == 'M' %}-->
+                <!--                    <button type="button" class="size-btn" data-id="{{ id }}">{{ tamanho }}</button>-->
+                <!--                    {% endif %}-->
+                <!--                    {% endfor %}-->
+                <!--                </div>-->
+                <!--                -->
+                <!--                <p>Feminino</p>-->
+                <!--                <div class="table-sizes">-->
+                <!--                    {% for id, tamanho, quantidade in tenis %}-->
+                <!--                    {% if quantidade > 0 and tamanho[0] == 'F' %}-->
+                <!--                    <button type="button" class="size-btn" data-id="{{ id }}">{{ tamanho }}</button>-->
+                <!--                    {% endif %}-->
+                <!--                    {% endfor %}-->
+                <!--                </div>-->
+                <!--                -->
+                <!--                <p>Unissex</p>-->
+                <!--                <div class="table-sizes">-->
+                <!--                    {% for id, tamanho, quantidade in tenis %}-->
+                <!--                    {% if quantidade > 0 and tamanho[0] == 'U' %}-->
+                <!--                    <button type="button" class="size-btn" data-id="{{ id }}">{{ tamanho }}</button>-->
+                <!--                    {% endif %}-->
+                <!--                    {% endfor %}-->
+                <!--                </div>-->
+
+                <div class="table-sizes">
+                    {% for id, tamanho, quantidade in tenis %}
+                    {% if quantidade > 0 %}
+                    <button type="button" class="size-btn" data-id="{{ id }}">{{ tamanho }}</button>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+
+                <input type="hidden" id="selectedSize" name="tenis_id">
+                <br><br>
+                <div class="button-container">
                     <button-component text="CONTINUAR" type="submit" onclick="submitForm()"></button-component>
-                </form>
-            </div>
+                    <button-component text="VOLTAR" type="submit" onclick="back()"
+                                      background="black"></button-component>
+                </div>
+
+            </form>
         </div>
+
+    </div>
 
 </div>
 <script>
@@ -132,7 +157,8 @@
         button.addEventListener('click', () => {
             buttons.forEach(btn => btn.style.background = "#313131"); // Reset all button backgrounds
             button.style.background = "#f8ad15"; // Set background of clicked button
-            document.getElementById('selectedSize').value = button.textContent; // Save text of clicked button to hidden input
+            const id = button.getAttribute('data-id');
+            document.getElementById('selectedSize').value = id;
         });
     });
 
@@ -144,6 +170,10 @@
             alert("Por favor, selecione um tamanho antes de enviar.");
 
         }
+    }
+
+    function back(){
+        window.history.back();
     }
 </script>
 <script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>

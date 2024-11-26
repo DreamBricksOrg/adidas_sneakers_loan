@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/default.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}"
+          type="image/x-icon">
+    <title>ADIDAS - modelo</title>
+
+    <style>
+        .background {
+            background-image: url("{{ url_for('static', filename='assets/images/newbg/togheter.png') }}");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+            overflow: auto;
+        }
+
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.72);
+            padding-top: 36px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .logo {
+            padding-left: 57px;
+            z-index:2;
+        }
+
+        .choose-model {
+            margin-top: auto;
+            width: 100%;
+            padding: 36px 37px 46px;
+            box-sizing: border-box;
+            text-align: center;
+            color: white;
+            z-index:2;
+        }
+
+        .choose-model p {
+            font-model: 29px;
+        }
+
+        .sizes {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 40px;
+            margin-bottom: 48px;
+        }
+
+        .choose-model h1 {
+            font-size: 42px;
+            max-width: 200px;
+        }
+
+        .sizes p {
+            text-align: left;
+            line-height: 25px;
+            font-model: 24px;
+        }
+
+        /*        .modelForm{*/
+        /*            display: flex;*/
+        /*            flex-direction: column;*/
+        /*            justify-content: center;*/
+        /*        }*/
+
+        .table-models {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .table-models button {
+            background: var(--dark-grey);
+            color: var(--white);
+            padding: 20px 15px;
+            border-radius: 7px;
+            width: 18rem;
+        }
+
+        .button-container {
+            padding: 0 14px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 17px;
+        }
+    </style>
+</head>
+<body>
+<div class="container background">
+    <div class="overlay">  </div>
+        <div class="logo">
+            <logo-component></logo-component>
+        </div>
+
+        <div class="choose-model">
+            <h1>ESCOLHA O SEU MODELO</h1>
+
+            <div class="sizes">
+                <form class="modelForm" id="modelForm" action="/selectmodel" method="POST">
+
+                    <div class="table-models">
+                        {% for id, nome, status in models %}
+                        {% if nome != 'OLD' %}
+                        {% if status != 'INATIVO' %}
+                        <button type="button" class="model-btn" data-id="{{ id }}">{{ nome }}</button>
+                        {% endif %}
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <input type="hidden" id="selectedModel" name="model">
+                    <br><br>
+                    <div class="button-container">
+                        <button-component text="CONTINUAR" type="submit" onclick="submitForm()"></button-component>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+    <script>
+        const buttons = document.querySelectorAll('.model-btn');
+
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                buttons.forEach(btn => btn.style.background = "#313131"); // Reset all button backgrounds
+                button.style.background = "#f8ad15"; // Set background of clicked button
+                const id = button.getAttribute('data-id');
+                document.getElementById('selectedModel').value = id;
+            });
+        });
+
+        function submitForm() {
+            const selectedModel = document.getElementById('selectedModel').value;
+            if (selectedModel) {
+                document.getElementById('modelForm').submit();
+            } else {
+                alert("Por favor, selecione um tamanho antes de enviar.");
+
+            }
+        }
+
+        function back(){
+            window.history.back();
+        }
+    </script>
+    <script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/components/button.js') }}"></script>
+</body>
+</html>

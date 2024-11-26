@@ -58,6 +58,10 @@
             display: inline-block;
             overflow: hidden;
         }
+
+        .qr-code-image img {
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -73,7 +77,7 @@
         </h1>
 
         <div class="qr-code-image">
-            <img width="320px" src="data:image/png;base64,{{ qr_code }}" alt="qr-code"/>
+            <img src="data:image/png;base64,{{ qr_code }}" alt="qr-code"/>
         </div>
     </div>
 

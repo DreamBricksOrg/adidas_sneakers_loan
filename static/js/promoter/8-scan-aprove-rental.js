@@ -8,12 +8,12 @@ function onScanSuccess(decodedText, decodedResult) {
     const decodedText2 = decodedText.replaceAll("'", '"');
     const obj = JSON.parse(decodedText2);
     const user_id = obj.user_id;
-    const size = obj.size;
+    const tenis_id = obj.tenis_id;
 
-    if (user_id != null && size != null) {
-        document.getElementById("demo").innerHTML = "<h2>" + user_id + " / " + size + "</h2>";
+    if (user_id != null && tenis_id != null) {
+        document.getElementById("demo").innerHTML = "<h2>" + user_id + " / " + tenis_id + "</h2>";
         html5QrCode.stop();
-        post('/promoter/scanaproverental', {user_id: user_id, size: size});
+        post('/promoter/scanaproverental', {user_id: user_id, tenis_id: tenis_id});
     }
   }
   catch(e) {

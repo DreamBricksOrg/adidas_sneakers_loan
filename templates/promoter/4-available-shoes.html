@@ -89,6 +89,30 @@
         .corrigir{
             width: 80px;
         }
+
+        .dropbox {
+            margin: 2rem;
+        }
+
+        .form-item {
+            background: var(--white);
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border-radius: 7px;
+        }
+
+        .form-item select {
+            background: transparent;
+            color: var(--white);
+            font-size: 14px;
+            font-family: "Roboto", sans-serif;
+        }
+
+        .tenis-table-form {
+            padding-top: 0px;
+        }
     </style>
 </head>
 <body>
@@ -96,7 +120,20 @@
     <div class="overlay"></div>
 
     <h1>Lista de Tênis Disponíveis</h1>
-    <form action="/promoter/availableshoes" method="POST">
+
+    <form action="/promoter/availableshoes" method="GET">
+        <div class="dropbox">
+            <select name="model" id="modelos" class="form-item" onchange="redirectToModel()">
+                <option value="">Selecione o Modelo</option>
+                {% for model in models %}
+                <option value="{{ model[0] }}" {% if model[0]== selected_model %} selected {% endif %}>{{ model[1] }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+
+    <form action="/promoter/availableshoes" method="POST" class="tenis-table-form">
         <table class="tenis-table">
             <thead>
             <tr>
@@ -140,6 +177,25 @@
 
     </form>
 
+
+    <script>
+        function redirectToModel() {
+            var selectElement = document.getElementById('modelos');
+            var selectedValue = selectElement.value;
+            if (selectedValue) {
+                var url = '/promoter/availableshoes/' + selectedValue;
+                window.location.href = url;
+            }
+        }
+
+
+        var url = window.location.pathname;
+        var parts = url.split('/');
+        var selectedModelId = parts[parts.length - 1];
+
+        // Define o valor selecionado no dropdown
+        document.getElementById("modelos").value = selectedModelId;
+    </script>
 </div>
 </body>
 </html>

@@ -270,7 +270,7 @@
     function checkTerms() {
         var checkbox = document.getElementById("terms-checkbox");
         if (checkbox.checked) {
-            window.location.href = "{{ url_for('user.choose_size_page') }}";
+            window.location.href = "{{ url_for('user.select_model') }}";
         } else {
             alert("Por favor, aceite os termos antes de continuar.");
         }

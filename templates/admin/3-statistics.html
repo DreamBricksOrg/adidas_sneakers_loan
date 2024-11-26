@@ -15,6 +15,7 @@
             href="../../static/assets/images/logos/adidas.png"
             type="image/x-icon"
     />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         function formatarData(data) {
             if (data === 'None') {
@@ -110,6 +111,18 @@
         font-style: italic;
     }
 
+    .download-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        color: white;
+        text-decoration: none;
+    }
+
+    .download-button i {
+        margin-right: 5px;
+    }
+
 </style>
 <body>
 <div class="container">
@@ -121,7 +134,12 @@
             <tr>
                 <th>Data</th>
                 <th>Local</th>
-                <th>Locações</th>
+                <th>Ultraboost 5</th>
+                <th>Supernova</th>
+                <th>Adizero SL</th>
+                <th>Adizero Adios Pro 3</th>
+                <th>Drive RC</th>
+                <th>Total Locações</th>
             </tr>
             </thead>
             <tbody>
@@ -130,16 +148,29 @@
                 <td class="data-formatada">{{ rental[0] }}</td>
                 <td>{{ rental[1] }}</td>
                 <td>{{ rental[2] }}</td>
+                <td>{{ rental[3] }}</td>
+                <td>{{ rental[4] }}</td>
+                <td>{{ rental[5] }}</td>
+                <td>{{ rental[6] }}</td>
+                <td>{{ rental[7] }}</td>
             </tr>
             {% endfor %}
             </tbody>
         </table>
     </div>
+
     <div class="btn-container">
         <a href="{{ url_for('admin.admin_menu_page') }}">
             <button>Retornar</button>
         </a>
     </div>
+
+    <a href="/admin/download_statistics" class="download-button" id="download-pdf">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="44" height="44" fill="white">
+            <path d="M12 15.59l-4.29-4.29-1.41 1.41 6 6 .09.09.09.09.09-.09 6-6-1.41-1.41z"/>
+            <path d="M0 0h24v24h-24z" fill="none"/>
+        </svg>
+    </a>
 </div>
 
 <script>

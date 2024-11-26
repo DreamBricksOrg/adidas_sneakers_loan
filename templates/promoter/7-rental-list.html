@@ -140,6 +140,10 @@
         width: 100%;
     }
 
+    .dt-layout-cell{
+        overflow-x:auto;
+    }
+
 </style>
 <body>
 <div class="container">
@@ -150,6 +154,7 @@
             <thead>
             <tr>
                 <th>Tenis</th>
+                <th>Modelo</th>
                 <th>Usuario</th>
                 <th>Promotor</th>
                 <th>Data Inicio</th>
@@ -166,7 +171,9 @@
                 <td onfocusin="saveOldValue(this)" onfocusout="saveNewValue(this)">
                     <input type="text" value="{{ rental[1] }}" maxlength="3">
                     <input type="hidden" value="{{ rental[0] }}">
+                    <input type="hidden" value="{{ rental[12] }}">
                 </td>
+                <td>{{ rental[10] }}</td>
                 <td>{{ rental[2] }}</td>
                 <td>{{ rental[3] }}</td>
                 <td class="data-formatada">{{ rental[4] }}</td>
@@ -176,7 +183,7 @@
                 <td>{{ rental[8] }}</td>
                 <td class="devolver">
                     {% if rental[6] == 'ALOCADO' or rental[6] == 'VENCIDO' %}
-                    <span class="action" onclick="devolver('{{ rental[9] }}', '{{ rental[1] }}')">devolver</span>
+                    <span class="action" onclick="devolver('{{ rental[9] }}', '{{ rental[11] }}')">devolver</span>
                     <input type="hidden" value="{{ rental[9] }}">
                     {% endif %}
                 </td>
@@ -186,6 +193,7 @@
             <tfoot>
             <tr>
                 <th>Tenis</th>
+                <th>Modelo</th>
                 <th>Usuario</th>
                 <th>Promotor</th>
                 <th>Data Inicio</th>
@@ -223,11 +231,13 @@
     let id;
     let intOldValue;
     let intNewValue;
+    let model;
 
     function saveOldValue(input) {
         let inputs = input.getElementsByTagName('input');
         oldValue = inputs[0].value;
         id = inputs[1].value;
+        model = inputs[2].value;
     }
 
     function saveNewValue(input) {
@@ -257,7 +267,7 @@
 
     function increaseValue() {
         if (newValue) {
-            sendPost('/promoter/updatevalue', { tamanho: intOldValue, action: 'increase' });
+            sendPost('/promoter/updatevalue', { tamanho: intOldValue, action: 'increase', model: model });
         } else {
             console.log('Tamanho de aumento não definido');
         }
@@ -265,7 +275,7 @@
 
     function decreaseValue() {
         if (oldValue) {
-            sendPost('/promoter/updatevalue', { tamanho: intNewValue, action: 'decrease' });
+            sendPost('/promoter/updatevalue', { tamanho: intNewValue, action: 'decrease', model: model });
         } else {
             console.log('Tamanho de diminuição não definido');
         }
@@ -273,13 +283,13 @@
 
     function updateRental() {
         if (newValue) {
-            sendPost('/promoter/update_rental', { newValue: intNewValue, oldValue: intOldValue, rental_id: id });
+            sendPost('/promoter/update_rental', { newValue: intNewValue, oldValue: intOldValue, rental_id: id, model: model });
         } else {
             console.log('Tamanho de aumento não definido');
         }
     }
 
-    function devolver(user_id, size) {
+    function devolver(user_id, tenis_id) {
         var xhr = new XMLHttpRequest();
         xhr.open("POST", "/promoter/scanreturnbtn", true);
         xhr.setRequestHeader('Content-Type', 'application/json');
@@ -288,7 +298,7 @@
                 window.location.href = "/promoter/return";
             }
         };
-        var data = JSON.stringify({user_id: user_id, size: size});
+        var data = JSON.stringify({user_id: user_id, tenis_id: tenis_id});
         xhr.send(data);
     }
 
