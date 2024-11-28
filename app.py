@@ -4,7 +4,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
 from login_manager import login_manager, auth
 from config.database import initialize_mysql
-from local import local
+from veiculo import veiculo
 from sms_sender import sms_sender
 from user import user
 from promoter import promoter
@@ -22,7 +22,7 @@ login_manager.init_app(app)
 
 # register blueprints
 app.register_blueprint(auth)
-app.register_blueprint(local)
+app.register_blueprint(veiculo)
 app.register_blueprint(user)
 app.register_blueprint(sms_sender)
 app.register_blueprint(promoter)
@@ -61,7 +61,7 @@ scheduler.start()
 
 def main():
     context = ('static/certificate.crt', 'static/privateKey.key')
-    app.run(host='0.0.0.0', ssl_context=context)
+    app.run(host='0.0.0.0', debug=True)
 
 if __name__ == '__main__':
     main()

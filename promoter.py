@@ -42,25 +42,25 @@ def promoter_login_page():
         if promotor:
             session['logged_in'] = True
             session['promoter_id'] = promotor[0]
-            return redirect(url_for('promoter.promoter_local_page'))
+            return redirect(url_for('promoter.promoter_veiculo_page'))
         else:
             return redirect(url_for('promoter.promoter_login_page'))
 
     return render_template('promoter/2-promoter-login.html')
 
 
-@promoter.route('/promoter/local', methods=['GET', 'POST'])
-def promoter_local_page():
+@promoter.route('/promoter/veiculo', methods=['GET', 'POST'])
+def promoter_veiculo_page():
     if request.method == 'POST':
-        local_id = request.form['local']
-        session['local_id'] = local_id
+        veiculo_id = request.form['veiculo']
+        session['veiculo_id'] = veiculo_id
         return redirect(url_for('promoter.available_shoes_page', model="1"))
     cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM Local")
-    locais = cur.fetchall()
+    cur.execute("SELECT * FROM Veiculo")
+    veiculos = cur.fetchall()
     cur.close()
     if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
-        return render_template('promoter/3-local-confirmation.html', locais=locais)
+        return render_template('promoter/3-veiculo-confirmation.html', veiculos=veiculos)
     else:
         return redirect(url_for('promoter.error_page'))
 
@@ -85,7 +85,7 @@ def available_shoes_page(model):
 def available_shoes_page_post():
     if request.method == 'POST':
         promoter_id = session.get('promoter_id')
-        local_id = session.get('local_id')
+        veiculo_id = session.get('veiculo_id')
 
         cur = mysql.connection.cursor()
         for i in range(1, len(request.form) // 3 + 1):
@@ -100,8 +100,8 @@ def available_shoes_page_post():
                 mysql.connection.commit()
 
                 cur.execute(
-                    "INSERT INTO LogTenis (Promotor, Local, Tenis, quantidadeOriginal, quantidadeNova, data) VALUES (%s, %s, %s, %s, %s, %s)",
-                    (promoter_id, local_id, tenis_id, quantidade_antiga, corrigir, change_date))
+                    "INSERT INTO LogTenis (Promotor, Veiculo, Tenis, quantidadeOriginal, quantidadeNova, data) VALUES (%s, %s, %s, %s, %s, %s)",
+                    (promoter_id, veiculo_id, tenis_id, quantidade_antiga, corrigir, change_date))
                 mysql.connection.commit()
         cur.close()
         return redirect(url_for('promoter.promoter_menu_page'))
@@ -125,14 +125,14 @@ def rental_list_page():
     if request.method == 'POST':
         return redirect(url_for('promoter.promoter_menu_page'))
 
-    local_id = session.get('local_id')
+    veiculo_id = session.get('veiculo_id')
 
-    if local_id is None:
+    if veiculo_id is None:
         return redirect(url_for('promoter.error_page'))
 
-    # Convert local_id to the correct type if necessary
+    # Convert veiculo_id to the correct type if necessary
     try:
-        local_id = int(local_id)  # or str(local_id) if it's supposed to be a string
+        veiculo_id = int(veiculo_id)  # or str(veiculo_id) if it's supposed to be a string
     except ValueError:
         return redirect(url_for('promoter.error_page'))
 
@@ -146,7 +146,7 @@ def rental_list_page():
            DATE_FORMAT(Locacao.data_inicio, "%%d/%%m/%%Y %%H:%%i:%%s") AS Inicio, 
            DATE_FORMAT(Locacao.data_fim, "%%d/%%m/%%Y %%H:%%i:%%s") AS Fim, 
            Locacao.status AS Status, 
-           Local.nome AS Local, 
+           Veiculo.nome AS Veiculo, 
            Locacao.Estande, 
            Usuario.id, 
            Modelo.nome AS Modelo, 
@@ -156,14 +156,14 @@ def rental_list_page():
     JOIN Tenis ON Locacao.Tenis = Tenis.id 
     JOIN Usuario ON Locacao.Usuario = Usuario.id 
     JOIN Promotor ON Locacao.Promotor = Promotor.id 
-    JOIN Local ON Locacao.Local = Local.id 
+    JOIN Veiculo ON Locacao.Veiculo = Veiculo.id 
     JOIN Modelo ON Tenis.Modelo = Modelo.id 
-    WHERE Local.id = %s 
+    WHERE Veiculo.id = %s 
     ORDER BY Locacao.data_inicio DESC;
     """
 
     try:
-        cur.execute(query, (local_id,))
+        cur.execute(query, (veiculo_id,))
         rentals = cur.fetchall()
         print(rentals)
     except MySQLdb.ProgrammingError as e:
@@ -345,14 +345,14 @@ def aprove_rental_page():
         tenis_id = session.get('tenis_id')
         user_id = session.get('user_id')
         promoter_id = session.get('promoter_id')
-        local_id = session.get('local_id')
+        veiculo_id = session.get('veiculo_id')
         estande = session.get('estande')
         print(f'LOG: /promoter/aproverental - session(tenis_id: {tenis_id}, user_id:{user_id}, '
-              f'promoter_id:{promoter_id}, local_id:{local_id}), estande:{estande}')
+              f'promoter_id:{promoter_id}, veiculo_id:{veiculo_id}), estande:{estande}')
 
-        cur.execute('SELECT nome FROM Local WHERE id = %s', (local_id,))
-        local = cur.fetchone()
-        print(f'LOG: /promoter/aproverental - local: {local[0] if local is not None else "None"}')
+        cur.execute('SELECT nome FROM Veiculo WHERE id = %s', (veiculo_id,))
+        veiculo = cur.fetchone()
+        print(f'LOG: /promoter/aproverental - veiculo: {veiculo[0] if veiculo is not None else "None"}')
 
         now = datetime.now()
         data_inicio = now.strftime('%Y-%m-%d %H:%M:%S')
@@ -382,8 +382,8 @@ def aprove_rental_page():
 
             # else:
             cur.execute(
-                'INSERT INTO Locacao (Tenis, Usuario, Promotor, Local, Estande, data_inicio, data_fim, status) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s)',
-                (tenis_id, user_id, promoter_id, local_id, estande, data_inicio, data_fim, status))
+                'INSERT INTO Locacao (Tenis, Usuario, Promotor, Veiculo, Estande, data_inicio, data_fim, status) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s)',
+                (tenis_id, user_id, promoter_id, veiculo_id, estande, data_inicio, data_fim, status))
             mysql.connection.commit()
 
             if cur.lastrowid != 0:
@@ -400,7 +400,7 @@ def aprove_rental_page():
                     cur.execute('UPDATE Usuario SET aprovado = true WHERE id = %s', (user_id,))
                     mysql.connection.commit()
 
-                cur.execute('UPDATE Usuario SET local_de_locacao = %s WHERE id = %s', (local[0], user_id))
+                cur.execute('UPDATE Usuario SET veiculo_de_locacao = %s WHERE id = %s', (veiculo[0], user_id))
                 mysql.connection.commit()
             return redirect(url_for('promoter.rental_list_page'))
 
@@ -603,19 +603,19 @@ def rental_list_expired_page():
         session.clear()
         return redirect(url_for('promoter.promoter_scan_start_page'))
 
-    local_id = session.get('local_id')
+    veiculo_id = session.get('veiculo_id')
 
     cur = mysql.connection.cursor()
     cur.execute("SELECT Locacao.id, Tenis.tamanho AS Tenis, Usuario.nome_iniciais AS Usuario, "
                 "Promotor.nome AS Promotor, Locacao.data_inicio AS Inicio, Locacao.data_fim AS Fim, "
-                "Locacao.status AS Status, Local.nome AS Local, Locacao.Estande, Usuario.id "
+                "Locacao.status AS Status, Veiculo.nome AS Veiculo, Locacao.Estande, Usuario.id "
                 "FROM Locacao "
                 "JOIN Tenis ON Locacao.Tenis = Tenis.id "
                 "JOIN Usuario ON Locacao.Usuario = Usuario.id "
                 "JOIN Promotor ON Locacao.Promotor = Promotor.id "
-                "JOIN Local ON Locacao.Local = Local.id "
-                "WHERE Local = %s "
-                "ORDER BY Locacao.data_inicio DESC;", (local_id,))
+                "JOIN Veiculo ON Locacao.Veiculo = Veiculo.id "
+                "WHERE Veiculo = %s "
+                "ORDER BY Locacao.data_inicio DESC;", (veiculo_id,))
     rentals = cur.fetchall()
     cur.close()
     if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
@@ -633,7 +633,7 @@ def baixar_csv():
            Usuario.nome_iniciais AS Usuario, 
            Locacao.data_inicio AS Inicio, 
            Locacao.data_fim AS Fim, 
-           Local.nome AS Local, 
+           Veiculo.nome AS Veiculo, 
            Locacao.Estande, 
            Tenis.tamanho AS Tamanho, 
            Modelo.nome AS Modelo, 
@@ -642,7 +642,7 @@ def baixar_csv():
     JOIN Tenis ON Locacao.Tenis = Tenis.id 
     JOIN Usuario ON Locacao.Usuario = Usuario.id 
     JOIN Promotor ON Locacao.Promotor = Promotor.id 
-    JOIN Local ON Locacao.Local = Local.id 
+    JOIN Veiculo ON Locacao.Veiculo = Veiculo.id 
     JOIN Modelo ON Tenis.Modelo = Modelo.id 
     ORDER BY Locacao.data_inicio DESC;
     """

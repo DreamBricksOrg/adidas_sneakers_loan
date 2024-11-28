@@ -10,7 +10,7 @@
             href="../../static/assets/images/logos/adidas.png"
             type="image/x-icon"
     />
-    <title>Confirme o Local</title>
+    <title>Confirme o Veiculo</title>
 
     <style>
         .container {
@@ -98,13 +98,13 @@
 <body>
 <div class="container">
     <div class="overlay"></div>
-    <h1>Confirme o Local</h1>
-    <form action="/promoter/local" method="POST">
+    <h1>Confirme o Veiculo</h1>
+    <form action="/promoter/veiculo" method="POST">
         <div class="dropbox">
-            <select name="local" id="local" class="form-item">
-                <option value="">Selecione o local</option>
-                {% for local in locais %}
-                <option value="{{ local[0] }} ">{{ local[1] }}</option>
+            <select name="veiculo" id="veiculo" class="form-item">
+                <option value="">Selecione o veiculo</option>
+                {% for veiculo in veiculos %}
+                <option value="{{ veiculo[0] }} ">{{ veiculo[1] }}</option>
                 {% endfor %}
             </select>
         </div>

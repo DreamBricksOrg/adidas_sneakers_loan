@@ -47,7 +47,7 @@ def statistics_page():
         """
     SELECT 
     date_format(Locacao.data_inicio, "%y-%m-%d") AS bdate, 
-    Local.nome AS nome_local,
+    Veiculo.nome AS nome_veiculo,
     SUM(CASE WHEN Modelo.nome = 'Ultraboost 5' THEN 1 ELSE 0 END) AS 'Ultraboost 5',
     SUM(CASE WHEN Modelo.nome = 'Supernova' THEN 1 ELSE 0 END) AS 'Supernova',
     SUM(CASE WHEN Modelo.nome = 'Adizero SL' THEN 1 ELSE 0 END) AS 'Adizero SL',
@@ -58,15 +58,15 @@ def statistics_page():
 FROM 
     Locacao
 JOIN 
-    Local ON Locacao.Local = Local.id
+    Veiculo ON Locacao.Veiculo = Veiculo.id
 JOIN 
     Tenis ON Locacao.Tenis = Tenis.id
 JOIN 
     Modelo ON Tenis.Modelo = Modelo.id
 GROUP BY 
-    date_format(Locacao.data_inicio, "%y-%m-%d"), Local.nome
+    date_format(Locacao.data_inicio, "%y-%m-%d"), Veiculo.nome
 ORDER BY 
-    date_format(Locacao.data_inicio, "%y-%m-%d") DESC, Local.nome DESC;
+    date_format(Locacao.data_inicio, "%y-%m-%d") DESC, Veiculo.nome DESC;
     """)
     rentals = cur.fetchall()
     modified_rentals = []
@@ -82,7 +82,6 @@ ORDER BY
         (21, 25): 27,
         (26, 50): 23
     }
-
 
     random.seed(42)
 
@@ -156,7 +155,9 @@ ORDER BY
 
     with open(csv_filename, mode='w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(['Data', 'Veiculo', 'Ultraboost 5', 'Supernova','Adizero SL', 'Adizero Adios Pro 3', 'Drive RC', 'Total Locações'])
+        writer.writerow(
+            ['Data', 'Veiculo', 'Ultraboost 5', 'Supernova', 'Adizero SL', 'Adizero Adios Pro 3', 'Drive RC',
+             'Total Locações'])
         writer.writerows(modified_rentals)
 
     cur.close()
@@ -170,7 +171,7 @@ def statistics_status_page():
         """
         SELECT 
             date_format(Locacao.data_inicio, "%y-%m-%d") AS bdate, 
-            Local.nome AS nome_local,
+            Veiculo.nome AS nome_veiculo,
             SUM(CASE WHEN Locacao.status = 'DEVOLVIDO' THEN 1 ELSE 0 END) AS 'DEVOLVIDO',
             SUM(CASE WHEN Locacao.status = 'CANCELADO' THEN 1 ELSE 0 END) AS 'CANCELADO',
             SUM(CASE WHEN Locacao.status = 'VENCIDO' THEN 1 ELSE 0 END) AS 'VENCIDO',
@@ -178,11 +179,11 @@ def statistics_status_page():
         FROM 
             Locacao
         JOIN 
-            Local ON Locacao.Local = Local.id
+            Veiculo ON Locacao.Veiculo = Veiculo.id
         GROUP BY 
-            date_format(Locacao.data_inicio, "%y-%m-%d"), Local.nome
+            date_format(Locacao.data_inicio, "%y-%m-%d"), Veiculo.nome
         ORDER BY 
-            date_format(Locacao.data_inicio, "%y-%m-%d") DESC, Local.nome DESC;
+            date_format(Locacao.data_inicio, "%y-%m-%d") DESC, Veiculo.nome DESC;
         """
     )
     rentals = cur.fetchall()
@@ -276,7 +277,6 @@ def statistics_status_page():
     return "", 200
 
 
-
 @admin.route('/admin/statistics/gen', methods=['GET'])
 def statistics_gen_page():
     cur = mysql.connection.cursor()
@@ -284,7 +284,7 @@ def statistics_gen_page():
         """
         SELECT 
             date_format(Locacao.data_inicio, "%y-%m-%d") AS bdate, 
-            Local.nome AS nome_local,
+            Veiculo.nome AS nome_veiculo,
             SUM(CASE WHEN SUBSTRING(Tenis.tamanho, 1, 1) = 'M' THEN 1 ELSE 0 END) AS Masculino,
             SUM(CASE WHEN SUBSTRING(Tenis.tamanho, 1, 1) = 'F' THEN 1 ELSE 0 END) AS Feminino,
             SUM(CASE WHEN SUBSTRING(Tenis.tamanho, 1, 1) = 'U' THEN 1 ELSE 0 END) AS Unissex,
@@ -292,13 +292,13 @@ def statistics_gen_page():
         FROM 
             Locacao
         JOIN 
-            Local ON Locacao.Local = Local.id
+            Veiculo ON Locacao.Veiculo = Veiculo.id
         JOIN 
             Tenis ON Locacao.Tenis = Tenis.id
         GROUP BY 
-            date_format(Locacao.data_inicio, "%y-%m-%d"), Local.nome
+            date_format(Locacao.data_inicio, "%y-%m-%d"), Veiculo.nome
         ORDER BY 
-            date_format(Locacao.data_inicio, "%y-%m-%d") DESC, Local.nome DESC;
+            date_format(Locacao.data_inicio, "%y-%m-%d") DESC, Veiculo.nome DESC;
         """
     )
     rentals = cur.fetchall()
@@ -403,7 +403,7 @@ def statistics_num_page():
         """
         SELECT 
             date_format(Locacao.data_inicio, "%y-%m-%d") AS bdate, 
-            Local.nome AS nome_local,
+            Veiculo.nome AS nome_veiculo,
             SUM(CASE WHEN CAST(SUBSTRING(Tenis.tamanho, 2) AS UNSIGNED) = 34 THEN 1 ELSE 0 END) AS Tamanho_34,
             SUM(CASE WHEN CAST(SUBSTRING(Tenis.tamanho, 2) AS UNSIGNED) = 35 THEN 1 ELSE 0 END) AS Tamanho_35,
             SUM(CASE WHEN CAST(SUBSTRING(Tenis.tamanho, 2) AS UNSIGNED) = 36 THEN 1 ELSE 0 END) AS Tamanho_36,
@@ -420,13 +420,13 @@ def statistics_num_page():
         FROM 
             Locacao
         JOIN 
-            Local ON Locacao.Local = Local.id
+            Veiculo ON Locacao.Veiculo = Veiculo.id
         JOIN 
             Tenis ON Locacao.Tenis = Tenis.id
         GROUP BY 
-            date_format(Locacao.data_inicio, "%y-%m-%d"), Local.nome
+            date_format(Locacao.data_inicio, "%y-%m-%d"), Veiculo.nome
         ORDER BY 
-            date_format(Locacao.data_inicio, "%y-%m-%d") DESC, Local.nome DESC;
+            date_format(Locacao.data_inicio, "%y-%m-%d") DESC, Veiculo.nome DESC;
         """
     )
     rentals = cur.fetchall()
@@ -516,7 +516,7 @@ def statistics_num_page():
 
     header = [
         "Data",
-        "Local",
+        "Veiculo",
         "Tamanho_34",
         "Tamanho_35",
         "Tamanho_36",
@@ -538,9 +538,7 @@ def statistics_num_page():
         writer.writerows(modified_rentals)
 
     cur.close()
-    return "",200
-
-
+    return "", 200
 
 
 @admin.route('/admin/download_statistics', methods=['GET'])
@@ -550,7 +548,7 @@ def download_statistics():
     query = """
     SELECT 
     date_format(Locacao.data_inicio, "%y-%m-%d") AS bdate, 
-    Local.nome AS nome_local,
+    Veiculo.nome AS nome_veiculo,
     SUM(CASE WHEN Modelo.nome = 'Ultraboost 5' THEN 1 ELSE 0 END) AS 'Ultraboost 5',
     SUM(CASE WHEN Modelo.nome = 'Supernova' THEN 1 ELSE 0 END) AS 'Supernova',
     SUM(CASE WHEN Modelo.nome = 'Adizero SL' THEN 1 ELSE 0 END) AS 'Adizero SL',
@@ -561,15 +559,15 @@ def download_statistics():
 FROM 
     Locacao
 JOIN 
-    Local ON Locacao.Local = Local.id
+    Veiculo ON Locacao.Veiculo = Veiculo.id
 JOIN 
     Tenis ON Locacao.Tenis = Tenis.id
 JOIN 
     Modelo ON Tenis.Modelo = Modelo.id
 GROUP BY 
-    date_format(Locacao.data_inicio, "%y-%m-%d"), Local.nome
+    date_format(Locacao.data_inicio, "%y-%m-%d"), Veiculo.nome
 ORDER BY 
-    date_format(Locacao.data_inicio, "%y-%m-%d") DESC, Local.nome DESC;
+    date_format(Locacao.data_inicio, "%y-%m-%d") DESC, Veiculo.nome DESC;
     """
 
     cursor.execute(query)
@@ -708,12 +706,26 @@ def log_mudancas_page():
 def download_log_changes():
     cursor = mysql.connection.cursor()
     cursor.execute(
-        "SELECT Promotor.nome AS Promotor, Local.nome AS Local, Tenis.tamanho AS Tenis, "
-        "quantidadeOriginal, quantidadeNova, data "
-        "FROM LogTenis "
-        "JOIN Promotor ON LogTenis.Promotor = Promotor.id "
-        "JOIN Tenis ON LogTenis.tamanho = Tenis.id "
-        "JOIN Local ON LogTenis.Local = Local.id; ")
+            """ 
+            SELECT 
+        Promotor.nome AS Promotor, 
+        Veiculo.nome AS Veiculo, 
+        Modelo.nome AS Modelo,
+        Tenis.tamanho AS Tamanho, 
+        quantidadeOriginal, 
+        quantidadeNova, 
+        data 
+    FROM 
+        LogTenis 
+    JOIN 
+        Promotor ON LogTenis.Promotor = Promotor.id 
+    JOIN 
+        Tenis ON LogTenis.Tenis = Tenis.id 
+    JOIN 
+        Veiculo ON LogTenis.Veiculo = Veiculo.id
+    JOIN 
+        Modelo ON Tenis.Modelo = Modelo.id;       
+            """)
 
     # Obter os resultados
     results = cursor.fetchall()
@@ -742,21 +754,27 @@ def download_log_changes():
 @admin.route('/admin/downloadcryptedcsv', methods=['GET'])
 def download_users_data_csv():
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT Usuario.id,"
-                   " Usuario.dados_criptografados,"
-                   " Tenis.tamanho AS Tenis,"
-                   " Locacao.data_inicio AS Inicio,"
-                   " Locacao.data_fim AS Fim,"
-                   " Usuario.confirmacao_sms,"
-                   " Locacao.status AS Status,"
-                   " Promotor.nome as promotor,"
-                   " Locacao.Estande,"
-                   " Local.nome AS Local"
-                   " FROM Locacao JOIN Tenis "
-                   "ON Locacao.Tenis = Tenis.id JOIN Usuario "
-                   "ON Locacao.Usuario = Usuario.id JOIN Promotor "
-                   "ON Locacao.Promotor = Promotor.id JOIN Local "
-                   "ON Locacao.Local = Local.id ORDER BY Locacao.data_inicio DESC;")
+    cursor.execute("""
+        SELECT Usuario.id,
+           Usuario.dados_criptografados,
+           Modelo.nome AS Modelo,
+           Tenis.tamanho AS Tamnho,
+           Locacao.data_inicio AS Inicio,
+           Locacao.data_fim AS Fim,
+           Usuario.confirmacao_sms,
+           Locacao.status AS Status,
+           Promotor.nome AS promotor,
+           Locacao.Estande,
+           Veiculo.nome AS Veiculo
+    FROM Locacao
+    JOIN Tenis ON Locacao.Tenis = Tenis.id
+    JOIN Modelo ON Tenis.Modelo = Modelo.id
+    JOIN Usuario ON Locacao.Usuario = Usuario.id
+    JOIN Promotor ON Locacao.Promotor = Promotor.id
+    JOIN Veiculo ON Locacao.Veiculo = Veiculo.id
+    ORDER BY Locacao.data_inicio DESC;
+    """)
+
 
     # Obter os resultados
     results = cursor.fetchall()
