@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="../../static/css/default.css"/>
+
+    <link
+            rel="shortcut icon"
+            href="../../static/assets/images/logos/adidas.png"
+            type="image/x-icon"
+    />
+    <title>Local de treino</title>
+
+    <style>
+        /* Container principal */
+        .container {
+            background-image: url("../../static/assets/images/shoes-2.png");
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        /* Sobreposição escura */
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1;
+        }
+
+        /* Título */
+        h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            z-index: 2;
+            text-align: center;
+        }
+
+        /* Formulário */
+        form {
+            position: relative;
+            z-index: 2;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 30px 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        /* Campo de entrada */
+        .form-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .form-item input {
+            width: 100%;
+            padding: 10px 15px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-family: "Roboto", sans-serif;
+        }
+
+        .suggestions-box {
+            position: absolute;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            max-height: calc(4 * 40px); /* 4 itens de altura, considerando ~40px por item */
+            overflow-y: auto; /* Adiciona o scroll */
+            width: 100%;
+            z-index: 10;
+            top: 45px; /* Ajusta para alinhar com o input */
+            left: 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .suggestions-box div {
+            padding: 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .suggestions-box div:hover {
+            background: #f0f0f0;
+        }
+
+        /* Botão de confirmação */
+        .btn-container {
+            text-align: center;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-family: "Roboto", sans-serif;
+            color: white;
+            background: #333;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            background: #555;
+        }
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="overlay"></div>
+    <h1>Confirme o Local de treino</h1>
+    <form action="/promoter/veiculo" method="POST">
+        <div class="form-item">
+            <input
+                    type="text"
+                    id="training-place"
+                    name="training-place"
+                    placeholder="Digite o local de treino..."
+                    oninput="fetchSuggestions(this.value)"
+                    onfocus="fetchSuggestions('')"
+            autocomplete="off"
+            />
+            <div id="suggestions" class="suggestions-box"></div>
+        </div>
+        <div class="btn-container">
+            <button type="submit">CONFIRMAR</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    async function fetchSuggestions(query = '') {
+        const suggestionsBox = document.getElementById('suggestions');
+
+        // Envie a solicitação ao backend
+        const response = await fetch(`/autocomplete/training-place?q=${query}`);
+        const suggestions = await response.json();
+
+        // Atualize a caixa de sugestões com os resultados
+        suggestionsBox.innerHTML = suggestions
+            .map(
+            (item) =>
+            `<div onclick="selectSuggestion('${item.nome}')">${item.nome}</div>`
+        )
+            .join('');
+    }
+
+    function selectSuggestion(value) {
+        document.getElementById('training-place').value = value;
+        document.getElementById('suggestions').innerHTML = '';
+    }
+</script>
+</body>
+</html>
