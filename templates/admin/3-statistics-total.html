@@ -123,10 +123,60 @@
         margin-right: 5px;
     }
 
+    form.dropdown {
+        width: 200px;
+        margin: 36px auto;
+    }
+
+    select#dropdown {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border: 2px solid #333;
+        border-radius: 5px;
+        background-color: #f4f4f4;
+        color: #333;
+        outline: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    select#dropdown:hover {
+        border-color: #333;
+        background-color: #eaf6fd;
+    }
+
+    select#dropdown:focus {
+        border-color: #333;
+        box-shadow: 0 0 5px rgba(188, 26, 26, 0.5);
+    }
+
+    select#dropdown option {
+        padding: 20px;
+        font-size: 16px;
+    }
+
+    .dropdown{
+        z-index: 2;
+        position: absolute;
+        top: 0;
+        text-align: center;
+    }
+
 </style>
 <body>
 <div class="container">
+     <form action="#" method="get" class="dropdown">
+        <select id="dropdown" onchange="redirectToRoute()">
+            <option value="">Locaçoes por:</option>
+            <option value="/admin/statistics/total">Total</option>
+            <option value="/admin/statistics/gen">Gênero</option>
+            <option value="/admin/statistics/status">Status</option>
+            <option value="/admin/statistics/num">Tamanho</option>
+        </select>
+    </form>
     <div class="overlay"></div>
+
     <h1>Lista de locações</h1>
     <div class="table">
         <table class="rental-table">
@@ -165,15 +215,26 @@
         </a>
     </div>
 
-    <a href="/admin/download_statistics" class="download-button" id="download-pdf">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="44" height="44" fill="white">
-            <path d="M12 15.59l-4.29-4.29-1.41 1.41 6 6 .09.09.09.09.09-.09 6-6-1.41-1.41z"/>
-            <path d="M0 0h24v24h-24z" fill="none"/>
-        </svg>
-    </a>
+    <form action="/admin/statistics/total" method="post" class="download-button">
+        <button type="submit" id="download-pdf"
+                style="background: none; border: none; cursor: pointer;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="44" height="44" fill="white">
+                <path d="M12 15.59l-4.29-4.29-1.41 1.41 6 6 .09.09.09.09.09-.09 6-6-1.41-1.41z"/>
+                <path d="M0 0h24v24h-24z" fill="none"/>
+            </svg>
+        </button>
+    </form>
 </div>
 
 <script>
+    function redirectToRoute() {
+            const dropdown = document.getElementById('dropdown');
+            const selectedValue = dropdown.value;
+
+            if (selectedValue) {
+                window.location.href = selectedValue;
+            }
+        }
 </script>
 </body>
 </html>

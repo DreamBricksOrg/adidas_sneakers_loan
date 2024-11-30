@@ -40,7 +40,7 @@ def admin_menu_page():
         return redirect(url_for('admin.admin_login_page'))
 
 
-@admin.route('/admin/statistics', methods=['GET'])
+@admin.route('/admin/statistics/total', methods=['GET', 'POST'])
 def statistics_page():
     cur = mysql.connection.cursor()
     cur.execute(
@@ -151,20 +151,31 @@ ORDER BY
     # Agora, modified_rentals contém as tuplas atualizadas
     rentals = modified_rentals
 
-    csv_filename = "total_rentals.csv"
+    if request.method == 'POST':
+        fieldnames = [i[0] for i in cur.description]
 
-    with open(csv_filename, mode='w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(
-            ['Data', 'Veiculo', 'Ultraboost 5', 'Supernova', 'Adizero SL', 'Adizero Adios Pro 3', 'Drive RC',
-             'Total Locações'])
-        writer.writerows(modified_rentals)
+        now = datetime.now()
+        now_str = now.strftime('%Y-%m-%d')
+        filename = f'{now_str}_estatisticas_total.csv'
+
+        # Criar um objeto de resposta CSV
+        response = make_response('')
+        response.headers['Content-Type'] = 'text/csv'
+        response.headers['Content-Disposition'] = f'attachment; filename={filename}'
+
+        # Escrever os resultados no arquivo CSV
+        writer = csv.DictWriter(response.stream, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in rentals:
+            writer.writerow(dict(zip(fieldnames, row)))
+        cur.close()
+        return response
 
     cur.close()
-    return render_template('admin/3-statistics.html', rentals=rentals)
+    return render_template('admin/3-statistics-total.html', rentals=rentals)
 
 
-@admin.route('/admin/statistics/status', methods=['GET'])
+@admin.route('/admin/statistics/status', methods=['GET', 'POST'])
 def statistics_status_page():
     cur = mysql.connection.cursor()
     cur.execute(
@@ -266,18 +277,31 @@ def statistics_status_page():
     # Agora, modified_rentals contém as tuplas atualizadas
     rentals = modified_rentals
 
-    csv_filename = "total_rentals_status.csv"
+    if request.method == 'POST':
+        fieldnames = [i[0] for i in cur.description]
 
-    with open(csv_filename, mode='w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(['Data', 'Veiculo', 'Devolvido', 'Cancelado', 'Vencido', 'Total'])
-        writer.writerows(modified_rentals)
+        now = datetime.now()
+        now_str = now.strftime('%Y-%m-%d')
+        filename = f'{now_str}_estatisticas_status.csv'
+
+        # Criar um objeto de resposta CSV
+        response = make_response('')
+        response.headers['Content-Type'] = 'text/csv'
+        response.headers['Content-Disposition'] = f'attachment; filename={filename}'
+
+        # Escrever os resultados no arquivo CSV
+        writer = csv.DictWriter(response.stream, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in rentals:
+            writer.writerow(dict(zip(fieldnames, row)))
+        cur.close()
+        return response
 
     cur.close()
-    return "", 200
+    return render_template('admin/3-statistics-status.html', rentals=rentals)
 
 
-@admin.route('/admin/statistics/gen', methods=['GET'])
+@admin.route('/admin/statistics/gen', methods=['GET', 'POST'])
 def statistics_gen_page():
     cur = mysql.connection.cursor()
     cur.execute(
@@ -383,20 +407,32 @@ def statistics_gen_page():
 
     # Agora, modified_rentals contém as tuplas atualizadas
     rentals = modified_rentals
+    if request.method == 'POST':
+        fieldnames = [i[0] for i in cur.description]
 
-    csv_filename = "total_rentals_genero.csv"
+        now = datetime.now()
+        now_str = now.strftime('%Y-%m-%d')
+        filename = f'{now_str}_estatisticas_gen.csv'
 
-    with open(csv_filename, mode='w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(['Data', 'Veiculo', 'Masculino', 'Feminino', 'Unissex', 'Total'])
-        writer.writerows(modified_rentals)
+        # Criar um objeto de resposta CSV
+        response = make_response('')
+        response.headers['Content-Type'] = 'text/csv'
+        response.headers['Content-Disposition'] = f'attachment; filename={filename}'
+
+        # Escrever os resultados no arquivo CSV
+        writer = csv.DictWriter(response.stream, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in rentals:
+            writer.writerow(dict(zip(fieldnames, row)))
+        cur.close()
+        return response
 
     cur.close()
 
-    return "", 200
+    return render_template('admin/3-statistics-gen.html', rentals=rentals)
 
 
-@admin.route('/admin/statistics/num', methods=['GET'])
+@admin.route('/admin/statistics/num', methods=['GET', 'POST'])
 def statistics_num_page():
     cur = mysql.connection.cursor()
     cur.execute(
@@ -511,171 +547,28 @@ def statistics_num_page():
 
     # Agora, modified_rentals contém as tuplas atualizadas
     rentals = modified_rentals
+    if request.method == 'POST':
+        fieldnames = [i[0] for i in cur.description]
 
-    csv_filename = "total_rentals_numero.csv"
+        now = datetime.now()
+        now_str = now.strftime('%Y-%m-%d')
+        filename = f'{now_str}_estatisticas_num.csv'
 
-    header = [
-        "Data",
-        "Veiculo",
-        "Tamanho_34",
-        "Tamanho_35",
-        "Tamanho_36",
-        "Tamanho_37",
-        "Tamanho_38",
-        "Tamanho_39",
-        "Tamanho_40",
-        "Tamanho_41",
-        "Tamanho_42",
-        "Tamanho_43",
-        "Tamanho_44",
-        "Tamanho_45",
-        "Total"
-    ]
+        # Criar um objeto de resposta CSV
+        response = make_response('')
+        response.headers['Content-Type'] = 'text/csv'
+        response.headers['Content-Disposition'] = f'attachment; filename={filename}'
 
-    with open(csv_filename, mode='w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(header)
-        writer.writerows(modified_rentals)
+        # Escrever os resultados no arquivo CSV
+        writer = csv.DictWriter(response.stream, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in rentals:
+            writer.writerow(dict(zip(fieldnames, row)))
+        cur.close()
+        return response
 
     cur.close()
-    return "", 200
-
-
-@admin.route('/admin/download_statistics', methods=['GET'])
-def download_statistics():
-    # Execute a consulta SQL
-    cursor = mysql.connection.cursor()
-    query = """
-    SELECT 
-    date_format(Locacao.data_inicio, "%y-%m-%d") AS bdate, 
-    Veiculo.nome AS nome_veiculo,
-    SUM(CASE WHEN Modelo.nome = 'Ultraboost 5' THEN 1 ELSE 0 END) AS 'Ultraboost 5',
-    SUM(CASE WHEN Modelo.nome = 'Supernova' THEN 1 ELSE 0 END) AS 'Supernova',
-    SUM(CASE WHEN Modelo.nome = 'Adizero SL' THEN 1 ELSE 0 END) AS 'Adizero SL',
-    SUM(CASE WHEN Modelo.nome = 'Adizero Adios Pro 3' THEN 1 ELSE 0 END) AS 'Adizero Adios Pro 3',
-    SUM(CASE WHEN Modelo.nome = 'Drive RC' THEN 1 ELSE 0 END) AS 'Drive RC',
-    
-    COUNT(1) AS total
-FROM 
-    Locacao
-JOIN 
-    Veiculo ON Locacao.Veiculo = Veiculo.id
-JOIN 
-    Tenis ON Locacao.Tenis = Tenis.id
-JOIN 
-    Modelo ON Tenis.Modelo = Modelo.id
-GROUP BY 
-    date_format(Locacao.data_inicio, "%y-%m-%d"), Veiculo.nome
-ORDER BY 
-    date_format(Locacao.data_inicio, "%y-%m-%d") DESC, Veiculo.nome DESC;
-    """
-
-    cursor.execute(query)
-
-    # Obter os resultados
-    rentals = cursor.fetchall()
-    modified_rentals = []
-
-    # Definindo a data limite para aplicar os incrementos
-    data_limite = datetime.strptime("2024-10-04", "%Y-%m-%d")
-
-    incrementos = {
-        (0, 9): 37,
-        (8, 10): 33,
-        (11, 15): 31,
-        (16, 20): 29,
-        (21, 25): 27,
-        (26, 50): 23
-    }
-
-    random.seed(42)
-
-    # Aplicando a lógica de incremento ao 'total' usando a tabela de incrementos
-    for rental in rentals:
-        # Convertendo a tupla em uma lista para modificação
-        rental = list(rental)
-
-        # Convertendo a data do registro para comparação
-        bdate = datetime.strptime(rental[0], "%y-%m-%d")
-
-        # Se a data do registro for anterior à data limite, mantenha os valores inalterados
-        if bdate < data_limite:
-            modified_rentals.append(tuple(rental))
-            continue
-
-        # Guardando o valor original do total
-        original_total = rental[7]
-
-        # Ajustando o valor de 'new_total' com base na tabela de incrementos
-        new_total = original_total
-        for faixa, incremento in incrementos.items():
-            if faixa[0] <= original_total <= faixa[1]:
-                new_total += incremento
-                break
-
-        # Calculando a diferença entre o novo total e o total original
-        difference = new_total - original_total
-
-        # Ajustando os valores dos modelos para que a soma deles corresponda ao novo total
-        # A soma dos modelos está nas posições 2, 3, 4 e 5
-        model_values = [rental[2], rental[3], rental[4], rental[5], rental[6]]
-        current_sum = sum(model_values)
-
-        # Caso todos os valores dos modelos sejam zero, distribuímos uniformemente o total
-        if current_sum == 0:
-            # Dividimos o `new_total` entre os modelos
-            base_value = new_total // len(model_values)
-            remainder = new_total % len(model_values)
-
-            # Distribuímos `base_value` para cada modelo e somamos o resto ao primeiro(s) modelo(s)
-            model_values = [base_value + (1 if i < remainder else 0) for i in range(len(model_values))]
-        else:
-            # Calculando o fator de ajuste necessário para os valores dos modelos
-            scaling_factor = new_total / current_sum if current_sum > 0 else 0
-
-            # Aplicando o fator de ajuste a cada valor dos modelos
-            model_values = [int(value * scaling_factor) for value in model_values]
-
-            # Ajustando os valores para garantir que a soma final seja exatamente igual ao new_total
-            adjusted_sum = sum(model_values)
-            difference = new_total - adjusted_sum
-
-            # Distribuindo a diferença restante para os primeiros modelos, se necessário
-            for j in range(abs(difference)):
-                model_values[j % len(model_values)] += 1 if difference > 0 else -1
-
-        # Atualizando os valores ajustados nos campos de modelos
-        rental[2], rental[3], rental[4], rental[5], rental[6] = model_values
-
-        # Atualizando o valor de total
-        rental[7] = new_total
-
-        # Convertendo a lista de volta para uma tupla e adicionando à nova lista
-        modified_rentals.append(tuple(rental))
-
-    # Agora, modified_rentals contém as tuplas atualizadas
-    rentals = modified_rentals
-    print(rentals)
-
-    # Definir os cabeçalhos do CSV
-    fieldnames = [i[0] for i in cursor.description]
-
-    now = datetime.now()
-    now_str = now.strftime('%Y-%m-%d')
-    filename = f'{now_str}_estatisticas.csv'
-
-    # Criar um objeto de resposta CSV
-    response = make_response('')
-    response.headers['Content-Type'] = 'text/csv'
-    response.headers['Content-Disposition'] = f'attachment; filename={filename}'
-
-    # Escrever os resultados no arquivo CSV
-    writer = csv.DictWriter(response.stream, fieldnames=fieldnames)
-    writer.writeheader()
-    for row in rentals:
-        writer.writerow(dict(zip(fieldnames, row)))
-
-    return response
+    return render_template('admin/3-statistics-num.html', rentals=rentals)
 
 
 @admin.route('/admin/generatekeys', methods=['GET'])
@@ -706,26 +599,26 @@ def log_mudancas_page():
 def download_log_changes():
     cursor = mysql.connection.cursor()
     cursor.execute(
-            """ 
-            SELECT 
-        Promotor.nome AS Promotor, 
-        Veiculo.nome AS Veiculo, 
-        Modelo.nome AS Modelo,
-        Tenis.tamanho AS Tamanho, 
-        quantidadeOriginal, 
-        quantidadeNova, 
-        data 
-    FROM 
-        LogTenis 
-    JOIN 
-        Promotor ON LogTenis.Promotor = Promotor.id 
-    JOIN 
-        Tenis ON LogTenis.Tenis = Tenis.id 
-    JOIN 
-        Veiculo ON LogTenis.Veiculo = Veiculo.id
-    JOIN 
-        Modelo ON Tenis.Modelo = Modelo.id;       
-            """)
+        """ 
+        SELECT 
+    Promotor.nome AS Promotor, 
+    Veiculo.nome AS Veiculo, 
+    Modelo.nome AS Modelo,
+    Tenis.tamanho AS Tamanho, 
+    quantidadeOriginal, 
+    quantidadeNova, 
+    data 
+FROM 
+    LogTenis 
+JOIN 
+    Promotor ON LogTenis.Promotor = Promotor.id 
+JOIN 
+    Tenis ON LogTenis.Tenis = Tenis.id 
+JOIN 
+    Veiculo ON LogTenis.Veiculo = Veiculo.id
+JOIN 
+    Modelo ON Tenis.Modelo = Modelo.id;       
+        """)
 
     # Obter os resultados
     results = cursor.fetchall()
@@ -774,7 +667,6 @@ def download_users_data_csv():
     JOIN Veiculo ON Locacao.Veiculo = Veiculo.id
     ORDER BY Locacao.data_inicio DESC;
     """)
-
 
     # Obter os resultados
     results = cursor.fetchall()

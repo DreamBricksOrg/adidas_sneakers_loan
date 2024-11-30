@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Locações</title>
+    <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/promoter/7-rental-list.css') }}"
+    />
+    <link rel="stylesheet" href="../../static/css/default.css"/>
+
+    <link
+            rel="shortcut icon"
+            href="../../static/assets/images/logos/adidas.png"
+            type="image/x-icon"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        function formatarData(data) {
+            if (data === 'None') {
+                return 'N/A';
+            }
+
+            var dataPartes = data.split('-');
+
+            var novaData = dataPartes[2] + '/' + dataPartes[1] + '/' + dataPartes[0];
+            return novaData;
+        }
+
+        // Use esta função para formatar todas as células de data na tabela
+        document.addEventListener('DOMContentLoaded', function () {
+            var datas = document.querySelectorAll('.data-formatada');
+            datas.forEach(function (data) {
+                data.textContent = formatarData(data.textContent);
+            });
+        });
+    </script>
+
+</head>
+<style>
+    .container {
+        background-image: url("../../static/assets/images/shoes-2.png");
+        background-repeat: no-repeat;
+        background-size: cover;
+        position: relative;
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+    }
+
+    table thead th,
+    tbody td {
+        border: 1px solid white;
+    }
+
+    h1,
+    .table {
+        position: relative;
+        z-index: 2;
+    }
+
+    .table {
+        width: 80%;
+        padding: 36px 27px 46px;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        align-items: center;
+        box-sizing: border-box;
+    }
+
+    button{
+        width:100%;
+        color:black;
+        border:1px solid white;
+        border-radius:0;
+        padding:28px 27px 22px;
+        text-align:left;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        position:relative;
+        top:-5px;
+        left:-5px;
+        font-weight:500;
+        background:white;
+        font-family: "ITCF", sans-serif;
+        font-weight: 600;
+        font-size:15px;
+        letter-spacing:2px;
+        text-transform:uppercase;
+
+    }
+
+    .btn-container{
+        border:1px solid white;
+    }
+
+    .action{
+        cursor: pointer;
+        font-style: italic;
+    }
+
+    .download-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        color: white;
+        text-decoration: none;
+    }
+
+    .download-button i {
+        margin-right: 5px;
+    }
+
+    form.dropdown {
+        width: 200px;
+        margin: 36px auto;
+    }
+
+    select#dropdown {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border: 2px solid #333;
+        border-radius: 5px;
+        background-color: #f4f4f4;
+        color: #333;
+        outline: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    select#dropdown:hover {
+        border-color: #333;
+        background-color: #eaf6fd;
+    }
+
+    select#dropdown:focus {
+        border-color: #333;
+        box-shadow: 0 0 5px rgba(188, 26, 26, 0.5);
+    }
+
+    select#dropdown option {
+        padding: 20px;
+        font-size: 16px;
+    }
+
+    .dropdown{
+        z-index: 2;
+        position: absolute;
+        top: 0;
+        text-align: center;
+    }
+
+</style>
+<body>
+<div class="container">
+    <form action="#" method="get" class="dropdown">
+        <select id="dropdown" onchange="redirectToRoute()">
+            <option value="">Locaçoes por:</option>
+            <option value="/admin/statistics/total">Total</option>
+            <option value="/admin/statistics/gen">Gênero</option>
+            <option value="/admin/statistics/status">Status</option>
+            <option value="/admin/statistics/num">Tamanho</option>
+        </select>
+    </form>
+    <div class="overlay"></div>
+
+    <h1>Lista de locações</h1>
+    <div class="table">
+        <table class="rental-table">
+            <thead>
+            <tr>
+                <th>Data</th>
+                <th>Veiculo</th>
+                <th>DEVOLVIDO</th>
+                <th>CANCELADO</th>
+                <th>VENCIDO</th>
+                <th>Total</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for rental in rentals %}
+            <tr>
+                <td class="data-formatada">{{ rental[0] }}</td>
+                <td>{{ rental[1] }}</td>
+                <td>{{ rental[2] }}</td>
+                <td>{{ rental[3] }}</td>
+                <td>{{ rental[4] }}</td>
+                <td>{{ rental[5] }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="btn-container">
+        <a href="{{ url_for('admin.admin_menu_page') }}">
+            <button>Retornar</button>
+        </a>
+    </div>
+
+    <form action="/admin/statistics/status" method="post" class="download-button">
+        <button type="submit" id="download-pdf"
+                style="background: none; border: none; cursor: pointer;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="44" height="44" fill="white">
+                <path d="M12 15.59l-4.29-4.29-1.41 1.41 6 6 .09.09.09.09.09-.09 6-6-1.41-1.41z"/>
+                <path d="M0 0h24v24h-24z" fill="none"/>
+            </svg>
+        </button>
+    </form>
+</div>
+
+<script>
+    function redirectToRoute() {
+        const dropdown = document.getElementById('dropdown');
+        const selectedValue = dropdown.value;
+
+        if (selectedValue) {
+            window.location.href = selectedValue;
+        }
+    }
+</script>
+</body>
+</html>
