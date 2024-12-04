@@ -130,7 +130,6 @@ def rental_list_page():
     if veiculo_id is None:
         return redirect(url_for('promoter.error_page'))
 
-    # Convert veiculo_id to the correct type if necessary
     try:
         veiculo_id = int(veiculo_id)  # or str(veiculo_id) if it's supposed to be a string
     except ValueError:
@@ -151,13 +150,19 @@ def rental_list_page():
            Usuario.id, 
            Modelo.nome AS Modelo, 
            Tenis.id, 
-           Modelo.id
+           Modelo.id,
+           Local.cidade AS Local,
+           LocalTreino.nome AS LocalTreino,
+           TipoTreino.nome AS TipoTreino
     FROM Locacao 
     JOIN Tenis ON Locacao.Tenis = Tenis.id 
     JOIN Usuario ON Locacao.Usuario = Usuario.id 
     JOIN Promotor ON Locacao.Promotor = Promotor.id 
     JOIN Veiculo ON Locacao.Veiculo = Veiculo.id 
-    JOIN Modelo ON Tenis.Modelo = Modelo.id 
+    JOIN Modelo ON Tenis.Modelo = Modelo.id
+    LEFT JOIN Local ON Locacao.Local = Local.id
+    LEFT JOIN LocalTreino ON Locacao.LocalTreino = LocalTreino.id
+    LEFT JOIN TipoTreino ON Locacao.TipoTreino = TipoTreino.id
     WHERE Veiculo.id = %s 
     ORDER BY Locacao.data_inicio DESC;
     """
@@ -165,7 +170,7 @@ def rental_list_page():
     try:
         cur.execute(query, (veiculo_id,))
         rentals = cur.fetchall()
-        print(rentals)
+        print(rentals[0])
     except MySQLdb.ProgrammingError as e:
         print(f"An error occurred: {e}")
         return redirect(url_for('promoter.error_page'))
@@ -347,6 +352,9 @@ def aprove_rental_page():
         promoter_id = session.get('promoter_id')
         veiculo_id = session.get('veiculo_id')
         estande = session.get('estande')
+        place_id = session.get('place_id')
+        training_place_id = session.get('training_place_id')
+        training_type_id = session.get('training_type_id')
         print(f'LOG: /promoter/aproverental - session(tenis_id: {tenis_id}, user_id:{user_id}, '
               f'promoter_id:{promoter_id}, veiculo_id:{veiculo_id}), estande:{estande}')
 
@@ -382,8 +390,8 @@ def aprove_rental_page():
 
             # else:
             cur.execute(
-                'INSERT INTO Locacao (Tenis, Usuario, Promotor, Veiculo, Estande, data_inicio, data_fim, status) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s)',
-                (tenis_id, user_id, promoter_id, veiculo_id, estande, data_inicio, data_fim, status))
+                'INSERT INTO Locacao (Tenis, Usuario, Promotor, Veiculo, Estande, data_inicio, data_fim, status, Local, LocalTreino, TipoTreino) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                (tenis_id, user_id, promoter_id, veiculo_id, estande, data_inicio, data_fim, status, place_id, training_place_id, training_type_id))
             mysql.connection.commit()
 
             if cur.lastrowid != 0:
