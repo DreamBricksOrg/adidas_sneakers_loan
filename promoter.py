@@ -54,7 +54,7 @@ def promoter_veiculo_page():
     if request.method == 'POST':
         veiculo_id = request.form['veiculo']
         session['veiculo_id'] = veiculo_id
-        return redirect(url_for('promoter.available_shoes_page', model="1"))
+        return redirect(url_for('promoter.place'))
     cur = mysql.connection.cursor()
     cur.execute("SELECT * FROM Veiculo")
     veiculos = cur.fetchall()
@@ -688,39 +688,61 @@ def redirect_promoter():
     return redirect(url_for('promoter.promoter_scan_start_page'))
 
 
-@promoter.route('/promoter/training-place')
+@promoter.route('/promoter/training-place', methods=['GET', 'POST'])
 def training_place():
+    if request.method == 'POST':
+        name = request.form['training-place-name']
+        table_name = "LocalTreino"
+        column_name = "nome"
+        training_place_id = get_first_id(table_name, column_name, name)
+        if training_place_id is None:
+            training_place_id = insert_record_name(table_name, column_name, name)
+        session['training_place_id'] = training_place_id
+        print(f"training_place_id: {session['training_place_id']}")
+        return redirect(url_for('promoter.training_type'))
     return render_template('promoter/18-training-place.html')
 
-@promoter.route('/promoter/place')
+@promoter.route('/promoter/place', methods=['GET', 'POST'])
 def place():
+    if request.method == 'POST':
+        name = request.form['place-name']
+        table_name = "Local"
+        column_name = "cidade"
+        place_id = get_first_id(table_name, column_name, name)
+        if place_id is None:
+            place_id = insert_record_name(table_name, column_name, name)
+        session['place_id'] = place_id
+        print(f"place_id: {session['place_id']}")
+        return redirect(url_for('promoter.training_place'))
     return render_template('promoter/19-place.html')
 
-@promoter.route('/promoter/training-type')
+@promoter.route('/promoter/training-type', methods=['GET', 'POST'])
 def training_type():
+    if request.method == 'POST':
+        name = request.form['training-type-name']
+        table_name = "TipoTreino"
+        column_name = "nome"
+        training_type_id = get_first_id(table_name, column_name, name)
+        if training_type_id is None:
+            training_type_id = insert_record_name(table_name, column_name, name)
+        session['training_type_id'] = training_type_id
+        print(f"training_type_id: {session['training_type_id']}")
+        return redirect(url_for('promoter.available_shoes_page', model="1"))
     return render_template('promoter/20-training-type.html')
 
 
 @promoter.route('/autocomplete/training-place', methods=['GET'])
 def autocomplete_training_place():
     query = request.args.get('q', '')
-
-    # Conecte-se ao banco de dados
     cur = mysql.connection.cursor()
 
     if query:
-        # Filtrar resultados com base na consulta
         cur.execute("SELECT id, nome FROM LocalTreino WHERE nome LIKE %s", (f'%{query}%',))
     else:
-        # Retornar todos os resultados quando a consulta estiver vazia
         cur.execute("SELECT id, nome FROM LocalTreino")
 
     results = cur.fetchall()
-
-    # Feche o cursor
     cur.close()
-
-    # Formate os resultados para JSON
     suggestions = [{'id': row[0], 'nome': row[1]} for row in results]
     return jsonify(suggestions)
 
@@ -728,45 +750,51 @@ def autocomplete_training_place():
 @promoter.route('/autocomplete/place', methods=['GET'])
 def autocomplete_place():
     query = request.args.get('q', '')
-
-    # Conecte-se ao banco de dados
     cur = mysql.connection.cursor()
-
     if query:
-        # Filtrar resultados com base na consulta
-        cur.execute("SELECT id, cidade, estado FROM Local WHERE nome LIKE %s", (f'%{query}%',))
+        cur.execute("SELECT id, cidade, estado FROM Local WHERE cidade LIKE %s", (f'%{query}%',))
     else:
-        # Retornar todos os resultados quando a consulta estiver vazia
         cur.execute("SELECT id, cidade, estado FROM Local")
-
     results = cur.fetchall()
-
-    # Feche o cursor
     cur.close()
 
-    # Formate os resultados para JSON
     suggestions = [{'id': row[0], 'cidade': row[1], 'estado': row[2]} for row in results]
     return jsonify(suggestions)
 
 @promoter.route('/autocomplete/training-type', methods=['GET'])
 def autocomplete_training_type():
     query = request.args.get('q', '')
-
-    # Conecte-se ao banco de dados
     cur = mysql.connection.cursor()
 
     if query:
-        # Filtrar resultados com base na consulta
         cur.execute("SELECT id, nome FROM TipoTreino WHERE nome LIKE %s", (f'%{query}%',))
     else:
-        # Retornar todos os resultados quando a consulta estiver vazia
         cur.execute("SELECT id, nome FROM TipoTreino")
 
     results = cur.fetchall()
-
-    # Feche o cursor
     cur.close()
-
-    # Formate os resultados para JSON
     suggestions = [{'id': row[0], 'nome': row[1]} for row in results]
     return jsonify(suggestions)
+
+def get_first_id(table_name, column_name, search_value):
+    cursor = mysql.connection.cursor()
+
+    query = f"SELECT id FROM {table_name} WHERE {column_name} LIKE %s LIMIT 1"
+    cursor.execute(query, (f"%{search_value}%",))
+
+    result = cursor.fetchone()
+
+    cursor.close()
+    return result[0] if result else None
+
+def insert_record_name(table_name, column_name, value):
+    cursor = mysql.connection.cursor()
+
+    cursor.execute(f"INSERT INTO {table_name} ({column_name}) VALUES ('{value}')")
+    mysql.connection.commit()
+
+    generated_id = cursor.lastrowid
+
+    cursor.close()
+
+    return generated_id

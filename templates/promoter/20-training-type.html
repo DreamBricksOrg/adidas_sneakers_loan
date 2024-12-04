@@ -127,12 +127,12 @@
 <div class="container">
     <div class="overlay"></div>
     <h1>Confirme o Tipo de Treino</h1>
-    <form action="/promoter/veiculo" method="POST">
+    <form action="/promoter/training-type" method="POST">
         <div class="form-item">
             <input
                     type="text"
-                    id="training-place"
-                    name="training-place"
+                    id="training-type-name"
+                    name="training-type-name"
                     placeholder="Digite o local de treino..."
                     oninput="fetchSuggestions(this.value)"
                     onfocus="fetchSuggestions('')"
@@ -164,7 +164,7 @@
     }
 
     function selectSuggestion(value) {
-        document.getElementById('training-place').value = value;
+        document.getElementById('training-type-name').value = value;
         document.getElementById('suggestions').innerHTML = '';
     }
 </script>
