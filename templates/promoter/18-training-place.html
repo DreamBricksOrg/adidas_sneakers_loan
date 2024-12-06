@@ -127,7 +127,7 @@
 <div class="container">
     <div class="overlay"></div>
     <h1>Confirme o Local de treino</h1>
-    <form action="/promoter/training-place" method="POST">
+    <form id="training-place-name-form" action="/promoter/training-place" method="POST" onsubmit="validateForm()">
         <div class="form-item">
             <input
                     type="text"
@@ -166,6 +166,15 @@
     function selectSuggestion(value) {
         document.getElementById('training-place-name').value = value;
         document.getElementById('suggestions').innerHTML = '';
+    }
+
+      function validateForm() {
+        const input = document.getElementById('training-place-name');
+
+        if (input.value.trim() === '') {
+            event.preventDefault(); // Impede o envio do formulário
+            alert('Por favor, preencha o campo antes de confirmar.');
+        }
     }
 </script>
 </body>

@@ -13,7 +13,7 @@
     <title>Cidade</title>
 
     <style>
-        /* Container principal */
+        /* Estilos existentes */
         .container {
             background-image: url("../../static/assets/images/shoes-2.png");
             background-repeat: no-repeat;
@@ -27,7 +27,6 @@
             height: 100vh;
         }
 
-        /* Sobreposição escura */
         .overlay {
             position: absolute;
             inset: 0;
@@ -35,7 +34,6 @@
             z-index: 1;
         }
 
-        /* Título */
         h1 {
             color: white;
             font-size: 2.5rem;
@@ -44,7 +42,6 @@
             text-align: center;
         }
 
-        /* Formulário */
         form {
             position: relative;
             z-index: 2;
@@ -56,7 +53,6 @@
             width: 100%;
         }
 
-        /* Campo de entrada */
         .form-item {
             position: relative;
             margin-bottom: 20px;
@@ -77,11 +73,11 @@
             background: white;
             border: 1px solid #ccc;
             border-radius: 5px;
-            max-height: calc(4 * 40px); /* 4 itens de altura, considerando ~40px por item */
-            overflow-y: auto; /* Adiciona o scroll */
+            max-height: calc(4 * 40px);
+            overflow-y: auto;
             width: 100%;
             z-index: 10;
-            top: 45px; /* Ajusta para alinhar com o input */
+            top: 45px;
             left: 0;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
@@ -96,7 +92,6 @@
             background: #f0f0f0;
         }
 
-        /* Botão de confirmação */
         .btn-container {
             text-align: center;
         }
@@ -127,7 +122,7 @@
 <div class="container">
     <div class="overlay"></div>
     <h1>Confirme a Cidade</h1>
-    <form action="/promoter/place" method="POST">
+    <form id="city-form" action="/promoter/place" method="POST" onsubmit="validateForm()">
         <div class="form-item">
             <input
                     type="text"
@@ -136,9 +131,10 @@
                     placeholder="Digite a cidade onde está..."
                     oninput="fetchSuggestions(this.value)"
                     onfocus="fetchSuggestions('')"
-            autocomplete="off"
+                    autocomplete="off"
             />
             <div id="suggestions" class="suggestions-box"></div>
+            <div id="error-message" class="error-message" style="display: none;">Por favor, preencha o campo.</div>
         </div>
         <div class="btn-container">
             <button type="submit">CONFIRMAR</button>
@@ -166,6 +162,15 @@
     function selectSuggestion(value) {
         document.getElementById('place-name').value = value;
         document.getElementById('suggestions').innerHTML = '';
+    }
+
+    function validateForm() {
+        const input = document.getElementById('place-name');
+
+        if (input.value.trim() === '') {
+            event.preventDefault(); // Impede o envio do formulário
+            alert('Por favor, preencha o campo antes de confirmar.');
+        }
     }
 </script>
 </body>

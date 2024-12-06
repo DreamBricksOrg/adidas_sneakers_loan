@@ -99,7 +99,7 @@
 <div class="container">
     <div class="overlay"></div>
     <h1>Confirme o Veiculo</h1>
-    <form action="/promoter/veiculo" method="POST">
+    <form action="/promoter/veiculo" method="POST" onsubmit="validateForm(event)">
         <div class="dropbox">
             <select name="veiculo" id="veiculo" class="form-item">
                 <option value="">Selecione o veiculo</option>
@@ -113,5 +113,15 @@
         </div>
     </form>
 </div>
+
+<script>
+    function validateForm(event) {
+        const veiculo = document.getElementById('veiculo').value;
+        if (!veiculo) {
+            event.preventDefault(); // Impede o envio do formulário
+            alert('Por favor, selecione um veículo antes de confirmar.');
+        }
+    }
+</script>
 </body>
 </html>
