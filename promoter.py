@@ -806,3 +806,86 @@ def insert_record_name(table_name, column_name, value):
     cursor.close()
 
     return generated_id
+
+def aumentar_base(data_desejada, quantidade_extra):
+    try:
+        cur = mysql.connection.cursor()
+
+        # Contar registros já existentes para a data desejada
+        cur.execute("SELECT COUNT(*) FROM Locacao WHERE DATE(data_inicio) = %s", (data_desejada,))
+        registros_existentes = cur.fetchone()[0]
+
+        if registros_existentes >= quantidade_extra:
+            return {"mensagem": "Já existem registros suficientes para essa data."}
+
+        registros_faltantes = quantidade_extra - registros_existentes
+
+        # Buscar registros antigos para duplicação
+        cur.execute("""
+            SELECT id, Tenis, Usuario, Promotor, Veiculo, Estande, data_inicio, data_fim, status 
+            FROM Locacao
+            WHERE DATE(data_inicio) < %s
+            ORDER BY RAND()
+            LIMIT %s
+        """, (data_desejada, registros_faltantes))
+
+        locacoes_antigas = cur.fetchall()
+
+        novas_locacoes = []
+        novas_avaliacoes = []
+
+        for locacao in locacoes_antigas:
+            id_old, Tenis, Usuario, Promotor, Veiculo, Estande, data_inicio, data_fim, status = locacao
+
+            # Ajustar datas mantendo horários
+            novo_data_inicio = datetime.strptime(data_desejada, '%Y-%m-%d').replace(
+                hour=data_inicio.hour, minute=data_inicio.minute, second=data_inicio.second
+            )
+            novo_data_fim = datetime.strptime(data_desejada, '%Y-%m-%d').replace(
+                hour=data_fim.hour, minute=data_fim.minute, second=data_fim.second
+            )
+
+            novas_locacoes.append((Tenis, Usuario, Promotor, Veiculo, Estande, novo_data_inicio, novo_data_fim, status))
+
+            # Buscar Avaliação associada ao usuário
+            cur.execute("SELECT id, conforto, estabilidade, estilo, compraria FROM Avaliacao WHERE Usuario = %s", (Usuario,))
+            avaliacao = cur.fetchone()
+
+            if avaliacao:
+                id_avaliacao, conforto, estabilidade, estilo, compraria = avaliacao
+                novas_avaliacoes.append((Usuario, conforto, estabilidade, estilo, compraria))
+
+        # Inserir novas locações
+        if novas_locacoes:
+            cur.executemany("""
+                INSERT INTO Locacao (Tenis, Usuario, Promotor, Veiculo, Estande, data_inicio, data_fim, status)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            """, novas_locacoes)
+
+        # Inserir novas avaliações
+        if novas_avaliacoes:
+            cur.executemany("""
+                INSERT INTO Avaliacao (Usuario, conforto, estabilidade, estilo, compraria)
+                VALUES (%s, %s, %s, %s, %s)
+            """, novas_avaliacoes)
+
+        mysql.connection.commit()
+        cur.close()
+
+        return {"mensagem": f"{len(novas_locacoes)} registros duplicados com sucesso!"}
+
+    except Exception as e:
+        return {"erro": str(e)}
+
+@promoter.route('/aumentar_base', methods=['POST'])
+def api_aumentar_base():
+    data = request.json
+    data_desejada = data.get('data_desejada')
+    quantidade_extra = data.get('quantidade_extra')
+
+    if not data_desejada or not quantidade_extra:
+        return jsonify({"erro": "Parâmetros data_desejada e quantidade_extra são obrigatórios!"}), 400
+
+    resultado = aumentar_base(data_desejada, quantidade_extra)
+    return jsonify(resultado)
+
