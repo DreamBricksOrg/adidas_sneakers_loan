@@ -1,11 +1,13 @@
-import requests
+import os
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, make_response
 from config.database import mysql
+from dbcrypt import db_encrypt_string
 from qrcodeaux import generate_qr_code
 from sms_sender import create_verification_code, resend_sms
 import io
 import base64
 from datetime import datetime
+import execjs
 
 user = Blueprint('user', __name__)
 
@@ -338,6 +340,122 @@ def thanks_page():
 def clearcookie_page():
     session.clear()
     return render_template('user/15-clear-cookie.html')
+
+@user.route('/add-user-not-registered', methods=['POST'])
+def add_user_not_registered():
+
+    data_list = request.get_json()
+    if not isinstance(data_list, list):
+        return jsonify({'error': 'Os dados devem ser enviados como uma lista de registros!'}), 400
+
+    cursor = mysql.connection.cursor()
+    created_users = []
+    errors = []
+    pub_key = get_rsa_key()
+
+    for data in data_list:
+        nome = data.get('nome')
+        email = data.get('email')
+        data_nascimento= data.get('data_nascimento')
+        genero = "indefinido"
+        nome_iniciais = formatar_nome_iniciais(nome)
+        data_aplicada = data.get('data_registro')
+        documento = data.get('documento')
+        telefone = data.get('telefone', '')
+        telefone_hash = gerar_hash(telefone) if telefone else None
+
+        confirmacao_sms = False
+        data_registro = formatar_data_registro(data_aplicada)
+
+        dataToEncrypt = nome + "," + email + "," + data_nascimento + "," + documento + "," + telefone + "," + genero
+
+        dados_criptografados = db_encrypt_string(dataToEncrypt, pub_key)
+
+        if not nome_iniciais:
+            errors.append({'error': 'O nome do usuário é obrigatório!', 'data': data})
+            continue
+
+
+  # TODO - Pesquisar o tenis pelo modelo e tamanho do tenis
+
+  # TODO -  Criar locação com devolvido e 40min depois da locação
+
+
+        try:
+            cursor.execute(
+                '''INSERT INTO Usuario (nome_iniciais, documento, dados_criptografados, confirmacao_sms, data_registro, telefone_hash) 
+                VALUES (%s, %s, %s, %s, %s, %s)''',
+                (nome_iniciais, documento, dados_criptografados, confirmacao_sms, data_registro, telefone_hash)
+            )
+            mysql.connection.commit()
+            user_id = cursor.lastrowid
+            created_users.append({'id': user_id, 'nome_iniciais': nome_iniciais})
+
+        except Exception as e:
+            mysql.connection.rollback()
+            errors.append({'error': str(e), 'data': data})
+
+    cursor.close()
+
+    response = {'created_users': created_users}
+    if errors:
+        response['errors'] = errors
+
+    return jsonify(response), 201 if created_users else 400
+
+
+def formatar_nome_iniciais(nome_completo):
+    if not nome_completo:
+        return ""
+
+    partes = nome_completo.split()
+
+    if len(partes) == 1:
+        return partes[0]  # Se houver apenas um nome, retorna sem alteração
+
+    primeiro_nome = partes[0]  # Mantém o primeiro nome completo
+    sobrenomes_iniciais = [sobrenome[0] + '.' for sobrenome in partes[1:]]  # Pega a inicial dos outros nomes
+
+    return f"{primeiro_nome} {' '.join(sobrenomes_iniciais)}"
+
+
+
+def formatar_data_registro(data_str):
+    try:
+        # Converte o formato "ddmmaaaa HH:MM:SS" para um objeto datetime
+        data_obj = datetime.strptime(data_str, "%d%m%Y %H:%M:%S")
+
+        # Retorna no formato "YYYY-MM-DD HH:MM:SS"
+        return data_obj.strftime("%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        return None  # Retorna None se a data estiver inválida
+
+
+def gerar_hash(telefone):
+    hash_val = 0
+    if not telefone:
+        return hash_val  # Retorna 0 se a string for vazia
+
+    for char in telefone:
+        hash_val = ((hash_val << 5) - hash_val) + ord(char)
+        hash_val = hash_val & 0xFFFFFFFF  # Converte para inteiro de 32 bits
+
+    return hash_val
+
+
+def load_js_function():
+    JS_FILE_PATH = os.path.join(os.path.dirname(__file__), "static/js/rsa_public_key.js")
+
+    with open(JS_FILE_PATH, "r", encoding="utf-8") as file:
+        js_code = file.read()
+    return execjs.compile(js_code)
+
+
+def get_rsa_key():
+    js_context = load_js_function()
+    rsa_key = js_context.call("getRsaPublicKey")  # Chama a função do JS
+    return rsa_key
+
 
 
 def is_int(value):
