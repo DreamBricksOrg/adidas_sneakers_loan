@@ -1,8 +1,9 @@
 import MySQLdb
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, make_response
 from config.database import mysql
-from datetime import datetime
+from datetime import datetime, timedelta
 import csv
+import random
 
 promoter = Blueprint('promoter', __name__)
 
@@ -820,6 +821,20 @@ def aumentar_base(data_desejada, quantidade_extra):
 
         registros_faltantes = quantidade_extra - registros_existentes
 
+        # Buscar horários extremos do dia
+        cur.execute("""
+            SELECT MIN(data_inicio), MAX(data_inicio) 
+            FROM Locacao 
+            WHERE DATE(data_inicio) = %s
+        """, (data_desejada,))
+        horarios = cur.fetchone()
+
+        if not horarios[0] or not horarios[1]:
+            return {"erro": "Nenhum horário encontrado para calcular distribuição."}
+
+        primeiro_horario = horarios[0]
+        ultimo_horario = horarios[1]
+
         # Buscar registros antigos para duplicação
         cur.execute("""
             SELECT id, Tenis, Usuario, Promotor, Veiculo, Estande, data_inicio, data_fim, status 
@@ -837,15 +852,16 @@ def aumentar_base(data_desejada, quantidade_extra):
         for locacao in locacoes_antigas:
             id_old, Tenis, Usuario, Promotor, Veiculo, Estande, data_inicio, data_fim, status = locacao
 
-            # Ajustar datas mantendo horários
-            novo_data_inicio = datetime.strptime(data_desejada, '%Y-%m-%d').replace(
-                hour=data_inicio.hour, minute=data_inicio.minute, second=data_inicio.second
-            )
-            novo_data_fim = datetime.strptime(data_desejada, '%Y-%m-%d').replace(
-                hour=data_fim.hour, minute=data_fim.minute, second=data_fim.second
-            )
+            # Gerar um novo horário dentro do intervalo disponível
+            delta_tempo = (ultimo_horario - primeiro_horario).total_seconds()
+            novo_inicio_segundos = random.uniform(0, delta_tempo)
+            novo_data_inicio = primeiro_horario + timedelta(seconds=novo_inicio_segundos)
 
-            novas_locacoes.append((Tenis, Usuario, Promotor, Veiculo, Estande, novo_data_inicio, novo_data_fim, status))
+            # Definir data_fim entre 30 a 40 minutos após data_inicio
+            incremento_minutos = random.randint(30, 40)
+            novo_data_fim = novo_data_inicio + timedelta(minutes=incremento_minutos)
+
+            novas_locacoes.append((Tenis, Usuario, Promotor, Veiculo, Estande, novo_data_inicio, novo_data_fim, status, 1))
 
             # Buscar Avaliação associada ao usuário
             cur.execute("SELECT id, conforto, estabilidade, estilo, compraria FROM Avaliacao WHERE Usuario = %s", (Usuario,))
@@ -858,8 +874,8 @@ def aumentar_base(data_desejada, quantidade_extra):
         # Inserir novas locações
         if novas_locacoes:
             cur.executemany("""
-                INSERT INTO Locacao (Tenis, Usuario, Promotor, Veiculo, Estande, data_inicio, data_fim, status)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO Locacao (Tenis, Usuario, Promotor, Veiculo, Estande, data_inicio, data_fim, status, gasp)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, novas_locacoes)
 
         # Inserir novas avaliações
