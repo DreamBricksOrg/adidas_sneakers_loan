@@ -808,7 +808,8 @@ def insert_record_name(table_name, column_name, value):
 
     return generated_id
 
-def aumentar_base(data_desejada, quantidade_extra):
+
+def aumentar_base(data_desejada, quantidade_desejada, tipo_treino_filtro="all"):
     try:
         cur = mysql.connection.cursor()
 
@@ -816,10 +817,12 @@ def aumentar_base(data_desejada, quantidade_extra):
         cur.execute("SELECT COUNT(*) FROM Locacao WHERE DATE(data_inicio) = %s", (data_desejada,))
         registros_existentes = cur.fetchone()[0]
 
-        if registros_existentes >= quantidade_extra:
+        # Se já houver registros suficientes, não há necessidade de adicionar mais
+        if registros_existentes >= quantidade_desejada:
             return {"mensagem": "Já existem registros suficientes para essa data."}
 
-        registros_faltantes = quantidade_extra - registros_existentes
+        # Determinar quantos registros ainda precisam ser adicionados
+        registros_faltantes = quantidade_desejada - registros_existentes
 
         # Buscar horários extremos do dia
         cur.execute("""
@@ -832,25 +835,33 @@ def aumentar_base(data_desejada, quantidade_extra):
         if not horarios[0] or not horarios[1]:
             return {"erro": "Nenhum horário encontrado para calcular distribuição."}
 
-        primeiro_horario = horarios[0]
-        ultimo_horario = horarios[1]
+        primeiro_horario, ultimo_horario = horarios
 
-        # Buscar registros antigos para duplicação
-        cur.execute("""
-            SELECT id, Tenis, Usuario, Promotor, Veiculo, Estande, data_inicio, data_fim, status 
+        # Construção da consulta para buscar registros antigos
+        query_base = """
+            SELECT id, Tenis, Usuario, Promotor, Veiculo, Estande, Local, LocalTreino, 
+                   data_inicio, data_fim, status, TipoTreino
             FROM Locacao
             WHERE DATE(data_inicio) < %s
-            ORDER BY RAND()
-            LIMIT %s
-        """, (data_desejada, registros_faltantes))
+        """
 
+        # Aplicar filtro baseado no tipo_treino_filtro
+        if tipo_treino_filtro == "yes":
+            query_base += " AND TipoTreino IS NOT NULL"
+        elif tipo_treino_filtro == "no":
+            query_base += " AND TipoTreino IS NULL"
+
+        query_base += " ORDER BY RAND() LIMIT %s"
+
+        cur.execute(query_base, (data_desejada, registros_faltantes))
         locacoes_antigas = cur.fetchall()
 
         novas_locacoes = []
         novas_avaliacoes = []
 
         for locacao in locacoes_antigas:
-            id_old, Tenis, Usuario, Promotor, Veiculo, Estande, data_inicio, data_fim, status = locacao
+            (id_old, Tenis, Usuario, Promotor, Veiculo, Estande, Local, LocalTreino,
+             data_inicio, data_fim, status, TipoTreino) = locacao
 
             # Gerar um novo horário dentro do intervalo disponível
             delta_tempo = (ultimo_horario - primeiro_horario).total_seconds()
@@ -861,7 +872,8 @@ def aumentar_base(data_desejada, quantidade_extra):
             incremento_minutos = random.randint(30, 40)
             novo_data_fim = novo_data_inicio + timedelta(minutes=incremento_minutos)
 
-            novas_locacoes.append((Tenis, Usuario, Promotor, Veiculo, Estande, novo_data_inicio, novo_data_fim, status, 1))
+            novas_locacoes.append((Tenis, Usuario, Promotor, Veiculo, Estande, Local, LocalTreino,
+                                   novo_data_inicio, novo_data_fim, status, 1, TipoTreino))
 
             # Buscar Avaliação associada ao usuário
             cur.execute("SELECT id, conforto, estabilidade, estilo, compraria FROM Avaliacao WHERE Usuario = %s", (Usuario,))
@@ -871,12 +883,19 @@ def aumentar_base(data_desejada, quantidade_extra):
                 id_avaliacao, conforto, estabilidade, estilo, compraria = avaliacao
                 novas_avaliacoes.append((Usuario, conforto, estabilidade, estilo, compraria))
 
-        # Inserir novas locações
-        if novas_locacoes:
+        # Recontar os registros existentes antes da inserção
+        cur.execute("SELECT COUNT(*) FROM Locacao WHERE DATE(data_inicio) = %s", (data_desejada,))
+        registros_atualizados = cur.fetchone()[0]
+
+        # Ajustar para que a soma não ultrapasse quantidade_desejada
+        registros_a_inserir = min(len(novas_locacoes), quantidade_desejada - registros_atualizados)
+
+        if registros_a_inserir > 0:
             cur.executemany("""
-                INSERT INTO Locacao (Tenis, Usuario, Promotor, Veiculo, Estande, data_inicio, data_fim, status, gasp)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """, novas_locacoes)
+                INSERT INTO Locacao (Tenis, Usuario, Promotor, Veiculo, Estande, Local, LocalTreino, 
+                                     data_inicio, data_fim, status, gasp, TipoTreino)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, novas_locacoes[:registros_a_inserir])
 
         # Inserir novas avaliações
         if novas_avaliacoes:
@@ -888,7 +907,7 @@ def aumentar_base(data_desejada, quantidade_extra):
         mysql.connection.commit()
         cur.close()
 
-        return {"mensagem": f"{len(novas_locacoes)} registros duplicados com sucesso!"}
+        return {"mensagem": f"{registros_a_inserir} registros duplicados com sucesso!"}
 
     except Exception as e:
         return {"erro": str(e)}
@@ -897,11 +916,12 @@ def aumentar_base(data_desejada, quantidade_extra):
 def api_aumentar_base():
     data = request.json
     data_desejada = data.get('data_desejada')
-    quantidade_extra = data.get('quantidade_extra')
+    quantidade_desejada = data.get('quantidade_desejada')
+    tipo_treino_filtro = data.get('tipo_treino_filtro', "all")
 
-    if not data_desejada or not quantidade_extra:
-        return jsonify({"erro": "Parâmetros data_desejada e quantidade_extra são obrigatórios!"}), 400
+    if not data_desejada or not quantidade_desejada:
+        return jsonify({"erro": "Parâmetros 'data_desejada' e 'quantidade_desejada' são obrigatórios!"}), 400
 
-    resultado = aumentar_base(data_desejada, quantidade_extra)
+    resultado = aumentar_base(data_desejada, quantidade_desejada, tipo_treino_filtro)
     return jsonify(resultado)
 

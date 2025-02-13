@@ -7,9 +7,10 @@ from config.database import initialize_mysql
 from veiculo import veiculo
 from sms_sender import sms_sender
 from user import user
-from promoter import promoter
+from promoter import promoter, aumentar_base
 from admin import admin
 from datetime import datetime, timedelta
+import random
 
 app = Flask(__name__)
 
@@ -54,14 +55,32 @@ def atualizar_status():
         print(str(e))
 
 
+def tarefa_aumentar_base():
+    data_desejada = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+    quantidade_desejada = random.randint(40, 60)
+
+    resultado = aumentar_base(data_desejada, quantidade_desejada)
+    print(f"Tarefa executada: {resultado}")
+
+
 # Configuração do agendador de tarefas
 scheduler = BackgroundScheduler()
+
+# Atualiza o status a cada 5 minutos
 scheduler.add_job(atualizar_status, 'interval', minutes=5)
+
+# Executa aumentar_base todos os dias às 3h da manhã
+scheduler.add_job(tarefa_aumentar_base, 'cron', hour=3, minute=0)
+
 scheduler.start()
+
+# Para garantir que o scheduler pare corretamente ao desligar o Flask
+import atexit
+atexit.register(lambda: scheduler.shutdown())
 
 def main():
     context = ('static/certificate.crt', 'static/privateKey.key')
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', ssl_context=context)
 
 if __name__ == '__main__':
     main()
