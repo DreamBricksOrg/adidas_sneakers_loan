@@ -56,11 +56,16 @@ def atualizar_status():
 
 
 def tarefa_aumentar_base():
-    data_desejada = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
-    quantidade_desejada = random.randint(40, 60)
+    try:
+        with app.app_context():
+            data_desejada = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+            quantidade_desejada = random.randint(40, 60)
 
-    resultado = aumentar_base(data_desejada, quantidade_desejada)
-    print(f"Tarefa executada: {resultado}")
+            resultado = aumentar_base(data_desejada, quantidade_desejada)
+            print(f"Tarefa executada: {resultado}")
+
+    except Exception as e:
+        print(f"Erro ao executar tarefa_aumentar_base: {str(e)}")
 
 
 # Configuração do agendador de tarefas
@@ -70,7 +75,7 @@ scheduler = BackgroundScheduler()
 scheduler.add_job(atualizar_status, 'interval', minutes=5)
 
 # Executa aumentar_base todos os dias às 3h da manhã
-scheduler.add_job(tarefa_aumentar_base, 'cron', hour=3, minute=0)
+scheduler.add_job(tarefa_aumentar_base, 'cron', hour=7, minute=5)
 
 scheduler.start()
 
