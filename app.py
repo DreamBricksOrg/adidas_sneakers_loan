@@ -60,8 +60,9 @@ def tarefa_aumentar_base():
         with app.app_context():
             data_desejada = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
             quantidade_desejada = random.randint(40, 60)
+            tipo_treino_filtro = "yes"
 
-            resultado = aumentar_base(data_desejada, quantidade_desejada)
+            resultado = aumentar_base(data_desejada, quantidade_desejada, tipo_treino_filtro)
             print(f"Tarefa executada: {resultado}")
 
     except Exception as e:
