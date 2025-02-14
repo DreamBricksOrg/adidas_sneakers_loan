@@ -6,8 +6,9 @@ from qrcodeaux import generate_qr_code
 from sms_sender import create_verification_code, resend_sms
 import io
 import base64
-from datetime import datetime
+from datetime import datetime, timedelta
 import execjs
+import random
 
 user = Blueprint('user', __name__)
 
@@ -341,10 +342,11 @@ def clearcookie_page():
     session.clear()
     return render_template('user/15-clear-cookie.html')
 
+
 @user.route('/add-user-not-registered', methods=['POST'])
 def add_user_not_registered():
-
     data_list = request.get_json()
+
     if not isinstance(data_list, list):
         return jsonify({'error': 'Os dados devem ser enviados como uma lista de registros!'}), 400
 
@@ -354,42 +356,105 @@ def add_user_not_registered():
     pub_key = get_rsa_key()
 
     for data in data_list:
-        nome = data.get('nome')
-        email = data.get('email')
-        data_nascimento= data.get('data_nascimento')
-        genero = "indefinido"
-        nome_iniciais = formatar_nome_iniciais(nome)
-        data_aplicada = data.get('data_registro')
-        documento = data.get('documento')
-        telefone = data.get('telefone', '')
-        telefone_hash = gerar_hash(telefone) if telefone else None
-
-        confirmacao_sms = False
-        data_registro = formatar_data_registro(data_aplicada)
-
-        dataToEncrypt = nome + "," + email + "," + data_nascimento + "," + documento + "," + telefone + "," + genero
-
-        dados_criptografados = db_encrypt_string(dataToEncrypt, pub_key)
-
-        if not nome_iniciais:
-            errors.append({'error': 'O nome do usuário é obrigatório!', 'data': data})
-            continue
-
-
-  # TODO - Pesquisar o tenis pelo modelo e tamanho do tenis
-
-  # TODO -  Criar locação com devolvido e 40min depois da locação
-
-
         try:
+            # Validação de campos obrigatórios
+            nome = data.get('nome')
+            tamanho = data.get('tamanho')
+            modelo = data.get('modelo')
+            email = data.get('email')
+            data_nascimento = data.get('data_nascimento')
+            documento = data.get('documento')
+            telefone = data.get('telefone', '')
+            data_inicio_str = data.get('data_inicio')  # Apenas "dd/mm/aaaa"
+
+            if not all([nome, tamanho, modelo, email, data_nascimento, documento, data_inicio_str]):
+                errors.append({'error': 'Campos obrigatórios faltando.', 'data': data})
+                continue
+
+            telefone_hash = gerar_hash(telefone) if telefone else None
+            confirmacao_sms = False
+            genero = "indefinido"
+
+            # Verificação do formato da data de início
+            try:
+                data_inicio_dt = datetime.strptime(data_inicio_str, "%d/%m/%Y")
+            except ValueError:
+                errors.append({'error': 'Formato inválido para "data_inicio". Use "dd/mm/aaaa".', 'data': data})
+                continue
+
+            # Gerar um horário aleatório entre 07:00 e 12:00
+            hora_aleatoria = random.randint(7, 11)
+            minuto_aleatorio = random.randint(0, 59)
+            data_inicio_dt = data_inicio_dt.replace(hour=hora_aleatoria, minute=minuto_aleatorio)
+
+            # Definir data_fim como 40 minutos após data_inicio
+            data_fim_dt = data_inicio_dt + timedelta(minutes=40)
+
+            nome_iniciais = formatar_nome_iniciais(nome)
+            if not nome_iniciais:
+                errors.append({'error': 'O nome do usuário é inválido!', 'data': data})
+                continue
+
+            # Criptografar dados sensíveis
+            dataToEncrypt = f"{nome},{email},{data_nascimento},{documento},{telefone},{genero}"
+            dados_criptografados = db_encrypt_string(dataToEncrypt, pub_key)
+
+            # Pesquisar o modelo do tênis
+            cursor.execute("SELECT id FROM Modelo WHERE nome = %s", (modelo,))
+            modelo_result = cursor.fetchone()
+
+            if not modelo_result:
+                errors.append({'error': f'Modelo "{modelo}" não encontrado.', 'data': data})
+                continue
+
+            modelo_id = modelo_result[0]
+            tamanho_formatado = f"U{tamanho}"  # Prefixo "U"
+
+            # Buscar o tênis correspondente
+            cursor.execute("SELECT id FROM Tenis WHERE Modelo = %s AND tamanho = %s", (modelo_id, tamanho_formatado))
+            tenis_result = cursor.fetchone()
+
+            if not tenis_result:
+                errors.append(
+                    {'error': f'Nenhum tênis encontrado para o modelo "{modelo}" e tamanho "{tamanho_formatado}".',
+                     'data': data})
+                continue
+
+            tenis_id = tenis_result[0]  # Pegamos o ID do tênis encontrado
+
+            # Iniciar transação
             cursor.execute(
                 '''INSERT INTO Usuario (nome_iniciais, documento, dados_criptografados, confirmacao_sms, data_registro, telefone_hash) 
                 VALUES (%s, %s, %s, %s, %s, %s)''',
-                (nome_iniciais, documento, dados_criptografados, confirmacao_sms, data_registro, telefone_hash)
+                (nome_iniciais, documento, dados_criptografados, confirmacao_sms, data_inicio_dt, telefone_hash)
             )
-            mysql.connection.commit()
             user_id = cursor.lastrowid
-            created_users.append({'id': user_id, 'nome_iniciais': nome_iniciais})
+
+            # Inserir locação na tabela Locacao
+            cursor.execute(
+                '''INSERT INTO Locacao (Tenis, Usuario, Promotor, Veiculo, Estande, data_inicio, data_fim, status, Local, LocalTreino, TipoTreino) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)''',
+                (tenis_id, user_id, 6, 2, 1, data_inicio_dt, data_fim_dt, 'DEVOLVIDO', 1, 2, 2)
+            )
+            locacao_id = cursor.lastrowid
+
+            # Inserir avaliação para o usuário
+            cursor.execute(
+                '''INSERT INTO Avaliacao (Usuario, conforto, estabilidade, estilo, compraria) 
+                VALUES (%s, %s, %s, %s, %s)''',
+                (user_id, 5, 5, 5, 4)
+            )
+            avaliacao_id = cursor.lastrowid
+
+            # Commit da transação
+            mysql.connection.commit()
+
+            created_users.append({
+                'id': user_id,
+                'nome_iniciais': nome_iniciais,
+                'locacao_id': locacao_id,
+                'avaliacao_id': avaliacao_id
+            })
 
         except Exception as e:
             mysql.connection.rollback()
@@ -404,6 +469,7 @@ def add_user_not_registered():
     return jsonify(response), 201 if created_users else 400
 
 
+# Função para formatar nome em iniciais
 def formatar_nome_iniciais(nome_completo):
     if not nome_completo:
         return ""
@@ -419,9 +485,12 @@ def formatar_nome_iniciais(nome_completo):
     return f"{primeiro_nome} {' '.join(sobrenomes_iniciais)}"
 
 
-
 def formatar_data_registro(data_str):
     try:
+        # Se a string de data estiver vazia ou None, retorna None
+        if not data_str:
+            return None
+
         # Converte o formato "ddmmaaaa HH:MM:SS" para um objeto datetime
         data_obj = datetime.strptime(data_str, "%d%m%Y %H:%M:%S")
 
