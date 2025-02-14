@@ -6,7 +6,8 @@ from flask import Blueprint, request, session, redirect, url_for, render_templat
 
 from config.database import mysql
 import json
-import random
+import pandas as pd
+from io import BytesIO
 
 admin = Blueprint('admin', __name__)
 
@@ -70,27 +71,26 @@ def statistics_page():
     )
 
     rentals = cur.fetchall()
+    fieldnames = [i[0] for i in cur.description]
 
     if request.method == 'POST':
-        fieldnames = [i[0] for i in cur.description]
+        now = datetime.now().strftime('%Y-%m-%d')
+        filename = f'{now}_estatisticas_modelo.xlsx'
 
-        now = datetime.now()
-        now_str = now.strftime('%Y-%m-%d')
-        filename = f'{now_str}_estatisticas_total.csv'
+        df = pd.DataFrame(rentals, columns=fieldnames)
 
-        # Criar um objeto de resposta CSV
-        response = make_response('')
-        response.headers['Content-Type'] = 'text/csv'
-        response.headers['Content-Disposition'] = f'attachment; filename={filename}'
+        # Converter a data para o formato dd/mm/aaaa
+        if 'bdate' in df.columns:
+            df['bdate'] = pd.to_datetime(df['bdate'], format='%y-%m-%d').dt.strftime('%d/%m/%Y')
 
-        # Escrever os resultados no arquivo CSV
-        writer = csv.DictWriter(response.stream, fieldnames=fieldnames)
-        writer.writeheader()
-        for row in rentals:
-            writer.writerow(dict(zip(fieldnames, row)))
+        # Criando um arquivo Excel na memória
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            df.to_excel(writer, index=False, sheet_name="Estatísticas Totais")
+        output.seek(0)
 
         cur.close()
-        return response
+        return send_file(output, download_name=filename, as_attachment=True, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
     cur.close()
     return render_template('admin/3-statistics-total.html', rentals=rentals)
@@ -118,28 +118,27 @@ def statistics_status_page():
             date_format(Locacao.data_inicio, "%y-%m-%d") DESC, Veiculo.nome DESC;
         """
     )
+
     rentals = cur.fetchall()
+    fieldnames = [i[0] for i in cur.description]
 
     if request.method == 'POST':
-        fieldnames = [i[0] for i in cur.description]
+        now = datetime.now().strftime('%Y-%m-%d')
+        filename = f'{now}_estatisticas_status.xlsx'
 
-        now = datetime.now()
-        now_str = now.strftime('%Y-%m-%d')
-        filename = f'{now_str}_estatisticas_status.csv'
+        df = pd.DataFrame(rentals, columns=fieldnames)
 
-        # Criar um objeto de resposta CSV
-        response = make_response('')
-        response.headers['Content-Type'] = 'text/csv'
-        response.headers['Content-Disposition'] = f'attachment; filename={filename}'
+        # Converter a data para o formato dd/mm/aaaa
+        if 'bdate' in df.columns:
+            df['bdate'] = pd.to_datetime(df['bdate'], format='%y-%m-%d').dt.strftime('%d/%m/%Y')
 
-        # Escrever os resultados no arquivo CSV
-        writer = csv.DictWriter(response.stream, fieldnames=fieldnames)
-        writer.writeheader()
-        for row in rentals:
-            writer.writerow(dict(zip(fieldnames, row)))
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            df.to_excel(writer, index=False, sheet_name="Estatísticas Status")
+        output.seek(0)
 
         cur.close()
-        return response
+        return send_file(output, download_name=filename, as_attachment=True, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
     cur.close()
     return render_template('admin/3-statistics-status.html', rentals=rentals)
@@ -170,25 +169,27 @@ def statistics_gen_page():
             date_format(Locacao.data_inicio, "%y-%m-%d") DESC, Veiculo.nome DESC;
         """
     )
+
     rentals = cur.fetchall()
+    fieldnames = [i[0] for i in cur.description]
 
     if request.method == 'POST':
-        fieldnames = [i[0] for i in cur.description]
+        now = datetime.now().strftime('%Y-%m-%d')
+        filename = f'{now}_estatisticas_gen.xlsx'
 
-        now = datetime.now()
-        now_str = now.strftime('%Y-%m-%d')
-        filename = f'{now_str}_estatisticas_gen.csv'
+        df = pd.DataFrame(rentals, columns=fieldnames)
 
-        response = make_response('')
-        response.headers['Content-Type'] = 'text/csv'
-        response.headers['Content-Disposition'] = f'attachment; filename={filename}'
+        # Converter a data para o formato dd/mm/aaaa
+        if 'bdate' in df.columns:
+            df['bdate'] = pd.to_datetime(df['bdate'], format='%y-%m-%d').dt.strftime('%d/%m/%Y')
 
-        writer = csv.DictWriter(response.stream, fieldnames=fieldnames)
-        writer.writeheader()
-        for row in rentals:
-            writer.writerow(dict(zip(fieldnames, row)))
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            df.to_excel(writer, index=False, sheet_name="Estatísticas Gen")
+        output.seek(0)
+
         cur.close()
-        return response
+        return send_file(output, download_name=filename, as_attachment=True, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
     cur.close()
     return render_template('admin/3-statistics-gen.html', rentals=rentals)
@@ -227,25 +228,27 @@ def statistics_num_page():
             date_format(Locacao.data_inicio, "%y-%m-%d") DESC, Veiculo.nome DESC;
         """
     )
+
     rentals = cur.fetchall()
+    fieldnames = [i[0] for i in cur.description]
 
     if request.method == 'POST':
-        fieldnames = [i[0] for i in cur.description]
+        now = datetime.now().strftime('%Y-%m-%d')
+        filename = f'{now}_estatisticas_num.xlsx'
 
-        now = datetime.now()
-        now_str = now.strftime('%Y-%m-%d')
-        filename = f'{now_str}_estatisticas_num.csv'
+        df = pd.DataFrame(rentals, columns=fieldnames)
 
-        response = make_response('')
-        response.headers['Content-Type'] = 'text/csv'
-        response.headers['Content-Disposition'] = f'attachment; filename={filename}'
+        # Converter a data para o formato dd/mm/aaaa
+        if 'bdate' in df.columns:
+            df['bdate'] = pd.to_datetime(df['bdate'], format='%y-%m-%d').dt.strftime('%d/%m/%Y')
 
-        writer = csv.DictWriter(response.stream, fieldnames=fieldnames)
-        writer.writeheader()
-        for row in rentals:
-            writer.writerow(dict(zip(fieldnames, row)))
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            df.to_excel(writer, index=False, sheet_name="Estatísticas Num")
+        output.seek(0)
+
         cur.close()
-        return response
+        return send_file(output, download_name=filename, as_attachment=True, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
     cur.close()
     return render_template('admin/3-statistics-num.html', rentals=rentals)

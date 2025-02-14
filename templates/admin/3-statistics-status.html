@@ -15,6 +15,7 @@
             href="../../static/assets/images/logos/adidas.png"
             type="image/x-icon"
     />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         function formatarData(data) {
@@ -79,7 +80,7 @@
         box-sizing: border-box;
     }
 
-    button{
+    .back-button{
         width:100%;
         color:black;
         border:1px solid white;
@@ -162,6 +163,26 @@
         text-align: center;
     }
 
+    .btn-download {
+        background-color: #808080;
+        border: none;
+        color: white;
+        padding: 20px 30px;
+        cursor: pointer;
+        font-size: 20px;
+        border-radius: 40px;
+        font-family: "ITCF", sans-serif;
+    }
+
+    .btn-download:hover {
+        background-color: #a3a3a3;
+    }
+
+    #download-pdf {
+        background-color: transparent;
+        padding: 0px;
+    }
+
 </style>
 <body>
 <div class="container">
@@ -206,18 +227,22 @@
 
     <div class="btn-container">
         <a href="{{ url_for('admin.admin_menu_page') }}">
-            <button>Retornar</button>
+            <button class="back-button">Retornar</button>
         </a>
     </div>
 
     <form action="/admin/statistics/status" method="post" class="download-button">
-        <button type="submit" id="download-pdf"
-                style="background: none; border: none; cursor: pointer;">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="44" height="44" fill="white">
-                <path d="M12 15.59l-4.29-4.29-1.41 1.41 6 6 .09.09.09.09.09-.09 6-6-1.41-1.41z"/>
-                <path d="M0 0h24v24h-24z" fill="none"/>
-            </svg>
-        </button>
+        <div class="btn-download">
+            <button type="submit" id="download-pdf">
+                <span class="fa fa-download "></span>
+                Baixar
+                <!--            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="44" height="44" fill="white">-->
+                <!--                <path d="M12 15.59l-4.29-4.29-1.41 1.41 6 6 .09.09.09.09.09-.09 6-6-1.41-1.41z"/>-->
+                <!--                <path d="M0 0h24v24h-24z" fill="none"/>-->
+                <!--            </svg>-->
+                <!--            <img src="{{ url_for('static', filename='assets/images/buttons/') }}">-->
+            </button>
+        </div>
     </form>
 </div>
 
