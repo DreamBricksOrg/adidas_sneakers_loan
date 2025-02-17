@@ -2,7 +2,7 @@ import csv
 import base64
 from datetime import datetime, timedelta
 
-from flask import Blueprint, request, session, redirect, url_for, render_template, make_response, send_file
+from flask import Blueprint, request, session, redirect, url_for, render_template, make_response, send_file, jsonify
 
 from config.database import mysql
 import json
@@ -419,6 +419,51 @@ def download_blob():
         return json.dumps(response_data)
     else:
         return json.dumps({"error": "Dados não encontrados para o usuário fornecido."}), 404
+
+@admin.route('/create_sneaker_model', methods=['POST'])
+def create_sneaker_model():
+    data = request.json
+    modelo_name = data.get("modelo_name")
+    estande_name = data.get("estande")
+
+    if not modelo_name or not estande_name:
+        return jsonify({"error": "Os campos 'modelo_name' e 'estande' são obrigatórios"}), 400
+
+    try:
+        cur = mysql.connection.cursor()
+
+        # Criar o novo modelo na tabela Modelo
+        cur.execute("INSERT INTO Modelo (nome, status) VALUES (%s, 'ATIVO')", (modelo_name,))
+        mysql.connection.commit()
+        modelo_id = cur.lastrowid  # Pega o ID do modelo recém-criado
+
+        # Buscar o ID do Estande pelo nome
+        cur.execute("SELECT id FROM Estande WHERE nome = %s", (estande_name,))
+        estande_result = cur.fetchone()
+        if not estande_result:
+            return jsonify({"error": "Estande não encontrado"}), 404
+        estande_id = estande_result[0]  # Acessando a primeira posição da tupla corretamente
+
+        # Gerar os tamanhos
+        tamanhos = []
+        for prefixo in ["F", "M", "U"]:
+            for num in range(34, 46):
+                tamanhos.append(f"{prefixo}{num}")
+
+        # Inserir os tênis na tabela Tenis
+        for tamanho in tamanhos:
+            cur.execute("INSERT INTO Tenis (tamanho, quantidade, Estande, Modelo) VALUES (%s, 0, %s, %s)",
+                        (tamanho, estande_id, modelo_id))
+
+        mysql.connection.commit()
+
+        return jsonify({"message": "Modelo e Tênis criados com sucesso", "modelo_id": modelo_id, "estande_id": estande_id})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        cur.close()
 
 
 @admin.route('/admin')
