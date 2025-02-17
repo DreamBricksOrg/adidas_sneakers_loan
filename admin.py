@@ -40,6 +40,27 @@ def admin_menu_page():
     else:
         return redirect(url_for('admin.admin_login_page'))
 
+@admin.route('/admin/menu/admin')
+def admin_menu_admin_page():
+    if 'logged_in' in session and session['logged_in']:
+        return render_template('admin/7-admin-menu-admin.html')
+    else:
+        return redirect(url_for('admin.admin_login_page'))
+
+
+@admin.route('/admin/stock')
+def stock_page():
+    if 'logged_in' in session and session['logged_in']:
+        return render_template('promoter/4-available-shoes.html')
+    else:
+        return redirect(url_for('admin.admin_login_page'))
+
+@admin.route('/admin/dashboard')
+def dashboard_page():
+    if 'logged_in' in session and session['logged_in']:
+        return render_template('admin/8-dashboard.html')
+    else:
+        return redirect(url_for('admin.admin_login_page'))
 
 @admin.route('/admin/statistics/total', methods=['GET', 'POST'])
 def statistics_page():

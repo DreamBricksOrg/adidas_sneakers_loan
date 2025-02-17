@@ -44,31 +44,35 @@
             font-size: 68px;
         }
 
+        .bold {
+            font-weight: bold;
+        }
+
     </style>
 </head>
 <body>
 <div class="container">
     <div class="overlay"></div>
 
-    <h1>Menu</h1>
-    <a href="{{ url_for('admin.statistics_page') }}"
+    <h1>Menu Admin</h1>
+    <a href="{{ url_for('admin.generate_keys_page') }}"
     >
-        <button class="menu-button">Estatísticas</button>
+        <button class="menu-button">Gerar chaves</button>
     </a
     >
-    <a href="{{ url_for('admin.dashboard_page') }}"
+    <a href="{{ url_for('admin.users_data_page') }}"
     >
-        <button class="menu-button">Dashboard</button>
+        <button class="menu-button">Dados usuários</button>
     </a
     >
-    <a href="{{ url_for('admin.admin_menu_admin_page')}}"
+    <a href="{{ url_for('admin.log_mudancas_page')}}"
     >
-        <button class="menu-button">Admin</button>
+        <button class="menu-button">Log mudanças</button>
     </a
     >
-    <a href="{{ url_for('admin.stock_page')}}"
+      <a href="{{ url_for('admin.admin_menu_page')}}"
     >
-        <button class="menu-button">Estoque</button>
+        <button class="menu-button bold">voltar</button>
     </a
     >
 
