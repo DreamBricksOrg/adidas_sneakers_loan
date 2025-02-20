@@ -1,6 +1,7 @@
 import csv
 import base64
 from datetime import datetime, timedelta
+from fileinput import filename
 
 from flask import Blueprint, request, session, redirect, url_for, render_template, make_response, send_file, jsonify
 
@@ -62,19 +63,36 @@ def dashboard_page():
     else:
         return redirect(url_for('admin.admin_login_page'))
 
+
 @admin.route('/admin/statistics/total', methods=['GET', 'POST'])
 def statistics_page():
     cur = mysql.connection.cursor()
-    cur.execute(
-        """
+
+    # Ajusta o limite do GROUP_CONCAT para evitar truncamentos
+    cur.execute("SET SESSION group_concat_max_len = 10000;")
+
+    # Gerar dinamicamente a lista de colunas SUM(CASE WHEN ...)
+    cur.execute("""
+        SELECT GROUP_CONCAT(
+            CONCAT(
+                'SUM(CASE WHEN Modelo.nome = "', nome, '" THEN 1 ELSE 0 END) AS `', REPLACE(nome, '`', ''), '`'
+            )
+        ) 
+        FROM Modelo
+    """)
+
+    colunas_sum_case = cur.fetchone()[0]
+
+    # Verifica se a string de colunas geradas é válida
+    if not colunas_sum_case:
+        colunas_sum_case = "0 AS `No Data`"  # Evita erro caso não haja modelos
+
+    # Construir query final dinamicamente
+    sql = f"""
         SELECT 
-            date_format(Locacao.data_inicio, "%y-%m-%d") AS bdate, 
-            Veiculo.nome AS nome_veiculo,
-            SUM(CASE WHEN Modelo.nome = 'Ultraboost 5' THEN 1 ELSE 0 END) AS 'Ultraboost 5',
-            SUM(CASE WHEN Modelo.nome = 'Supernova' THEN 1 ELSE 0 END) AS 'Supernova',
-            SUM(CASE WHEN Modelo.nome = 'Adizero SL' THEN 1 ELSE 0 END) AS 'Adizero SL',
-            SUM(CASE WHEN Modelo.nome = 'Adizero Adios Pro 3' THEN 1 ELSE 0 END) AS 'Adizero Adios Pro 3',
-            SUM(CASE WHEN Modelo.nome = 'Drive RC' THEN 1 ELSE 0 END) AS 'Drive RC',
+            DATE_FORMAT(Locacao.data_inicio, "%y-%m-%d") AS bdate, 
+            Veiculo.nome AS nome_veiculo, 
+            {colunas_sum_case}, 
             COUNT(1) AS total
         FROM 
             Locacao
@@ -85,15 +103,15 @@ def statistics_page():
         JOIN 
             Modelo ON Tenis.Modelo = Modelo.id
         GROUP BY 
-            date_format(Locacao.data_inicio, "%y-%m-%d"), Veiculo.nome
+            DATE_FORMAT(Locacao.data_inicio, "%y-%m-%d"), Veiculo.nome
         ORDER BY 
-            date_format(Locacao.data_inicio, "%y-%m-%d") DESC, Veiculo.nome DESC;
-        """
-    )
+            DATE_FORMAT(Locacao.data_inicio, "%y-%m-%d") DESC, Veiculo.nome DESC;
+    """
 
+    # Executar a query dinâmica
+    cur.execute(sql)
     rentals = cur.fetchall()
-    fieldnames = [i[0] for i in cur.description]
-
+    fieldnames = [i[0] for i in cur.description]  # Obter os nomes das colunas dinamicamente
     if request.method == 'POST':
         now = datetime.now().strftime('%Y-%m-%d')
         filename = f'{now}_estatisticas_modelo.xlsx'
@@ -111,10 +129,11 @@ def statistics_page():
         output.seek(0)
 
         cur.close()
-        return send_file(output, download_name=filename, as_attachment=True, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        return send_file(output, download_name=filename, as_attachment=True,
+                         mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
     cur.close()
-    return render_template('admin/3-statistics-total.html', rentals=rentals)
+    return render_template('admin/3-statistics-total.html', rentals=rentals, fieldnames=fieldnames)
 
 
 @admin.route('/admin/statistics/status', methods=['GET', 'POST'])

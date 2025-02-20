@@ -4,35 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Locações</title>
-    <link
-            rel="stylesheet"
-            href="{{ url_for('static', filename='css/promoter/7-rental-list.css') }}"
-    />
-    <link rel="stylesheet" href="../../static/css/default.css"/>
-
-    <link
-            rel="shortcut icon"
-            href="../../static/assets/images/logos/adidas.png"
-            type="image/x-icon"
-    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/promoter/7-rental-list.css') }}"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/default.css') }}"/>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}" type="image/x-icon"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         function formatarData(data) {
-            if (data === 'None') {
+            if (!data || data === 'None') {
                 return 'N/A';
             }
-
-            var dataPartes = data.split('-');
-
-            var novaData = dataPartes[2] + '/' + dataPartes[1] + '/' + dataPartes[0];
-            return novaData;
+            let partes = data.split('-');
+            return partes[2] + '/' + partes[1] + '/' + partes[0];
         }
 
-        // Use esta função para formatar todas as células de data na tabela
         document.addEventListener('DOMContentLoaded', function () {
-            var datas = document.querySelectorAll('.data-formatada');
-            datas.forEach(function (data) {
+            document.querySelectorAll('.data-formatada').forEach(function (data) {
                 data.textContent = formatarData(data.textContent);
             });
         });
@@ -41,7 +28,7 @@
 </head>
 <style>
     .container {
-        background-image: url("../../static/assets/images/shoes-2.png");
+        background-image: url("{{ url_for('static', filename='assets/images/shoes-2.png') }}");
         background-repeat: no-repeat;
         background-size: cover;
         position: relative;
@@ -71,7 +58,9 @@
 
     .table {
         width: 80%;
-        padding: 36px 27px 46px;
+        height: 800px;
+        overflow: auto;
+        padding: 46px;
         color: white;
         display: flex;
         flex-direction: column;
@@ -80,31 +69,45 @@
         box-sizing: border-box;
     }
 
+    .table::-webkit-scrollbar {
+        width: 6px;  /* Largura da barra de rolagem */
+        height: 6px; /* Altura da barra de rolagem (horizontal) */
+    }
+
+    .table::-webkit-scrollbar-thumb {
+        background: rgba(174, 174, 174, 0.8); /* Cor preta translúcida */
+        border-radius: 3px; /* Bordas arredondadas */
+    }
+
+    .table::-webkit-scrollbar-track {
+        background: transparent; /* Fundo transparente */
+    }
+
     .back-button {
-        width:100%;
-        color:black;
-        border:1px solid white;
-        border-radius:0;
-        padding:28px 27px 22px;
-        text-align:left;
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        position:relative;
-        top:-5px;
-        left:-5px;
-        font-weight:500;
-        background:white;
+        width: 100%;
+        color: black;
+        border: 1px solid white;
+        border-radius: 0;
+        padding: 28px 27px 22px;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        top: -5px;
+        left: -5px;
+        font-weight: 500;
+        background: white;
         font-family: "ITCF", sans-serif;
         font-weight: 600;
-        font-size:15px;
-        letter-spacing:2px;
-        text-transform:uppercase;
-
+        font-size: 15px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
     }
 
     .btn-container{
         border:1px solid white;
+        margin-top: 20px;
     }
 
     .action{
@@ -183,11 +186,12 @@
         padding: 0px;
     }
 </style>
+
 <body>
 <div class="container">
-     <form action="#" method="get" class="dropdown">
+    <form action="#" method="get" class="dropdown">
         <select id="dropdown" onchange="redirectToRoute()">
-            <option value="">Locaçoes por:</option>
+            <option value="">Locações por:</option>
             <option value="/admin/statistics/total">Modelo</option>
             <option value="/admin/statistics/gen">Gênero</option>
             <option value="/admin/statistics/status">Status</option>
@@ -200,30 +204,20 @@
     <div class="table">
         <table class="rental-table">
             <thead>
-            <tr>
-                <th>Data</th>
-                <th>Veiculo</th>
-                <th>Ultraboost 5</th>
-                <th>Supernova</th>
-                <th>Adizero SL</th>
-                <th>Adizero Adios Pro 3</th>
-                <th>Drive RC</th>
-                <th>Total Locações</th>
-            </tr>
+                <tr>
+                    {% for column in fieldnames %}
+                        <th>{{ column }}</th>
+                    {% endfor %}
+                </tr>
             </thead>
             <tbody>
-            {% for rental in rentals %}
-            <tr>
-                <td class="data-formatada">{{ rental[0] }}</td>
-                <td>{{ rental[1] }}</td>
-                <td>{{ rental[2] }}</td>
-                <td>{{ rental[3] }}</td>
-                <td>{{ rental[4] }}</td>
-                <td>{{ rental[5] }}</td>
-                <td>{{ rental[6] }}</td>
-                <td>{{ rental[7] }}</td>
-            </tr>
-            {% endfor %}
+                {% for rental in rentals %}
+                <tr>
+                    {% for value in rental %}
+                        <td class="{% if loop.index == 1 %}data-formatada{% endif %}">{{ value }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
@@ -237,13 +231,7 @@
     <form action="/admin/statistics/total" method="post" class="download-button">
        <div class="btn-download">
             <button type="submit" id="download-pdf">
-                <span class="fa fa-download "></span>
-                Baixar
-                <!--            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="44" height="44" fill="white">-->
-                <!--                <path d="M12 15.59l-4.29-4.29-1.41 1.41 6 6 .09.09.09.09.09-.09 6-6-1.41-1.41z"/>-->
-                <!--                <path d="M0 0h24v24h-24z" fill="none"/>-->
-                <!--            </svg>-->
-                <!--            <img src="{{ url_for('static', filename='assets/images/buttons/') }}">-->
+                <span class="fa fa-download"></span> Baixar
             </button>
         </div>
     </form>
@@ -251,13 +239,12 @@
 
 <script>
     function redirectToRoute() {
-            const dropdown = document.getElementById('dropdown');
-            const selectedValue = dropdown.value;
-
-            if (selectedValue) {
-                window.location.href = selectedValue;
-            }
+        const dropdown = document.getElementById('dropdown');
+        const selectedValue = dropdown.value;
+        if (selectedValue) {
+            window.location.href = selectedValue;
         }
+    }
 </script>
 </body>
 </html>
