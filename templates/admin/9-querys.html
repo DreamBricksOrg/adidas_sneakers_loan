@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RELATÓRIOS DE LOCAÇÃO</title>
+    <link href="{{ url_for('static', filename='css/tabulator-bootstrap/styles.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="../../static/css/default.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        .container {
+            background-image: url("../../static/assets/images/shoes-2.png");
+            background-repeat: no-repeat;
+            background-size: cover;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        h1 {
+            color:white;
+            margin-bottom: 20px;
+        }
+
+        .table-container {
+            width: 90%;
+            z-index: 2;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between
+        }
+
+        #menu {
+            display: flex;
+            align-items:center;
+            background-color: white;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .tab-button {
+            padding: 10px;
+            cursor: pointer;
+            background-color: #white;
+            display: inline-block;
+        }
+
+        .tab-button:hover {
+            background-color: #e6e6e6;
+            margin-top: 0px;
+            padding-top: 12px;
+            padding-bottom: 35px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .tab-button.active {
+            background-color: #F8AD15;
+            margin-top: 0px;
+            color: white;
+            padding-top: 12px;
+            padding-bottom: 35px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .tab-button.active:hover {
+            background-color: #fbc130;
+            color: white;
+        }
+
+        #search-input {
+            border-radius: 6px;
+            padding: 5px;
+            width: 200px;
+            height: 45px;
+        }
+
+        .export-buttons {
+            margin-top: 10px;
+        }
+        .export-buttons button {
+            padding: 10px;
+            margin-right: 10px;
+            border: none;
+            cursor: pointer;
+            color: white;
+        }
+
+        #export-excel {
+            font-weight: 600;
+            color: #000;
+            font-family: "ITCF", sans-serif;
+            text-transform: uppercase;
+            font-size: 16px;
+        }
+
+        #export-excel:hover {
+            color: #303030;
+        }
+
+        #export-all {
+            font-weight: 600;
+            color: #000;
+            font-family: "ITCF", sans-serif;
+            text-transform: uppercase;
+            font-size: 16px;
+        }
+
+        #export-all:hover {
+            color: #303030;
+        }
+
+        .btn-container{
+            margin-top: 20px;
+            border:1px solid white;
+        }
+
+        .back-button{
+            width:100%;
+            color:black;
+            border:1px solid white;
+            border-radius:0;
+            padding:28px 27px 22px;
+            text-align:left;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            position:relative;
+            top:-5px;
+            left:-5px;
+            font-weight:500;
+            background:white;
+            font-family: "ITCF", sans-serif;
+            font-weight: 600;
+            font-size:15px;
+            letter-spacing:2px;
+            text-transform:uppercase;
+        }
+
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="overlay"></div>
+
+    <div class="table-container">
+        <h1>RELATÓRIOS DE LOCAÇÃO</h1>
+
+        <div class="options">
+            <div id="menu">
+                <span class="tab-button active" onclick="loadData('weekday', this)">Dia da Semana</span>
+                <span class="tab-button" onclick="loadData('vehicle', this)">Veículo</span>
+                <span class="tab-button" onclick="loadData('tipo_treino', this)">Tipo de Treino</span>
+                <span class="tab-button" onclick="loadData('local', this)">Local</span>
+                <span class="tab-button" onclick="loadData('local_treino', this)">Local Treino</span>
+                <span class="tab-button" onclick="loadData('franquia', this)">Franquia</span>
+                <span class="tab-button" onclick="loadData('day', this)">Dia</span>
+                <span class="tab-button" onclick="loadData('day_period', this)">Período do Dia</span>
+                <span class="tab-button" onclick="loadData('all', this)">Todos os Dados</span>
+            </div>
+
+            <input id="search-input" type="text" placeholder="Buscar..." oninput="searchTable()">
+        </div>
+
+        <div id="tabela"></div>
+
+        <div class="export-buttons">
+            <button id="export-excel" onclick="exportToExcel()">Baixar Pasta Atual</button>
+            <button id="export-all" onclick="exportAllData()">Baixar Todas as pastas</button>
+        </div>
+    </div>
+
+    <div class="btn-container">
+        <a href="{{ url_for('admin.admin_menu_page') }}">
+            <button class="back-button">Retornar</button>
+        </a>
+    </div>
+
+</div>
+<script>
+    var baseURL = window.location.origin;
+    var table = new Tabulator("#tabela", {
+        layout: "fitColumns",
+        height: "600px",
+        locale:true,
+        pagination: "local",
+        paginationSize: 20,
+        paginationSizeSelector: [20, 50, 100],
+        langs: {
+            "pt-br": {
+                "pagination": {
+                    "page_size": "Tamanho da página",
+                    "first": "Primeiro",
+                    "first_title": "Primeira Página",
+                    "last": "Último",
+                    "last_title": "Última Página",
+                    "prev": "Anterior",
+                    "prev_title": "Página Anterior",
+                    "next": "Próximo",
+                    "next_title": "Próxima Página",
+                    "all": "Todos",
+                },
+                "headerFilters": {
+                    "default": "Filtrar...",
+                    "columns": {}
+                },
+                "groups": {
+                    "item": "item",
+                    "items": "itens",
+                },
+                "ajax": {
+                    "loading": "Carregando...",
+                    "error": "Erro ao carregar os dados",
+                },
+                "footer": {
+                    "rows": "Linhas",
+                    "page": "Página",
+                    "of": "de",
+                },
+                "columns": {
+                    "name": "Nome",
+                    "age": "Idade",
+                    "gender": "Gênero",
+                    "rating": "Avaliação",
+                    "col": "Coluna",
+                    "dob": "Data de Nascimento",
+                },
+                "data": {
+                    "loading": "Carregando...",
+                    "error": "Erro ao carregar os dados",
+                    "empty": "Nenhum dado disponível",
+                }
+            }
+        }
+    });
+
+    function loadData(type, button) {
+        fetch(`${baseURL}/admin/get_data_${type}`)
+            .then(response => response.json())
+            .then(data => {
+            table.setColumns(data.columns.map(col => ({ title: col.toUpperCase(), field: col })));
+            table.replaceData(data.data);
+        });
+
+        document.querySelectorAll(".tab-button").forEach(btn => btn.classList.remove("active"));
+        button.classList.add("active");
+    }
+
+    function exportToExcel() {
+        let activeTab = document.querySelector(".tab-button.active").innerText; // Obtém o nome da aba ativa
+        let fileName = `relatorio_${activeTab.replace(/\s+/g, "_").toLowerCase()}.xlsx`; // Formata o nome do arquivo
+
+        table.download("xlsx", fileName);
+    }
+
+    function searchTable() {
+        let searchValue = document.getElementById("search-input").value;
+        table.setFilter((data, filterParams) => {
+            return Object.values(data).some(value =>
+            String(value).toLowerCase().includes(searchValue.toLowerCase())
+            );
+        });
+    }
+
+    async function exportAllData() {
+        const categories = ["weekday", "vehicle", "tipo_treino", "local", "local_treino", "franquia", "day", "day_period", "all"];
+        let workbook = XLSX.utils.book_new();
+
+        for (let category of categories) {
+            try {
+                let response = await fetch(`${baseURL}/admin/get_data_${category}`);
+                let data = await response.json();
+
+                if (data.data.length > 0) {
+                    let worksheet = XLSX.utils.json_to_sheet(data.data);
+                    XLSX.utils.book_append_sheet(workbook, worksheet, category);
+                }
+            } catch (error) {
+                console.error(`Erro ao carregar ${category}:`, error);
+            }
+        }
+
+        XLSX.writeFile(workbook, "relatorio_completo.xlsx");
+    }
+
+    loadData("weekday", document.querySelector(".tab-button"));
+</script>
+
+</body>
+</html>

@@ -63,6 +63,13 @@ def dashboard_page():
     else:
         return redirect(url_for('admin.admin_login_page'))
 
+@admin.route('/admin/querys')
+def query_page():
+    if 'logged_in' in session and session['logged_in']:
+        return render_template('admin/9-querys.html')
+    else:
+        return redirect(url_for('admin.admin_login_page'))
+
 
 @admin.route('/admin/statistics/total', methods=['GET', 'POST'])
 def statistics_page():
@@ -483,6 +490,175 @@ def create_sneaker_model():
 
     finally:
         cur.close()
+
+
+def fetch_data(query):
+    cur = mysql.connection.cursor()
+    cur.execute(query)
+    rows = cur.fetchall()
+
+    column_names = [desc[0] for desc in cur.description]
+
+    data = [dict(zip(column_names, row)) for row in rows]
+
+    cur.close()
+    return {"columns": column_names, "data": data}
+
+
+
+@admin.route("/admin/get_data_weekday", methods=["GET"])
+def get_data_by_weekday():
+    query = """
+        SELECT 
+            CASE T.wd
+                WHEN 'Sunday' THEN 'Domingo'
+                WHEN 'Monday' THEN 'Segunda'
+                WHEN 'Tuesday' THEN 'Terça'
+                WHEN 'Wednesday' THEN 'Quarta'
+                WHEN 'Thursday' THEN 'Quinta'
+                WHEN 'Friday' THEN 'Sexta'
+                WHEN 'Saturday' THEN 'Sábado'
+            END AS dia_semana,
+            T.num
+        FROM (
+            SELECT weekday(data_inicio) AS id, 
+                   dayname(data_inicio) AS wd, 
+                   count(id) AS num
+            FROM Locacao
+            GROUP BY weekday(data_inicio), dayname(data_inicio)
+            ORDER BY id
+        ) AS T;
+    """
+    return jsonify(fetch_data(query))
+
+
+@admin.route("/admin/get_data_vehicle", methods=["GET"])
+def get_data_by_vehicle():
+    query = """
+        SELECT 
+            V.nome AS Veiculo,
+            COUNT(1) AS num
+        FROM Locacao L
+        JOIN Veiculo V ON L.Veiculo = V.id
+        GROUP BY Veiculo
+        ORDER BY Veiculo;
+    """
+    return jsonify(fetch_data(query))
+
+
+@admin.route("/admin/get_data_tipo_treino", methods=["GET"])
+def get_data_by_tipo_treino():
+    query = """
+        SELECT IFNULL(TT.nome, 'ND') AS TipoTreino, COUNT(1) AS num
+        FROM Locacao L
+        LEFT JOIN TipoTreino TT ON L.TipoTreino = TT.id
+        GROUP BY TipoTreino
+        ORDER BY TipoTreino;
+    """
+    return jsonify(fetch_data(query))
+
+
+@admin.route("/admin/get_data_local", methods=["GET"])
+def get_data_by_local():
+    query = """
+        SELECT 
+            IFNULL(Loc.cidade, 'ND') AS cidade,
+            IFNULL(Loc.estado, 'ND') AS estado,
+            count(1) AS num
+        FROM Locacao L
+        LEFT JOIN Local Loc ON L.Local = Loc.id
+        GROUP BY cidade, estado;
+    """
+    return jsonify(fetch_data(query))
+
+
+@admin.route("/admin/get_data_local_treino", methods=["GET"])
+def get_data_by_local_treino():
+    query = """
+        SELECT IFNULL(LT.nome, 'ND') AS LocalTreino, COUNT(1) AS num
+        FROM Locacao L
+        LEFT JOIN LocalTreino LT ON L.LocalTreino = LT.id
+        GROUP BY LocalTreino
+        ORDER BY LocalTreino;
+    """
+    return jsonify(fetch_data(query))
+
+
+@admin.route("/admin/get_data_franquia", methods=["GET"])
+def get_data_by_franquia():
+    query = """
+        SELECT M.nome AS Franquia, COUNT(1) AS num
+        FROM Locacao L
+        JOIN Tenis T ON L.Tenis = T.id
+        JOIN Modelo M ON T.Modelo = M.id
+        GROUP BY Franquia
+        ORDER BY Franquia;
+    """
+    return jsonify(fetch_data(query))
+
+
+@admin.route("/admin/get_data_day", methods=["GET"])
+def get_data_by_day():
+    query = """
+        SELECT DATE_FORMAT(data_inicio, '%d-%m-%Y') as dia, count(1) as num
+        FROM Locacao
+        GROUP BY DATE_FORMAT(data_inicio, '%Y%m%d'), DATE_FORMAT(data_inicio, '%d-%m-%Y')
+        ORDER BY DATE_FORMAT(data_inicio, '%Y%m%d');
+    """
+    return jsonify(fetch_data(query))
+
+
+@admin.route("/admin/get_data_day_period", methods=["GET"])
+def get_data_by_day_period():
+    query = """
+        SELECT 
+            CASE
+                WHEN HOUR(data_inicio) >= 6 AND HOUR(data_inicio) < 12 THEN '0 Dia (6h-12h)'
+                WHEN HOUR(data_inicio) >= 12 AND HOUR(data_inicio) < 18 THEN '1 Tarde (12h-18h)'
+                ELSE '2 Noite (18h-6h)'
+            END AS period,
+            COUNT(1) AS num
+        FROM Locacao
+        GROUP BY period
+        ORDER BY period;
+    """
+    return jsonify(fetch_data(query))
+
+@admin.route("/admin/get_data_all", methods=["GET"])
+def get_data_all():
+    query = """
+        SELECT 
+            L.data_inicio, 
+            IFNULL(L.data_fim, '2000-01-01 00:00:00') AS data_fim, 
+            L.status, 
+            T.Modelo AS Tenis, 
+            T.tamanho,
+            U.nome_iniciais AS Usuario, 
+            U.documento, 
+            IFNULL(U.veiculo_de_locacao, 'ND') AS veiculo_de_locacao,
+            U.confirmacao_sms, 
+            IFNULL(U.aprovado, 0) AS aprovado,
+            IFNULL(U.retornado, 0) AS retornado, 
+            U.data_registro,
+            P.nome AS Promotor, 
+            P.usuario AS PromotorUser,
+            V.nome AS Veiculo,
+            E.nome AS Estande,
+            IFNULL(Loc.cidade, 'ND') AS cidade,
+            IFNULL(Loc.estado, 'ND') AS estado,
+            IFNULL(LT.nome, 'ND') AS LocalTreino,
+            IFNULL(TT.nome, 'ND') AS TipoTreino
+        FROM Locacao L
+        JOIN Tenis T ON L.Tenis = T.id
+        JOIN Usuario U ON L.Usuario = U.id
+        JOIN Promotor P ON L.Promotor = P.id
+        JOIN Veiculo V ON L.Veiculo = V.id
+        JOIN Estande E ON L.Estande = E.id
+        LEFT JOIN Local Loc ON L.Local = Loc.id
+        LEFT JOIN LocalTreino LT ON L.LocalTreino = LT.id
+        LEFT JOIN TipoTreino TT ON L.TipoTreino = TT.id;
+    """
+    return jsonify(fetch_data(query))
 
 
 @admin.route('/admin')
