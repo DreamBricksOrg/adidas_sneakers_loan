@@ -660,6 +660,160 @@ def get_data_all():
     """
     return jsonify(fetch_data(query))
 
+@admin.route('/admin/get_data_status')
+def get_data_status():
+    try:
+        query = """
+            SELECT 
+                Veiculo.nome AS nome_veiculo,
+                SUM(CASE WHEN Locacao.status = 'DEVOLVIDO' THEN 1 ELSE 0 END) AS DEVOLVIDO,
+                SUM(CASE WHEN Locacao.status = 'CANCELADO' THEN 1 ELSE 0 END) AS CANCELADO,
+                SUM(CASE WHEN Locacao.status = 'VENCIDO' THEN 1 ELSE 0 END) AS VENCIDO,
+                COUNT(1) AS total
+            FROM Locacao
+            JOIN Veiculo ON Locacao.Veiculo = Veiculo.id
+            GROUP BY nome_veiculo
+            ORDER BY nome_veiculo;
+        """
+
+        cur = mysql.connection.cursor()
+        cur.execute(query)
+        rows = cur.fetchall()
+        columns = [desc[0] for desc in cur.description]
+
+        # Formatar resultado como JSON
+        result = [dict(zip(columns, row)) for row in rows]
+
+        cur.close()
+        return jsonify({"columns": columns, "data": result})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@admin.route('/admin/get_data_gen')
+def get_data_gen():
+    try:
+        query = """
+            SELECT 
+                SUM(CASE WHEN SUBSTRING(Tenis.tamanho, 1, 1) = 'M' THEN 1 ELSE 0 END) AS Masculino,
+                SUM(CASE WHEN SUBSTRING(Tenis.tamanho, 1, 1) = 'F' THEN 1 ELSE 0 END) AS Feminino,
+                SUM(CASE WHEN SUBSTRING(Tenis.tamanho, 1, 1) = 'U' THEN 1 ELSE 0 END) AS Unissex
+            FROM Locacao
+            JOIN Tenis ON Locacao.Tenis = Tenis.id;
+        """
+
+        cur = mysql.connection.cursor()
+        cur.execute(query)
+        row = cur.fetchone()
+        cur.close()
+
+        # Estrutura de resposta no formato JSON
+        data = [
+            {"Genero": "Masculino", "Quantidade": row[0]},
+            {"Genero": "Feminino", "Quantidade": row[1]},
+            {"Genero": "Unissex", "Quantidade": row[2]}
+        ]
+
+        return jsonify({"columns": ["Genero", "Quantidade"], "data": data})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Endpoint para dados de tamanho
+@admin.route('/admin/get_data_tam')
+def get_data_tam():
+    try:
+        query = """
+            SELECT 
+                DATE_FORMAT(Locacao.data_inicio, "%y-%m-%d") AS bdate, 
+                Veiculo.nome AS nome_veiculo,
+                SUM(CASE WHEN CAST(SUBSTRING(Tenis.tamanho, 2) AS UNSIGNED) = 34 THEN 1 ELSE 0 END) AS Tamanho_34,
+                SUM(CASE WHEN CAST(SUBSTRING(Tenis.tamanho, 2) AS UNSIGNED) = 35 THEN 1 ELSE 0 END) AS Tamanho_35,
+                SUM(CASE WHEN CAST(SUBSTRING(Tenis.tamanho, 2) AS UNSIGNED) = 36 THEN 1 ELSE 0 END) AS Tamanho_36,
+                SUM(CASE WHEN CAST(SUBSTRING(Tenis.tamanho, 2) AS UNSIGNED) = 37 THEN 1 ELSE 0 END) AS Tamanho_37,
+                SUM(CASE WHEN CAST(SUBSTRING(Tenis.tamanho, 2) AS UNSIGNED) = 38 THEN 1 ELSE 0 END) AS Tamanho_38,
+                SUM(CASE WHEN CAST(SUBSTRING(Tenis.tamanho, 2) AS UNSIGNED) = 39 THEN 1 ELSE 0 END) AS Tamanho_39,
+                SUM(CASE WHEN CAST(SUBSTRING(Tenis.tamanho, 2) AS UNSIGNED) = 40 THEN 1 ELSE 0 END) AS Tamanho_40,
+                SUM(CASE WHEN CAST(SUBSTRING(Tenis.tamanho, 2) AS UNSIGNED) = 41 THEN 1 ELSE 0 END) AS Tamanho_41,
+                SUM(CASE WHEN CAST(SUBSTRING(Tenis.tamanho, 2) AS UNSIGNED) = 42 THEN 1 ELSE 0 END) AS Tamanho_42,
+                SUM(CASE WHEN CAST(SUBSTRING(Tenis.tamanho, 2) AS UNSIGNED) = 43 THEN 1 ELSE 0 END) AS Tamanho_43,
+                SUM(CASE WHEN CAST(SUBSTRING(Tenis.tamanho, 2) AS UNSIGNED) = 44 THEN 1 ELSE 0 END) AS Tamanho_44,
+                SUM(CASE WHEN CAST(SUBSTRING(Tenis.tamanho, 2) AS UNSIGNED) = 45 THEN 1 ELSE 0 END) AS Tamanho_45
+            FROM Locacao
+            JOIN Veiculo ON Locacao.Veiculo = Veiculo.id
+            JOIN Tenis ON Locacao.Tenis = Tenis.id
+            GROUP BY bdate, nome_veiculo
+            ORDER BY bdate;
+        """
+
+        cur = mysql.connection.cursor()
+        cur.execute(query)
+        rows = cur.fetchall()
+        columns = [desc[0] for desc in cur.description]
+        cur.close()
+
+        # Formatar a resposta em JSON
+        data = [dict(zip(columns, row)) for row in rows]
+
+        return jsonify({"columns": columns, "data": data})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@admin.route('/admin/get_data_modelo')
+def get_data_modelo():
+    try:
+        cur = mysql.connection.cursor()
+
+        # Obter todos os nomes de modelos para gerar colunas dinamicamente
+        cur.execute("SELECT nome FROM Modelo")
+        modelos = [row[0] for row in cur.fetchall()]
+
+        if not modelos:
+            return jsonify({"error": "Nenhum modelo encontrado"}), 404
+
+        # Gerar as colunas SUM(CASE...)
+        colunas_sum_case = ", ".join(
+            [f"SUM(CASE WHEN Modelo.nome = '{modelo}' THEN 1 ELSE 0 END) AS `{modelo}`" for modelo in modelos]
+        )
+
+        # Query final com contagem por modelo
+        query = f"""
+            SELECT 
+                DATE_FORMAT(Locacao.data_inicio, "%y-%m-%d") AS bdate,
+                Veiculo.nome AS nome_veiculo,
+                {colunas_sum_case},
+                COUNT(1) AS total
+            FROM Locacao
+            JOIN Veiculo ON Locacao.Veiculo = Veiculo.id
+            JOIN Tenis ON Locacao.Tenis = Tenis.id
+            JOIN Modelo ON Tenis.Modelo = Modelo.id
+            GROUP BY bdate, nome_veiculo
+            ORDER BY bdate DESC;
+        """
+
+        # Executar a consulta
+        cur.execute(query)
+        rows = cur.fetchall()
+        columns = [desc[0] for desc in cur.description]
+        cur.close()
+
+        # Formatar os dados para JSON
+        data = [dict(zip(columns, row)) for row in rows]
+
+        return jsonify({"columns": columns, "data": data})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@admin.route('/admin/dashboard')
+def dashboard():
+    if 'logged_in' in session and session['logged_in']:
+        return render_template('admin/8-dashboard.html')
+    else:
+        return redirect(url_for('admin.admin_login_page'))
 
 @admin.route('/admin')
 def redirect_admin():
