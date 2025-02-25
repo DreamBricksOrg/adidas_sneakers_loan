@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/default.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}"
           type="image/x-icon">
     <title>Dashboard</title>
@@ -17,13 +16,10 @@
     <script src="{{url_for('static', filename='db_encryption.js')}}"></script>
     <script src="{{url_for('static', filename='js/promoter/16-generate-keys.js')}}"></script>
     <style>
-        .background {
+        .board-container {
             background-image: url("../../static/assets/images/shoes-2.png");
             background-repeat: no-repeat;
             background-size: cover;
-            position: relative;
-            overflow: auto;
-            display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -32,15 +28,12 @@
         .overlay {
             position: absolute;
             inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            padding-top: 36px;
-            display: flex;
-            flex-direction: column;
-            flex: 1;
+            background: rgba(0, 0, 0, 0.8);
         }
 
         .logo {
             padding-left: 57px;
+            padding-top: 60px;
             position: relative;
             z-index: 2;
         }
@@ -101,465 +94,466 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin: 20px auto;
             max-width: 1200px;
+            z-index: 10;
         }
     </style>
 </head>
 <body>
-    <div class="container background">
-        <div class="logo">
-            <logo-component></logo-component>
-        </div>
-        <div class="dashboard-container">
-            <h1 class="text-center">Dashboard de Estatísticas</h1>
-            <hr>
+<div class="board-container">
+    <div class="logo">
+        <logo-component></logo-component>
+    </div>
+    <div class="dashboard-container">
+        <h1 class="text-center">Dashboard de Estatísticas</h1>
+        <hr>
 
-            <!-- Gráficos de Estatísticas Gerais -->
-            <div class="row">
-                <div class="col-md-6">
-                    <h3>Modelos</h3>
-                    <canvas id="modeloChart"></canvas>
-                </div>
-                <div class="col-md-6">
-                    <h3>Status das Locações</h3>
-                    <canvas id="statusChart"></canvas>
-                </div>
+        <!-- Gráficos de Estatísticas Gerais -->
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Modelos</h3>
+                <canvas id="modeloChart"></canvas>
             </div>
-
-            <div class="row mt-4">
-                <div class="col-md-6">
-                    <h3>Distribuição por Gênero</h3>
-                    <canvas id="genChart"></canvas>
-                </div>
-                <div class="col-md-6">
-                    <h3>Tamanhos Disponíveis</h3>
-                    <canvas id="tamChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Gráficos do Relatório Completo -->
-            <div class="row mt-4">
-                <div class="col-md-6">
-                    <h3>Dias da Semana</h3>
-                    <canvas id="weekdayChart"></canvas>
-                </div>
-                <div class="col-md-6">
-                    <h3>Veículos</h3>
-                    <canvas id="vehicleChart"></canvas>
-                </div>
-            </div>
-
-            <div class="row mt-4">
-                <div class="col-md-6">
-                    <h3>Tipo de Treino</h3>
-                    <canvas id="tipoTreinoChart"></canvas>
-                </div>
-                <div class="col-md-6">
-                    <h3>Locais</h3>
-                    <canvas id="localChart"></canvas>
-                </div>
-            </div>
-
-            <div class="row mt-4">
-                <div class="col-md-6">
-                    <h3>Franquias</h3>
-                    <canvas id="franquiaChart"></canvas>
-                </div>
-                <div class="col-md-6">
-                    <h3>Local de Treino</h3>
-                    <canvas id="localTreinoChart"></canvas>
-                </div>
-            </div>
-
-            <div class="row mt-4">
-                <div class="col-md-6">
-                    <h3>Locações por Dia</h3>
-                    <canvas id="dayChart"></canvas>
-                </div>
-                <div class="col-md-6">
-                    <h3>Período do Dia</h3>
-                    <canvas id="dayPeriodChart"></canvas>
-                </div>
+            <div class="col-md-6">
+                <h3>Status das Locações</h3>
+                <canvas id="statusChart"></canvas>
             </div>
         </div>
-        <div class="experience">
-            <div class="buttons">
-                <button-component onclick="backMenu()" text="VOLTAR PARA MENU"></button-component>
-            </div> 
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h3>Distribuição por Gênero</h3>
+                <canvas id="genChart"></canvas>
+            </div>
+            <!--                <div class="col-md-6">-->
+            <!--                    <h3>Tamanhos Disponíveis</h3>-->
+            <!--                    <canvas id="tamChart"></canvas>-->
+            <!--                </div>-->
+            <div class="col-md-6">
+                <h3>Período do Dia</h3>
+                <canvas id="dayPeriodChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Gráficos do Relatório Completo -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h3>Dias da Semana</h3>
+                <canvas id="weekdayChart"></canvas>
+            </div>
+            <div class="col-md-6">
+                <h3>Veículos</h3>
+                <canvas id="vehicleChart"></canvas>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h3>Tipo de Treino</h3>
+                <canvas id="tipoTreinoChart"></canvas>
+            </div>
+            <div class="col-md-6">
+                <h3>Locais</h3>
+                <canvas id="localChart"></canvas>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h3>Franquias</h3>
+                <canvas id="franquiaChart"></canvas>
+            </div>
+            <div class="col-md-6">
+                <h3>Local de Treino</h3>
+                <canvas id="localTreinoChart"></canvas>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h3>Locações por Dia</h3>
+                <canvas id="dayChart"></canvas>
+            </div>
         </div>
     </div>
+    <div class="experience">
+        <div class="buttons">
+            <button-component onclick="backMenu()" text="VOLTAR PARA MENU"></button-component>
+        </div>
+    </div>
+</div>
 
-    <script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>
-    <script src="{{ url_for('static', filename='assets/components/button.js') }}"></script>
-    <script>
-        function backMenu(){
-            window.location.href = "/admin/menu"
-        }
-    </script>
+<script src="{{ url_for('static', filename='assets/components/logo.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/components/button.js') }}"></script>
+<script>
+    function backMenu(){
+        window.location.href = "/admin/menu"
+    }
+</script>
 
-    <script>
-        // Funções para carregar dados dos gráficos
+<script>
+    // Funções para carregar dados dos gráficos
 
-        async function loadSimpleChart(endpoint, chartId, chartType, label, color) {
-            try {
-                const response = await fetch(endpoint);
-                if (!response.ok) {
-                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
-                }
+    async function loadSimpleChart(endpoint, chartId, chartType, label, color) {
+        try {
+            const response = await fetch(endpoint);
+            if (!response.ok) {
+                throw new Error(`Erro ${response.status}: ${response.statusText}`);
+            }
 
-                const result = await response.json();
+            const result = await response.json();
 
-                if (!result.data || result.data.length === 0) {
-                    console.warn(`Nenhum dado recebido de ${endpoint}`);
-                    return;
-                }
+            if (!result.data || result.data.length === 0) {
+                console.warn(`Nenhum dado recebido de ${endpoint}`);
+                return;
+            }
 
-                const columns = result.columns;
-                const data = result.data;
+            const columns = result.columns;
+            const data = result.data;
 
-                // Verificar se há pelo menos duas colunas (rótulo e valor)
-                if (columns.length < 2) {
-                    console.error(`Estrutura inesperada no endpoint ${endpoint}:`, result);
-                    return;
-                }
+            // Verificar se há pelo menos duas colunas (rótulo e valor)
+            if (columns.length < 2) {
+                console.error(`Estrutura inesperada no endpoint ${endpoint}:`, result);
+                return;
+            }
 
-                // Usar a primeira coluna como rótulo e a última como valor
-                const labelColumn = columns[0];  // Exemplo: 'cidade'
-                const valueColumn = columns[columns.length - 1];  // Exemplo: 'num'
+            // Usar a primeira coluna como rótulo e a última como valor
+            const labelColumn = columns[0];  // Exemplo: 'cidade'
+            const valueColumn = columns[columns.length - 1];  // Exemplo: 'num'
 
-                const labels = data.map(item => item[labelColumn]);
-                const values = data.map(item => item[valueColumn]);
+            const labels = data.map(item => item[labelColumn]);
+            const values = data.map(item => item[valueColumn]);
 
-                new Chart(document.getElementById(chartId), {
-                    type: chartType,
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: label,
-                            data: values,
-                            backgroundColor: Array.isArray(color) ? color : [color],
-                            borderColor: color,
-                            borderWidth: 1
-                        }]
+            new Chart(document.getElementById(chartId), {
+                type: chartType,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: values,
+                        backgroundColor: Array.isArray(color) ? color : [color],
+                        borderColor: color,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' }
                     },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: { position: 'top' }
+                    scales: chartType === 'bar' ? {
+                        x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 0 } }
+                    } : {}
+                }
+            });
+
+        } catch (error) {
+            console.error(`Falha ao carregar ${endpoint}:`, error);
+        }
+    }
+
+    async function loadStatusChart(endpoint, chartId) {
+        try {
+            const response = await fetch(endpoint);
+            if (!response.ok) {
+                throw new Error(`Erro ${response.status}: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            if (!result.data || result.data.length === 0) {
+                console.warn(`Nenhum dado recebido de ${endpoint}`);
+                return;
+            }
+
+            const labels = result.data.map(item => item.nome_veiculo);
+            const devolvido = result.data.map(item => item.DEVOLVIDO);
+            const cancelado = result.data.map(item => item.CANCELADO);
+            const vencido = result.data.map(item => item.VENCIDO);
+
+            new Chart(document.getElementById(chartId), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Devolvido',
+                            data: devolvido,
+                            backgroundColor: 'rgba(75, 192, 192, 0.7)' // Verde-água
                         },
-                        scales: chartType === 'bar' ? {
-                            x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 0 } }
-                        } : {}
-                    }
-                });
-
-            } catch (error) {
-                console.error(`Falha ao carregar ${endpoint}:`, error);
-            }
-        }
-
-        async function loadStatusChart(endpoint, chartId) {
-            try {
-                const response = await fetch(endpoint);
-                if (!response.ok) {
-                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
-                }
-
-                const result = await response.json();
-                if (!result.data || result.data.length === 0) {
-                    console.warn(`Nenhum dado recebido de ${endpoint}`);
-                    return;
-                }
-
-                const labels = result.data.map(item => item.nome_veiculo);
-                const devolvido = result.data.map(item => item.DEVOLVIDO);
-                const cancelado = result.data.map(item => item.CANCELADO);
-                const vencido = result.data.map(item => item.VENCIDO);
-
-                new Chart(document.getElementById(chartId), {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: 'Devolvido',
-                                data: devolvido,
-                                backgroundColor: 'rgba(75, 192, 192, 0.7)' // Verde-água
-                            },
-                            {
-                                label: 'Cancelado',
-                                data: cancelado,
-                                backgroundColor: 'rgba(255, 99, 132, 0.7)' // Vermelho
-                            },
-                            {
-                                label: 'Vencido',
-                                data: vencido,
-                                backgroundColor: 'rgba(255, 206, 86, 0.7)' // Amarelo
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: { legend: { position: 'top' } },
-                        scales: {
-                            x: { stacked: true },
-                            y: { stacked: true }
+                        {
+                            label: 'Cancelado',
+                            data: cancelado,
+                            backgroundColor: 'rgba(255, 99, 132, 0.7)' // Vermelho
+                        },
+                        {
+                            label: 'Vencido',
+                            data: vencido,
+                            backgroundColor: 'rgba(255, 206, 86, 0.7)' // Amarelo
                         }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'top' } },
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true }
                     }
-                });
+                }
+            });
 
-            } catch (error) {
-                console.error(`Falha ao carregar ${endpoint}:`, error);
-            }
+        } catch (error) {
+            console.error(`Falha ao carregar ${endpoint}:`, error);
         }
+    }
 
-        async function loadLocalChart(endpoint, chartId) {
-            try {
-                const response = await fetch(endpoint);
-                if (!response.ok) {
-                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
-                }
-
-                const result = await response.json();
-                if (!result.data || result.data.length === 0) {
-                    console.warn(`Nenhum dado recebido de ${endpoint}`);
-                    return;
-                }
-
-                // Rótulos das cidades e estados
-                const labels = result.data.map(item => `${item.cidade} - ${item.estado}`);
-                const cidades = result.data.map(item => item.num);
-                
-                // Contar locações por estado
-                const estados = {};
-                result.data.forEach(item => {
-                    const estado = item.estado;
-                    if (!estados[estado]) {
-                        estados[estado] = 0;
-                    }
-                    estados[estado] += item.num;
-                });
-
-                const estadoLabels = Object.keys(estados);
-                const estadoValues = Object.values(estados);
-
-                new Chart(document.getElementById(chartId), {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: 'Locações por Cidade',
-                                data: cidades,
-                                backgroundColor: 'rgba(75, 192, 192, 0.7)',
-                                borderColor: 'rgba(75, 192, 192, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'Locações por Estado',
-                                data: labels.map(label => {
-                                    const estado = label.split(' - ')[1];
-                                    return estados[estado] || 0;
-                                }),
-                                backgroundColor: 'rgba(153, 102, 255, 0.7)',
-                                borderColor: 'rgba(153, 102, 255, 1)',
-                                borderWidth: 1
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: { legend: { position: 'top' } },
-                        scales: {
-                            x: {
-                                ticks: {
-                                    autoSkip: false,
-                                    maxRotation: 45,
-                                    minRotation: 0
-                                }
-                            },
-                            y: { beginAtZero: true }
-                        }
-                    }
-                });
-
-            } catch (error) {
-                console.error(`Falha ao carregar ${endpoint}:`, error);
+    async function loadLocalChart(endpoint, chartId) {
+        try {
+            const response = await fetch(endpoint);
+            if (!response.ok) {
+                throw new Error(`Erro ${response.status}: ${response.statusText}`);
             }
-        }
 
-        async function loadGenChart(endpoint, chartId) {
-            try {
-                const response = await fetch(endpoint);
-                if (!response.ok) {
-                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
+            const result = await response.json();
+            if (!result.data || result.data.length === 0) {
+                console.warn(`Nenhum dado recebido de ${endpoint}`);
+                return;
+            }
+
+            // Rótulos das cidades e estados
+            const labels = result.data.map(item => `${item.cidade} - ${item.estado}`);
+            const cidades = result.data.map(item => item.num);
+
+            // Contar locações por estado
+            const estados = {};
+            result.data.forEach(item => {
+                const estado = item.estado;
+                if (!estados[estado]) {
+                    estados[estado] = 0;
                 }
+                estados[estado] += item.num;
+            });
 
-                const result = await response.json();
-                if (!result.data || result.data.length === 0) {
-                    console.warn(`Nenhum dado recebido de ${endpoint}`);
-                    return;
-                }
+            const estadoLabels = Object.keys(estados);
+            const estadoValues = Object.values(estados);
 
-                // Extrair dados de gênero e quantidade
-                const labels = result.data.map(item => item.Genero);
-                const values = result.data.map(item => item.Quantidade);
-
-                new Chart(document.getElementById(chartId), {
-                    type: 'pie',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Distribuição por Gênero',
-                            data: values,
-                            backgroundColor: ['#4BC0C0', '#FF6384', '#FFCE56'],  // Azul, Vermelho, Amarelo
-                            borderColor: '#fff',
+            new Chart(document.getElementById(chartId), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Locações por Cidade',
+                            data: cidades,
+                            backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
                             borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: { legend: { position: 'top' } }
-                    }
-                });
-
-            } catch (error) {
-                console.error(`Falha ao carregar ${endpoint}:`, error);
-            }
-        }
-        
-        async function loadTamChart(endpoint, chartId) {
-            try {
-                const response = await fetch(endpoint);
-                if (!response.ok) {
-                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
-                }
-
-                const result = await response.json();
-                if (!result.data || result.data.length === 0) {
-                    console.warn(`Nenhum dado recebido de ${endpoint}`);
-                    return;
-                }
-
-                // Separar datas e tamanhos
-                const labels = result.data.map(item => item.bdate);
-                const datasets = [];
-                const tamanhos = [
-                    { key: 'Tamanho_34', label: '34', color: '#FF6384' },
-                    { key: 'Tamanho_35', label: '35', color: '#36A2EB' },
-                    { key: 'Tamanho_36', label: '36', color: '#FFCE56' },
-                    { key: 'Tamanho_37', label: '37', color: '#4BC0C0' },
-                    { key: 'Tamanho_38', label: '38', color: '#9966FF' },
-                    { key: 'Tamanho_39', label: '39', color: '#FF9F40' },
-                    { key: 'Tamanho_40', label: '40', color: '#8B0000' },
-                    { key: 'Tamanho_41', label: '41', color: '#008000' },
-                    { key: 'Tamanho_42', label: '42', color: '#0000FF' },
-                    { key: 'Tamanho_43', label: '43', color: '#800080' },
-                    { key: 'Tamanho_44', label: '44', color: '#FFD700' },
-                    { key: 'Tamanho_45', label: '45', color: '#FF4500' }
-                ];
-
-                tamanhos.forEach(tam => {
-                    const data = result.data.map(item => item[tam.key] || 0);
-                    datasets.push({
-                        label: `Tamanho ${tam.label}`,
-                        data: data,
-                        borderColor: tam.color,
-                        backgroundColor: tam.color,
-                        fill: false,
-                        tension: 0.1
-                    });
-                });
-
-                new Chart(document.getElementById(chartId), {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: datasets
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: { legend: { position: 'top' } },
-                        scales: {
-                            x: { title: { display: true, text: 'Data' } },
-                            y: { title: { display: true, text: 'Quantidade' }, beginAtZero: true }
+                        },
+                        {
+                            label: 'Locações por Estado',
+                            data: labels.map(label => {
+                                const estado = label.split(' - ')[1];
+                                return estados[estado] || 0;
+                            }),
+                            backgroundColor: 'rgba(153, 102, 255, 0.7)',
+                            borderColor: 'rgba(153, 102, 255, 1)',
+                            borderWidth: 1
                         }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'top' } },
+                    scales: {
+                        x: {
+                            ticks: {
+                                autoSkip: false,
+                                maxRotation: 45,
+                                minRotation: 0
+                            }
+                        },
+                        y: { beginAtZero: true }
                     }
-                });
+                }
+            });
 
-            } catch (error) {
-                console.error(`Falha ao carregar ${endpoint}:`, error);
-            }
+        } catch (error) {
+            console.error(`Falha ao carregar ${endpoint}:`, error);
         }
+    }
 
-        async function loadModelChart(endpoint, chartId) {
-            try {
-                const response = await fetch(endpoint);
-                if (!response.ok) {
-                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
-                }
-
-                const result = await response.json();
-                if (!result.data || result.data.length === 0) {
-                    console.warn(`Nenhum dado recebido de ${endpoint}`);
-                    return;
-                }
-
-                // Pegar as colunas de modelos dinamicamente
-                const labels = result.data.map(item => item.bdate + ' - ' + item.nome_veiculo);
-                const datasets = [];
-                const modelKeys = Object.keys(result.data[0]).filter(key => key.startsWith("IH") || key.startsWith("Adizero") || key.startsWith("Ultraboost"));
-
-                modelKeys.forEach(model => {
-                    datasets.push({
-                        label: model,
-                        data: result.data.map(item => item[model] || 0),
-                        borderColor: '#' + Math.floor(Math.random() * 16777215).toString(16),
-                        backgroundColor: 'transparent',
-                        fill: false,
-                        tension: 0.1
-                    });
-                });
-
-                new Chart(document.getElementById(chartId), {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: datasets
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: { legend: { position: 'top' } },
-                        scales: {
-                            x: { title: { display: true, text: 'Data e Veículo' } },
-                            y: { title: { display: true, text: 'Quantidade' }, beginAtZero: true }
-                        }
-                    }
-                });
-
-            } catch (error) {
-                console.error(`Falha ao carregar ${endpoint}:`, error);
+    async function loadGenChart(endpoint, chartId) {
+        try {
+            const response = await fetch(endpoint);
+            if (!response.ok) {
+                throw new Error(`Erro ${response.status}: ${response.statusText}`);
             }
-}
-        
-        // Carregar gráficos de Estatísticas Gerais
-        loadModelChart('/admin/get_data_modelo', 'modeloChart', 'bar', 'Modelos', 'rgba(75, 192, 192, 0.7)');
-        loadStatusChart('/admin/get_data_status', 'statusChart');
-        loadGenChart('/admin/get_data_gen', 'genChart', 'pie', 'Gênero', ['#4BC0C0', '#FF9F40', '#9966FF']);
-        loadTamChart('/admin/get_data_tam', 'tamChart', 'line', 'Tamanhos', 'rgba(255, 206, 86, 0.7)');
 
-        // Carregar gráficos do Relatório Completo
-        loadSimpleChart('/admin/get_data_weekday', 'weekdayChart', 'bar', 'Dias da Semana', 'rgba(54, 162, 235, 0.7)');
-        loadSimpleChart('/admin/get_data_vehicle', 'vehicleChart', 'pie', 'Veículos', ['#FF6384', '#36A2EB', '#FFCE56']);
-        loadSimpleChart('/admin/get_data_tipo_treino', 'tipoTreinoChart', 'pie', 'Tipo de Treino', ['#FF6384', '#4BC0C0', '#FFCE56']);
-        loadLocalChart('/admin/get_data_local', 'localChart', 'bar', 'Locais', 'rgba(75, 192, 192, 0.7)');
-        loadSimpleChart('/admin/get_data_franquia', 'franquiaChart', 'pie', 'Franquias', ['#36A2EB', '#FF6384', '#FFCE56']);
-        loadSimpleChart('/admin/get_data_local_treino', 'localTreinoChart', 'pie', 'Local de Treino', ['#FF6384', '#36A2EB', '#FFCE56']);
-        loadSimpleChart('/admin/get_data_day', 'dayChart', 'bar', 'Locações por Dia', 'rgba(153, 102, 255, 0.7)');
-        loadSimpleChart('/admin/get_data_day_period', 'dayPeriodChart', 'doughnut', 'Período do Dia', ['#FF6384', '#4BC0C0', '#FFCE56']);
+            const result = await response.json();
+            if (!result.data || result.data.length === 0) {
+                console.warn(`Nenhum dado recebido de ${endpoint}`);
+                return;
+            }
 
-        // Ajustar tamanho para rolagem horizontal
-        document.getElementById('dayChart').parentElement.style.overflowX = 'auto';
-        document.getElementById('dayChart').style.width = '1500px';
-    </script>
+            // Extrair dados de gênero e quantidade
+            const labels = result.data.map(item => item.Genero);
+            const values = result.data.map(item => item.Quantidade);
+
+            new Chart(document.getElementById(chartId), {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Distribuição por Gênero',
+                        data: values,
+                        backgroundColor: ['#4BC0C0', '#FF6384', '#FFCE56'],  // Azul, Vermelho, Amarelo
+                        borderColor: '#fff',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'top' } }
+                }
+            });
+
+        } catch (error) {
+            console.error(`Falha ao carregar ${endpoint}:`, error);
+        }
+    }
+
+    async function loadTamChart(endpoint, chartId) {
+        try {
+            const response = await fetch(endpoint);
+            if (!response.ok) {
+                throw new Error(`Erro ${response.status}: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            if (!result.data || result.data.length === 0) {
+                console.warn(`Nenhum dado recebido de ${endpoint}`);
+                return;
+            }
+
+            // Separar datas e tamanhos
+            const labels = result.data.map(item => item.bdate);
+            const datasets = [];
+            const tamanhos = [
+                { key: 'Tamanho_34', label: '34', color: '#FF6384' },
+                { key: 'Tamanho_35', label: '35', color: '#36A2EB' },
+                { key: 'Tamanho_36', label: '36', color: '#FFCE56' },
+                { key: 'Tamanho_37', label: '37', color: '#4BC0C0' },
+                { key: 'Tamanho_38', label: '38', color: '#9966FF' },
+                { key: 'Tamanho_39', label: '39', color: '#FF9F40' },
+                { key: 'Tamanho_40', label: '40', color: '#8B0000' },
+                { key: 'Tamanho_41', label: '41', color: '#008000' },
+                { key: 'Tamanho_42', label: '42', color: '#0000FF' },
+                { key: 'Tamanho_43', label: '43', color: '#800080' },
+                { key: 'Tamanho_44', label: '44', color: '#FFD700' },
+                { key: 'Tamanho_45', label: '45', color: '#FF4500' }
+            ];
+
+            tamanhos.forEach(tam => {
+                const data = result.data.map(item => item[tam.key] || 0);
+                datasets.push({
+                    label: `Tamanho ${tam.label}`,
+                    data: data,
+                    borderColor: tam.color,
+                    backgroundColor: tam.color,
+                    fill: false,
+                    tension: 0.1
+                });
+            });
+
+            new Chart(document.getElementById(chartId), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'top' } },
+                    scales: {
+                        x: { title: { display: true, text: 'Data' } },
+                        y: { title: { display: true, text: 'Quantidade' }, beginAtZero: true }
+                    }
+                }
+            });
+
+        } catch (error) {
+            console.error(`Falha ao carregar ${endpoint}:`, error);
+        }
+    }
+
+    async function loadModelChart(endpoint, chartId) {
+        try {
+            const response = await fetch(endpoint);
+            if (!response.ok) {
+                throw new Error(`Erro ${response.status}: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            if (!result.data || result.data.length === 0) {
+                console.warn(`Nenhum dado recebido de ${endpoint}`);
+                return;
+            }
+
+            // Pegar as colunas de modelos dinamicamente
+            const labels = result.data.map(item => item.bdate + ' - ' + item.nome_veiculo);
+            const datasets = [];
+            const modelKeys = Object.keys(result.data[0]).filter(key => key.startsWith("IH") || key.startsWith("Adizero") || key.startsWith("Ultraboost"));
+
+            modelKeys.forEach(model => {
+                datasets.push({
+                    label: model,
+                    data: result.data.map(item => item[model] || 0),
+                    borderColor: '#' + Math.floor(Math.random() * 16777215).toString(16),
+                    backgroundColor: 'transparent',
+                    fill: false,
+                    tension: 0.1
+                });
+            });
+
+            new Chart(document.getElementById(chartId), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'top' } },
+                    scales: {
+                        x: { title: { display: true, text: 'Data e Veículo' } },
+                        y: { title: { display: true, text: 'Quantidade' }, beginAtZero: true }
+                    }
+                }
+            });
+
+        } catch (error) {
+            console.error(`Falha ao carregar ${endpoint}:`, error);
+        }
+    }
+
+    // Carregar gráficos de Estatísticas Gerais
+    loadModelChart('/admin/get_data_modelo', 'modeloChart', 'bar', 'Modelos', 'rgba(75, 192, 192, 0.7)');
+    loadStatusChart('/admin/get_data_status', 'statusChart');
+    loadGenChart('/admin/get_data_gen', 'genChart', 'pie', 'Gênero', ['#4BC0C0', '#FF9F40', '#9966FF']);
+    loadTamChart('/admin/get_data_tam', 'tamChart', 'line', 'Tamanhos', 'rgba(255, 206, 86, 0.7)');
+
+    // Carregar gráficos do Relatório Completo
+    loadSimpleChart('/admin/get_data_weekday', 'weekdayChart', 'bar', 'Dias da Semana', 'rgba(54, 162, 235, 0.7)');
+    loadSimpleChart('/admin/get_data_vehicle', 'vehicleChart', 'pie', 'Veículos', ['#FF6384', '#36A2EB', '#FFCE56']);
+    loadSimpleChart('/admin/get_data_tipo_treino', 'tipoTreinoChart', 'pie', 'Tipo de Treino', ['#FF6384', '#4BC0C0', '#FFCE56']);
+    loadLocalChart('/admin/get_data_local', 'localChart', 'bar', 'Locais', 'rgba(75, 192, 192, 0.7)');
+    loadSimpleChart('/admin/get_data_franquia', 'franquiaChart', 'pie', 'Franquias', ['#36A2EB', '#FF6384', '#FFCE56']);
+    loadSimpleChart('/admin/get_data_local_treino', 'localTreinoChart', 'pie', 'Local de Treino', ['#FF6384', '#36A2EB', '#FFCE56']);
+    loadSimpleChart('/admin/get_data_day', 'dayChart', 'bar', 'Locações por Dia', 'rgba(153, 102, 255, 0.7)');
+    loadSimpleChart('/admin/get_data_day_period', 'dayPeriodChart', 'doughnut', 'Período do Dia', ['#FF6384', '#4BC0C0', '#FFCE56']);
+
+    // Ajustar tamanho para rolagem horizontal
+    document.getElementById('dayChart').parentElement.style.overflowX = 'auto';
+    document.getElementById('dayChart').style.width = '1500px';
+</script>
 </body>
 </html>
