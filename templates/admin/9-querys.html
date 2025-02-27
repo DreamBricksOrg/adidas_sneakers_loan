@@ -169,6 +169,10 @@
                 <span class="tab-button" onclick="loadData('franquia', this)">Franquia</span>
                 <span class="tab-button" onclick="loadData('day', this)">Dia</span>
                 <span class="tab-button" onclick="loadData('day_period', this)">Período do Dia</span>
+                <span class="tab-button" onclick="loadData('models_per_day', this)">Modelos por Dia</span>
+                <span class="tab-button" onclick="loadData('status_per_day', this)">Status por Dia</span>
+                <span class="tab-button" onclick="loadData('gen_per_day', this)">Genero por Dia</span>
+                <span class="tab-button" onclick="loadData('num_per_day', this)">Tamanho por Dia</span>
                 <span class="tab-button" onclick="loadData('all', this)">Todos os Dados</span>
             </div>
 
@@ -276,7 +280,7 @@
     }
 
     async function exportAllData() {
-        const categories = ["weekday", "vehicle", "tipo_treino", "local", "local_treino", "franquia", "day", "day_period", "all"];
+        const categories = ["weekday", "vehicle", "tipo_treino", "local", "local_treino", "franquia", "day", "day_period","models_per_day","status_per_day","gen_per_day","num_per_day", "all"];
         let workbook = XLSX.utils.book_new();
 
         for (let category of categories) {

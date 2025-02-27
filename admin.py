@@ -71,14 +71,12 @@ def query_page():
         return redirect(url_for('admin.admin_login_page'))
 
 
-@admin.route('/admin/statistics/total', methods=['GET', 'POST'])
-def statistics_page():
+@admin.route('/admin/get_data_models_per_day', methods=['GET', 'POST'])
+def get_data_models_per_day():
     cur = mysql.connection.cursor()
 
-    # Ajusta o limite do GROUP_CONCAT para evitar truncamentos
     cur.execute("SET SESSION group_concat_max_len = 10000;")
 
-    # Gerar dinamicamente a lista de colunas SUM(CASE WHEN ...)
     cur.execute("""
         SELECT GROUP_CONCAT(
             CONCAT(
@@ -94,13 +92,12 @@ def statistics_page():
     if not colunas_sum_case:
         colunas_sum_case = "0 AS `No Data`"  # Evita erro caso não haja modelos
 
-    # Construir query final dinamicamente
     sql = f"""
         SELECT 
             DATE_FORMAT(Locacao.data_inicio, "%y-%m-%d") AS bdate, 
             Veiculo.nome AS nome_veiculo, 
             {colunas_sum_case}, 
-            COUNT(1) AS total
+            COUNT(1) AS num
         FROM 
             Locacao
         JOIN 
@@ -115,46 +112,19 @@ def statistics_page():
             DATE_FORMAT(Locacao.data_inicio, "%y-%m-%d") DESC, Veiculo.nome DESC;
     """
 
-    # Executar a query dinâmica
-    cur.execute(sql)
-    rentals = cur.fetchall()
-    fieldnames = [i[0] for i in cur.description]  # Obter os nomes das colunas dinamicamente
-    if request.method == 'POST':
-        now = datetime.now().strftime('%Y-%m-%d')
-        filename = f'{now}_estatisticas_modelo.xlsx'
-
-        df = pd.DataFrame(rentals, columns=fieldnames)
-
-        # Converter a data para o formato dd/mm/aaaa
-        if 'bdate' in df.columns:
-            df['bdate'] = pd.to_datetime(df['bdate'], format='%y-%m-%d').dt.strftime('%d/%m/%Y')
-
-        # Criando um arquivo Excel na memória
-        output = BytesIO()
-        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            df.to_excel(writer, index=False, sheet_name="Estatísticas Totais")
-        output.seek(0)
-
-        cur.close()
-        return send_file(output, download_name=filename, as_attachment=True,
-                         mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-
-    cur.close()
-    return render_template('admin/3-statistics-total.html', rentals=rentals, fieldnames=fieldnames)
+    return jsonify(fetch_data(sql))
 
 
-@admin.route('/admin/statistics/status', methods=['GET', 'POST'])
-def statistics_status_page():
-    cur = mysql.connection.cursor()
-    cur.execute(
-        """
+@admin.route('/admin/get_data_status_per_day', methods=['GET', 'POST'])
+def get_data_status_per_day():
+    sql = """
         SELECT 
             date_format(Locacao.data_inicio, "%y-%m-%d") AS bdate, 
             Veiculo.nome AS nome_veiculo,
             SUM(CASE WHEN Locacao.status = 'DEVOLVIDO' THEN 1 ELSE 0 END) AS 'DEVOLVIDO',
             SUM(CASE WHEN Locacao.status = 'CANCELADO' THEN 1 ELSE 0 END) AS 'CANCELADO',
             SUM(CASE WHEN Locacao.status = 'VENCIDO' THEN 1 ELSE 0 END) AS 'VENCIDO',
-            COUNT(1) AS total
+            COUNT(1) AS num
         FROM 
             Locacao
         JOIN 
@@ -164,39 +134,13 @@ def statistics_status_page():
         ORDER BY 
             date_format(Locacao.data_inicio, "%y-%m-%d") DESC, Veiculo.nome DESC;
         """
-    )
 
-    rentals = cur.fetchall()
-    fieldnames = [i[0] for i in cur.description]
-
-    if request.method == 'POST':
-        now = datetime.now().strftime('%Y-%m-%d')
-        filename = f'{now}_estatisticas_status.xlsx'
-
-        df = pd.DataFrame(rentals, columns=fieldnames)
-
-        # Converter a data para o formato dd/mm/aaaa
-        if 'bdate' in df.columns:
-            df['bdate'] = pd.to_datetime(df['bdate'], format='%y-%m-%d').dt.strftime('%d/%m/%Y')
-
-        output = BytesIO()
-        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            df.to_excel(writer, index=False, sheet_name="Estatísticas Status")
-        output.seek(0)
-
-        cur.close()
-        return send_file(output, download_name=filename, as_attachment=True, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-
-    cur.close()
-    return render_template('admin/3-statistics-status.html', rentals=rentals)
+    return jsonify(fetch_data(sql))
 
 
-
-@admin.route('/admin/statistics/gen', methods=['GET', 'POST'])
-def statistics_gen_page():
-    cur = mysql.connection.cursor()
-    cur.execute(
-        """
+@admin.route('/admin/get_data_gen_per_day', methods=['GET', 'POST'])
+def get_data_gen_per_day():
+    sql = """
         SELECT 
             date_format(Locacao.data_inicio, "%y-%m-%d") AS bdate, 
             Veiculo.nome AS nome_veiculo,
@@ -215,38 +159,13 @@ def statistics_gen_page():
         ORDER BY 
             date_format(Locacao.data_inicio, "%y-%m-%d") DESC, Veiculo.nome DESC;
         """
-    )
 
-    rentals = cur.fetchall()
-    fieldnames = [i[0] for i in cur.description]
-
-    if request.method == 'POST':
-        now = datetime.now().strftime('%Y-%m-%d')
-        filename = f'{now}_estatisticas_gen.xlsx'
-
-        df = pd.DataFrame(rentals, columns=fieldnames)
-
-        # Converter a data para o formato dd/mm/aaaa
-        if 'bdate' in df.columns:
-            df['bdate'] = pd.to_datetime(df['bdate'], format='%y-%m-%d').dt.strftime('%d/%m/%Y')
-
-        output = BytesIO()
-        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            df.to_excel(writer, index=False, sheet_name="Estatísticas Gen")
-        output.seek(0)
-
-        cur.close()
-        return send_file(output, download_name=filename, as_attachment=True, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-
-    cur.close()
-    return render_template('admin/3-statistics-gen.html', rentals=rentals)
+    return jsonify(fetch_data(sql))
 
 
-@admin.route('/admin/statistics/num', methods=['GET', 'POST'])
-def statistics_num_page():
-    cur = mysql.connection.cursor()
-    cur.execute(
-        """
+@admin.route('/admin/get_data_num_per_day', methods=['GET', 'POST'])
+def get_data_num_per_day():
+    sql = """
         SELECT 
             date_format(Locacao.data_inicio, "%y-%m-%d") AS bdate, 
             Veiculo.nome AS nome_veiculo,
@@ -274,31 +193,8 @@ def statistics_num_page():
         ORDER BY 
             date_format(Locacao.data_inicio, "%y-%m-%d") DESC, Veiculo.nome DESC;
         """
-    )
 
-    rentals = cur.fetchall()
-    fieldnames = [i[0] for i in cur.description]
-
-    if request.method == 'POST':
-        now = datetime.now().strftime('%Y-%m-%d')
-        filename = f'{now}_estatisticas_num.xlsx'
-
-        df = pd.DataFrame(rentals, columns=fieldnames)
-
-        # Converter a data para o formato dd/mm/aaaa
-        if 'bdate' in df.columns:
-            df['bdate'] = pd.to_datetime(df['bdate'], format='%y-%m-%d').dt.strftime('%d/%m/%Y')
-
-        output = BytesIO()
-        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            df.to_excel(writer, index=False, sheet_name="Estatísticas Num")
-        output.seek(0)
-
-        cur.close()
-        return send_file(output, download_name=filename, as_attachment=True, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-
-    cur.close()
-    return render_template('admin/3-statistics-num.html', rentals=rentals)
+    return jsonify(fetch_data(sql))
 
 
 @admin.route('/admin/generatekeys', methods=['GET'])
@@ -446,6 +342,7 @@ def download_blob():
     else:
         return json.dumps({"error": "Dados não encontrados para o usuário fornecido."}), 404
 
+
 @admin.route('/create_sneaker_model', methods=['POST'])
 def create_sneaker_model():
     data = request.json
@@ -483,7 +380,8 @@ def create_sneaker_model():
 
         mysql.connection.commit()
 
-        return jsonify({"message": "Modelo e Tênis criados com sucesso", "modelo_id": modelo_id, "estande_id": estande_id})
+        return jsonify(
+            {"message": "Modelo e Tênis criados com sucesso", "modelo_id": modelo_id, "estande_id": estande_id})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -503,7 +401,6 @@ def fetch_data(query):
 
     cur.close()
     return {"columns": column_names, "data": data}
-
 
 
 @admin.route("/admin/get_data_weekday", methods=["GET"])
@@ -624,6 +521,7 @@ def get_data_by_day_period():
     """
     return jsonify(fetch_data(query))
 
+
 @admin.route("/admin/get_data_all", methods=["GET"])
 def get_data_all():
     query = """
@@ -659,6 +557,7 @@ def get_data_all():
         LEFT JOIN TipoTreino TT ON L.TipoTreino = TT.id;
     """
     return jsonify(fetch_data(query))
+
 
 @admin.route('/admin/get_data_status')
 def get_data_status():
@@ -720,6 +619,7 @@ def get_data_gen():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 # Endpoint para dados de tamanho
 @admin.route('/admin/get_data_tam')
 def get_data_tam():
@@ -760,6 +660,7 @@ def get_data_tam():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 @admin.route('/admin/get_data_modelo')
 def get_data_modelo():
@@ -814,6 +715,7 @@ def dashboard():
         return render_template('admin/8-dashboard.html')
     else:
         return redirect(url_for('admin.admin_login_page'))
+
 
 @admin.route('/admin')
 def redirect_admin():
