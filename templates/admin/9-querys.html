@@ -25,6 +25,13 @@
             background: rgba(0, 0, 0, 0.8);
         }
 
+        #year{
+            z-index:2;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+
         h1 {
             color:white;
             margin-bottom: 20px;
@@ -156,24 +163,33 @@
 <div class="container">
     <div class="overlay"></div>
 
+    <select name="year" id="year"
+            onchange="loadData(document.querySelector('.tab-button.active').dataset.type, document.querySelector('.tab-button.active'))">
+        <option value="">Todos</option>
+        <option value="2025">2025</option>
+        <option value="2024">2024</option>
+    </select>
+
     <div class="table-container">
         <h1>RELATÓRIOS DE LOCAÇÃO</h1>
 
         <div class="options">
             <div id="menu">
-                <span class="tab-button active" onclick="loadData('weekday', this)">Dia da Semana</span>
-                <span class="tab-button" onclick="loadData('vehicle', this)">Veículo</span>
-                <span class="tab-button" onclick="loadData('tipo_treino', this)">Tipo de Treino</span>
-                <span class="tab-button" onclick="loadData('local', this)">Local</span>
-                <span class="tab-button" onclick="loadData('local_treino', this)">Local Treino</span>
-                <span class="tab-button" onclick="loadData('franquia', this)">Franquia</span>
-                <span class="tab-button" onclick="loadData('day', this)">Dia</span>
-                <span class="tab-button" onclick="loadData('day_period', this)">Período do Dia</span>
-                <span class="tab-button" onclick="loadData('models_per_day', this)">Modelos por Dia</span>
-                <span class="tab-button" onclick="loadData('status_per_day', this)">Status por Dia</span>
-                <span class="tab-button" onclick="loadData('gen_per_day', this)">Genero por Dia</span>
-                <span class="tab-button" onclick="loadData('num_per_day', this)">Tamanho por Dia</span>
-                <span class="tab-button" onclick="loadData('all', this)">Todos os Dados</span>
+                <span class="tab-button active" data-type="weekday" onclick="loadData('weekday', this)">Dia da Semana</span>
+                <span class="tab-button" data-type="vehicle" onclick="loadData('vehicle', this)">Veículo</span>
+                <span class="tab-button" data-type="tipo_treino" onclick="loadData('tipo_treino', this)">Tipo de Treino</span>
+                <span class="tab-button" data-type="local" onclick="loadData('local', this)">Local</span>
+                <span class="tab-button" data-type="local_treino" onclick="loadData('local_treino', this)">Local Treino</span>
+                <span class="tab-button" data-type="franquia" onclick="loadData('franquia', this)">Franquia</span>
+                <span class="tab-button" data-type="day" onclick="loadData('day', this)">Dia</span>
+                <span class="tab-button" data-type="day_period" onclick="loadData('day_period', this)">Período do Dia</span>
+                <span class="tab-button" data-type="models_per_day" onclick="loadData('models_per_day', this)">Modelos por Dia</span>
+                <span class="tab-button" data-type="status_per_day" onclick="loadData('status_per_day', this)">Status por Dia</span>
+                <span class="tab-button" data-type="gen_per_day"
+                      onclick="loadData('gen_per_day', this)">Gênero por Dia</span>
+                <span class="tab-button" data-type="num_per_day"
+                      onclick="loadData('num_per_day', this)">Tamanho por Dia</span>
+                <span class="tab-button" data-type="all" onclick="loadData('all', this)">Todos os Dados</span>
             </div>
 
             <input id="search-input" type="text" placeholder="Buscar..." oninput="searchTable()">
@@ -252,7 +268,17 @@
     });
 
     function loadData(type, button) {
-        fetch(`${baseURL}/admin/get_data_${type}`)
+        // Obtém o valor do ano selecionado no <select>
+        const year = document.getElementById("year").value;
+
+        // Monta a URL com o filtro do ano (se um ano for selecionado)
+        let url = `${baseURL}/admin/get_data_${type}`;
+        if (year) {
+            url += `?ano=${year}`;
+        }
+
+        // Faz a requisição com o filtro do ano
+        fetch(url)
             .then(response => response.json())
             .then(data => {
             table.setColumns(data.columns.map(col => ({ title: col.toUpperCase(), field: col })));
