@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Lista de Tênis Disponíveis</title>
+    <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/promoter/4-available-shoes.css') }}"
+    />
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/default.css') }}">
+
+    <link
+            rel="shortcut icon"
+            href="{{ url_for('static', filename='assets/images/logos/adidas.png') }}"
+            type="image/x-icon"
+    />
+
+    <style>
+        .container {
+            background-image: url("{{ url_for('static', filename='assets/images/shoes-2.png') }}");
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        table thead th,
+        tbody td {
+            border: 1px solid white;
+        }
+
+        h1,
+        form {
+            position: relative;
+            z-index: 2;
+        }
+
+        form {
+            width: 100%;
+            padding: 36px 27px 46px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+
+        button{
+            width:100%;
+            color:black;
+            border:1px solid white;
+            border-radius:0;
+            padding:28px 27px 22px;
+            text-align:left;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            position:relative;
+            top:-5px;
+            left:-5px;
+            font-weight:500;
+            background:white;
+            font-family: "ITCF", sans-serif;
+            font-weight: 600;
+            font-size:15px;
+            letter-spacing:2px;
+            text-transform:uppercase;
+
+        }
+
+        .btn-container{
+            border:1px solid white;
+        }
+
+        .corrigir{
+            width: 80px;
+        }
+
+        .dropbox {
+            margin: 2rem;
+        }
+
+        .form-item {
+            background: var(--white);
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border-radius: 7px;
+        }
+
+        .form-item select {
+            background: transparent;
+            color: var(--white);
+            font-size: 14px;
+            font-family: "Roboto", sans-serif;
+        }
+
+        .tenis-table-form {
+            padding-top: 0px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="overlay"></div>
+
+    <h1>Lista de Tênis Disponíveis</h1>
+
+    <form action="/admin/stock" method="GET">
+        <div class="dropbox">
+            <select name="stand" id="estandes" class="form-item" onchange="redirectToStockPage()">
+                <option value="">Selecione o Estande</option>
+                {% for stand in stands %}
+                <option value="{{ stand[0] }}" {% if stand[0] == selected_stand %} selected {% endif %}>
+                    {{ stand[1] }}
+                </option>
+                {% endfor %}
+            </select>
+            <br>
+            <select name="model" id="modelos" class="form-item" onchange="redirectToStockPage()">
+                <option value="">Selecione o Modelo</option>
+                {% for model in models %}
+                <option value="{{ model[0] }}" {% if model[0]== selected_model %} selected {% endif %}>{{ model[1] }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+
+    <form action="/admin/stock" method="POST" class="tenis-table-form">
+        <input type="hidden" name="estande" value="{{ selected_stand }}">
+        <table class="tenis-table">
+            <thead>
+            <tr>
+                <th>Tamanho</th>
+                <th>Quantidade</th>
+                <th>Corrigir</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for tenis in tenis_disponiveis %}
+            <tr>
+                <td>{{ tenis[1] }}</td>
+                <td>{{ tenis[2] }}
+                    <input
+                            type="hidden"
+                            name="quantidade_antiga_{{ loop.index }}"
+                            value="{{ tenis[2] }}"
+                    />
+                </td>
+                <td>
+                    <input
+                            class="corrigir"
+                            type="number"
+                            name="corrigir_quantidade_{{ loop.index }}"
+                            value=""
+                            min="0"
+                    />
+                    <input
+                            type="hidden"
+                            name="tenis_id_{{ loop.index }}"
+                            value="{{ tenis[0] }}"
+                    />
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="btn-container">
+            <button type="submit">CONFIRMAR</button>
+        </div>
+
+    </form>
+
+
+    <script>
+        function redirectToStockPage() {
+            var selectModelElement = document.getElementById('modelos');
+            var selectStandElement = document.getElementById('estandes');
+
+            var selectedModelValue = selectModelElement.value;
+            var selectedStandValue = selectStandElement.value;
+
+            if (selectedModelValue && selectedStandValue) {
+                var url = '/admin/stock/' + selectedModelValue + '/' + selectedStandValue;
+                window.location.href = url;
+            }
+        }
+
+
+
+        var url = window.location.pathname;
+        var parts = url.split('/');
+        var selectedModelId = parts[parts.length - 2];
+        var selectedStandId = parts[parts.length - 1];
+
+        // Define o valor selecionado no dropdown
+        document.getElementById("modelos").value = selectedModelId;        
+        document.getElementById("estandes").value = selectedStandId;
+    </script>
+</div>
+</body>
+</html>

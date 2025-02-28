@@ -1,78 +1,68 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Menu - Admin</title>
     <link
-            rel="stylesheet"
-            href="{{ url_for('static', filename='css/promoter/6-promoter-menu.css') }}"
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/promoter/6-promoter-menu.css') }}"
     />
-    <link rel="stylesheet" href="../../static/css/default.css"/>
+    <link rel="stylesheet" href="../../static/css/default.css" />
 
     <link
-            rel="shortcut icon"
-            href="../../static/assets/images/logos/adidas.png"
-            type="image/x-icon"
+      rel="shortcut icon"
+      href="../../static/assets/images/logos/adidas.png"
+      type="image/x-icon"
     />
 
     <style>
-        .container {
-            background-image: url("../../static/assets/images/shoes-2.png");
-            background-repeat: no-repeat;
-            background-size: cover;
-            position: relative;
-            overflow: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
+      .container {
+        background-image: url('../../static/assets/images/shoes-2.png');
+        background-repeat: no-repeat;
+        background-size: cover;
+        position: relative;
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
 
-        .overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.8);
-        }
+      .overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+      }
 
-        h1,
-        button {
-            position: relative;
-            z-index: 2;
-        }
-        h1 {
-            font-size: 68px;
-        }
-
+      h1,
+      button {
+        position: relative;
+        z-index: 2;
+      }
+      h1 {
+        font-size: 68px;
+      }
     </style>
-</head>
-<body>
-<div class="container">
-    <div class="overlay"></div>
+  </head>
+  <body>
+    <div class="container">
+      <div class="overlay"></div>
 
-    <h1>Menu</h1>
+      <h1>Menu</h1>
 
-    <a href="{{ url_for('admin.query_page') }}"
-    >
+      <a href="{{ url_for('admin.query_page') }}">
         <button class="menu-button">Estatísticas</button>
-    </a
-    >
-    <a href="{{ url_for('admin.dashboard_page') }}"
-    >
+      </a>
+      <a href="{{ url_for('admin.dashboard_page') }}">
         <button class="menu-button">Dashboard</button>
-    </a
-    >
-    <a href="{{ url_for('admin.admin_menu_admin_page')}}"
-    >
+      </a>
+      <a href="{{ url_for('admin.admin_menu_admin_page')}}">
         <button class="menu-button">Admin</button>
-    </a
-    >
-    <a href="{{ url_for('admin.stock_page')}}"
-    >
+      </a>
+      <a href="{{ url_for('admin.stock_page', model=1, stand=1) }}">
         <button class="menu-button">Estoque</button>
-    </a
-    >
-
-</div>
-</body>
+      </a>
+    </div>
+  </body>
 </html>

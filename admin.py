@@ -49,12 +49,53 @@ def admin_menu_admin_page():
         return redirect(url_for('admin.admin_login_page'))
 
 
-@admin.route('/admin/stock')
-def stock_page():
-    if 'logged_in' in session and session['logged_in']:
-        return render_template('promoter/4-available-shoes.html')
-    else:
-        return redirect(url_for('admin.admin_login_page'))
+@admin.route('/admin/stock/<model>/<stand>', methods=['GET'])
+def stock_page(model, stand):
+    cur = mysql.connection.cursor()
+    
+    cur.execute("SELECT * FROM Modelo")
+    models = cur.fetchall()
+
+    cur.execute("SELECT * FROM Estande")
+    stands = cur.fetchall()
+
+    cur.execute("SELECT id, tamanho, quantidade FROM Tenis WHERE Estande = %s AND Modelo = %s",
+                (stand, model))
+    tenis_disponiveis = cur.fetchall()
+    
+    cur.close()
+
+    return render_template(
+        'admin/10-available-shoes.html', 
+        tenis_disponiveis=tenis_disponiveis, 
+        models=models, 
+        stands=stands
+    )
+
+@admin.route('/admin/stock', methods=['POST'])
+def stock_page_post():
+    if request.method == 'POST':
+        cur = mysql.connection.cursor()
+        for i in range(1, len(request.form) // 3 + 1):
+            corrigir = request.form.get(f'corrigir_quantidade_{i}', '').strip()
+            tenis_id = request.form.get(f'tenis_id_{i}')
+            estande = request.form.get(f'estande_{i}')
+            quantidade_antiga = request.form.get(f'quantidade_antiga_{i}')
+            now = datetime.now()
+            change_date = now.strftime('%Y-%m-%d %H:%M:%S')
+
+            if corrigir:
+                cur.execute("UPDATE Tenis SET quantidade = %s WHERE id = %s", (corrigir, tenis_id))
+                mysql.connection.commit()
+
+                # cur.execute(
+                #     "INSERT INTO LogTenis (Promotor, Veiculo, Tenis, quantidadeOriginal, quantidadeNova, data) VALUES (%s, %s, %s, %s, %s, %s)",
+                #     (promoter_id, veiculo_id, tenis_id, quantidade_antiga, corrigir, change_date))
+                # mysql.connection.commit()
+        cur.close()
+        return redirect(url_for('admin.admin_menu_page'))
+    
+
 
 @admin.route('/admin/dashboard')
 def dashboard_page():
