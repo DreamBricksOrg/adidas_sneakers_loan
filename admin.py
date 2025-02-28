@@ -41,6 +41,7 @@ def admin_menu_page():
     else:
         return redirect(url_for('admin.admin_login_page'))
 
+
 @admin.route('/admin/menu/admin')
 def admin_menu_admin_page():
     if 'logged_in' in session and session['logged_in']:
@@ -56,12 +57,14 @@ def stock_page():
     else:
         return redirect(url_for('admin.admin_login_page'))
 
+
 @admin.route('/admin/dashboard')
 def dashboard_page():
     if 'logged_in' in session and session['logged_in']:
         return render_template('admin/8-dashboard.html')
     else:
         return redirect(url_for('admin.admin_login_page'))
+
 
 @admin.route('/admin/querys')
 def query_page():
@@ -77,21 +80,29 @@ def get_data_models_per_day():
 
     cur.execute("SET SESSION group_concat_max_len = 10000;")
 
-    cur.execute("""
+    ano = request.args.get('ano', type=int)
+    filtro_ano = f"YEAR(Locacao.data_inicio) = {ano}" if ano else "1=1"
+
+    cur.execute(f"""
         SELECT GROUP_CONCAT(
             CONCAT(
                 'SUM(CASE WHEN Modelo.nome = "', nome, '" THEN 1 ELSE 0 END) AS `', REPLACE(nome, '`', ''), '`'
             )
         ) 
         FROM Modelo
+        WHERE id IN (
+            SELECT DISTINCT Modelo.id
+            FROM Locacao
+            JOIN Tenis ON Locacao.Tenis = Tenis.id
+            JOIN Modelo ON Tenis.Modelo = Modelo.id
+            WHERE {filtro_ano}
+        )
     """)
 
     colunas_sum_case = cur.fetchone()[0]
 
     if not colunas_sum_case:
         colunas_sum_case = "0 AS `No Data`"
-
-    ano = request.args.get('ano', type=int)
 
     sql = f"""
         SELECT 
@@ -108,7 +119,7 @@ def get_data_models_per_day():
         JOIN 
             Modelo ON Tenis.Modelo = Modelo.id
         WHERE 
-            {f"YEAR(Locacao.data_inicio) = {ano}" if ano else "1=1"}
+            {filtro_ano}
         GROUP BY 
             DATE_FORMAT(Locacao.data_inicio, "%y-%m-%d"), Veiculo.nome
         ORDER BY 
