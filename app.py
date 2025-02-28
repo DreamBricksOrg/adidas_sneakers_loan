@@ -10,6 +10,8 @@ from user import user
 from promoter import promoter, aumentar_base
 from admin import admin
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+import os
 import random
 
 app = Flask(__name__)
@@ -20,6 +22,8 @@ app.secret_key = 'db_secret'
 # init apps
 mysql = initialize_mysql(app)
 login_manager.init_app(app)
+
+load_dotenv()  # Carrega variáveis do .env
 
 # register blueprints
 app.register_blueprint(auth)
@@ -86,7 +90,10 @@ atexit.register(lambda: scheduler.shutdown())
 
 def main():
     context = ('static/certificate.crt', 'static/privateKey.key')
-    app.run(host='0.0.0.0', ssl_context=context)
+    if os.getenv('LOCAL_SERVER'):
+        app.run(debug=True, host='0.0.0.0', ssl_context=context)
+    else:
+        app.run(host='0.0.0.0', ssl_context=context)
 
 if __name__ == '__main__':
     main()

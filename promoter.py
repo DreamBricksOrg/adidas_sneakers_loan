@@ -2,14 +2,21 @@ import MySQLdb
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, make_response
 from config.database import mysql
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+import os
 import csv
 import random
 
 promoter = Blueprint('promoter', __name__)
-
+load_dotenv()  # Carrega variáveis do .env
 
 @promoter.route('/promoter/start', methods=['GET', 'POST'])
 def promoter_scan_start_page():
+    # Bypass para ambiente local
+    if os.getenv("LOCAL_SERVER"):
+        session['estande'] = 1
+        return redirect(url_for('promoter.promoter_login_page'))
+
     if request.method == 'POST':
         estande = request.form['estande']
         session['estande'] = estande
@@ -20,6 +27,11 @@ def promoter_scan_start_page():
 
 @promoter.route('/promotor/inicio', methods=['GET', 'POST'])
 def promoter_scan_start_page_pt():
+    # Bypass para ambiente local
+    if os.getenv("LOCAL_SERVER"):
+        session['estande'] = 1
+        return redirect(url_for('promoter.promoter_login_page'))
+
     if request.method == 'POST':
         estande = request.form['estande']
         session['estande'] = estande
