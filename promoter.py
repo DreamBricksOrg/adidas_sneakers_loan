@@ -94,30 +94,30 @@ def available_shoes_page(model):
         return redirect(url_for('promoter.error_page'))
 
 
-@promoter.route('/promoter/availableshoes', methods=['POST'])
-def available_shoes_page_post():
-    if request.method == 'POST':
-        promoter_id = session.get('promoter_id')
-        veiculo_id = session.get('veiculo_id')
+# @promoter.route('/promoter/availableshoes', methods=['POST'])
+# def available_shoes_page_post():
+#     if request.method == 'POST':
+#         promoter_id = session.get('promoter_id')
+#         veiculo_id = session.get('veiculo_id')
 
-        cur = mysql.connection.cursor()
-        for i in range(1, len(request.form) // 3 + 1):
-            corrigir = request.form.get(f'corrigir_quantidade_{i}', '').strip()
-            tenis_id = request.form.get(f'tenis_id_{i}')
-            quantidade_antiga = request.form.get(f'quantidade_antiga_{i}')
-            now = datetime.now()
-            change_date = now.strftime('%Y-%m-%d %H:%M:%S')
+#         cur = mysql.connection.cursor()
+#         for i in range(1, len(request.form) // 3 + 1):
+#             corrigir = request.form.get(f'corrigir_quantidade_{i}', '').strip()
+#             tenis_id = request.form.get(f'tenis_id_{i}')
+#             quantidade_antiga = request.form.get(f'quantidade_antiga_{i}')
+#             now = datetime.now()
+#             change_date = now.strftime('%Y-%m-%d %H:%M:%S')
 
-            if corrigir:
-                cur.execute("UPDATE Tenis SET quantidade = %s WHERE id = %s", (corrigir, tenis_id))
-                mysql.connection.commit()
+#             if corrigir:
+#                 cur.execute("UPDATE Tenis SET quantidade = %s WHERE id = %s", (corrigir, tenis_id))
+#                 mysql.connection.commit()
 
-                cur.execute(
-                    "INSERT INTO LogTenis (Promotor, Veiculo, Tenis, quantidadeOriginal, quantidadeNova, data) VALUES (%s, %s, %s, %s, %s, %s)",
-                    (promoter_id, veiculo_id, tenis_id, quantidade_antiga, corrigir, change_date))
-                mysql.connection.commit()
-        cur.close()
-        return redirect(url_for('promoter.promoter_menu_page'))
+#                 cur.execute(
+#                     "INSERT INTO LogTenis (Promotor, Veiculo, Tenis, quantidadeOriginal, quantidadeNova, data) VALUES (%s, %s, %s, %s, %s, %s)",
+#                     (promoter_id, veiculo_id, tenis_id, quantidade_antiga, corrigir, change_date))
+#                 mysql.connection.commit()
+#         cur.close()
+#         return redirect(url_for('promoter.promoter_menu_page'))
 
 
 @promoter.route('/promoter/ready-start')
@@ -748,7 +748,7 @@ def training_type():
             training_type_id = insert_record_name(table_name, column_name, name)
         session['training_type_id'] = training_type_id
         print(f"training_type_id: {session['training_type_id']}")
-        return redirect(url_for('promoter.available_shoes_page', model="1"))
+        return redirect(url_for('promoter.promoter_menu_page'))
     return render_template('promoter/20-training-type.html')
 
 

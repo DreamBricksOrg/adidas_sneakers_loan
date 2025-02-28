@@ -133,48 +133,26 @@
         </div>
     </form>
 
-    <form action="/promoter/availableshoes" method="POST" class="tenis-table-form">
+    <form action="/promoter/menu" method="GET" class="tenis-table-form">
         <table class="tenis-table">
             <thead>
             <tr>
                 <th>Tamanho</th>
                 <th>Quantidade</th>
-                <th>Corrigir</th>
             </tr>
             </thead>
             <tbody>
             {% for tenis in tenis_disponiveis %}
             <tr>
                 <td>{{ tenis[1] }}</td>
-                <td>{{ tenis[2] }}
-                    <input
-                            type="hidden"
-                            name="quantidade_antiga_{{ loop.index }}"
-                            value="{{ tenis[2] }}"
-                    />
-                </td>
-                <td>
-                    <input
-                            class="corrigir"
-                            type="number"
-                            name="corrigir_quantidade_{{ loop.index }}"
-                            value=""
-                            min="0"
-                    />
-                    <input
-                            type="hidden"
-                            name="tenis_id_{{ loop.index }}"
-                            value="{{ tenis[0] }}"
-                    />
-                </td>
+                <td>{{ tenis[2] }}</td>
             </tr>
             {% endfor %}
             </tbody>
         </table>
         <div class="btn-container">
-            <button type="submit">CONFIRMAR</button>
+            <button type="submit">VOLTAR</button>
         </div>
-
     </form>
 
 
