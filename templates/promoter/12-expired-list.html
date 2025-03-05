@@ -111,40 +111,49 @@
     .download-button i {
         margin-right: 5px;
     }
+    .table-container {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        height: 600px;
+        overflow-y: auto;
+    }
 </style>
 <body>
 <div class="container">
     <div class="overlay"></div>
     <h1>Lista de locações</h1>
     <form action="/promoter/rentallistexpired" method="POST">
-        <table class="rental-table">
-            <thead>
-            <tr>
-                <th>Tenis</th>
-                <th>Usuario</th>
-                <th>Promotor</th>
-                <th>Data Inicio</th>
-                <th>Data Fim</th>
-                <th>Status</th>
-                <th>Veiculo</th>
-                <th>Estande</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for rental in rentals %}
-            <tr>
-                <td>{{ rental[1] }}</td>
-                <td>{{ rental[2] }}</td>
-                <td>{{ rental[3] }}</td>
-                <td class="data-formatada">{{ rental[4] }}</td>
-                <td class="data-formatada">{{ rental[5] }}</td>
-                <td style="color: {{ 'red' if rental[6] == 'VENCIDO' }}">{{ rental[6] }}</td>
-                <td>{{ rental[7] }}</td>
-                <td>{{ rental[8] }}</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+        <div class="table-container">
+            <table class="rental-table">
+                <thead>
+                <tr>
+                    <th>Tenis</th>
+                    <th>Usuario</th>
+                    <th>Promotor</th>
+                    <th>Data Inicio</th>
+                    <th>Data Fim</th>
+                    <th>Status</th>
+                    <th>Veiculo</th>
+                    <th>Estande</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for rental in rentals %}
+                <tr>
+                    <td>{{ rental[1] }}</td>
+                    <td>{{ rental[2] }}</td>
+                    <td>{{ rental[3] }}</td>
+                    <td class="data-formatada">{{ rental[4] }}</td>
+                    <td class="data-formatada">{{ rental[5] }}</td>
+                    <td style="color: {{ 'red' if rental[6] == 'VENCIDO' }}">{{ rental[6] }}</td>
+                    <td>{{ rental[7] }}</td>
+                    <td>{{ rental[8] }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
         <div class="btn-container">
             <button type="submit">CONFIRMAR</button>
         </div>

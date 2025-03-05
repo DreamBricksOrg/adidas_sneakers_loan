@@ -1,5 +1,5 @@
 import MySQLdb
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, make_response
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session, make_response, current_app
 from config.database import mysql
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
@@ -9,6 +9,7 @@ import random
 
 promoter = Blueprint('promoter', __name__)
 load_dotenv()  # Carrega variáveis do .env
+
 
 @promoter.route('/promoter/start', methods=['GET', 'POST'])
 def promoter_scan_start_page():
@@ -51,13 +52,33 @@ def promoter_login_page():
         promotor = cur.fetchone()
 
         cur.close()
+        estande = session.get('estande')
 
         if promotor:
             session['logged_in'] = True
             session['promoter_id'] = promotor[0]
-            return redirect(url_for('promoter.promoter_veiculo_page'))
-        else:
-            return redirect(url_for('promoter.promoter_login_page'))
+
+            cur = mysql.connection.cursor()
+            cur.execute(
+                "SELECT id, Estande, Local, LocalTreino, TipoTreino, Veiculo FROM EstandeLLTTTV where Estande = %s",
+                (estande,))
+            result = cur.fetchone()
+            print(result)
+
+            if result:
+                id, estande, local, local_treino, tipo_treino, veiculo = result
+
+                if all(valor not in (None, '') for valor in [id, estande, local, local_treino, tipo_treino, veiculo]):
+                    session['veiculo_id'] = veiculo
+                    session['place_id'] = local
+                    session['training_place_id'] = local_treino
+                    session['training_type_id'] = tipo_treino
+                    cur.close()
+                    return redirect(url_for('promoter.promoter_menu_page'))
+                else:
+                    cur.close()
+                    return redirect(url_for('promoter.promoter_veiculo_page'))
+        return redirect(url_for('promoter.promoter_login_page'))
 
     return render_template('promoter/2-promoter-login.html')
 
@@ -94,32 +115,6 @@ def available_shoes_page(model):
         return redirect(url_for('promoter.error_page'))
 
 
-# @promoter.route('/promoter/availableshoes', methods=['POST'])
-# def available_shoes_page_post():
-#     if request.method == 'POST':
-#         promoter_id = session.get('promoter_id')
-#         veiculo_id = session.get('veiculo_id')
-
-#         cur = mysql.connection.cursor()
-#         for i in range(1, len(request.form) // 3 + 1):
-#             corrigir = request.form.get(f'corrigir_quantidade_{i}', '').strip()
-#             tenis_id = request.form.get(f'tenis_id_{i}')
-#             quantidade_antiga = request.form.get(f'quantidade_antiga_{i}')
-#             now = datetime.now()
-#             change_date = now.strftime('%Y-%m-%d %H:%M:%S')
-
-#             if corrigir:
-#                 cur.execute("UPDATE Tenis SET quantidade = %s WHERE id = %s", (corrigir, tenis_id))
-#                 mysql.connection.commit()
-
-#                 cur.execute(
-#                     "INSERT INTO LogTenis (Promotor, Veiculo, Tenis, quantidadeOriginal, quantidadeNova, data) VALUES (%s, %s, %s, %s, %s, %s)",
-#                     (promoter_id, veiculo_id, tenis_id, quantidade_antiga, corrigir, change_date))
-#                 mysql.connection.commit()
-#         cur.close()
-#         return redirect(url_for('promoter.promoter_menu_page'))
-
-
 @promoter.route('/promoter/ready-start')
 def ready_start_page():
     return render_template('promoter/5-ready-start.html')
@@ -128,7 +123,28 @@ def ready_start_page():
 @promoter.route('/promoter/menu')
 def promoter_menu_page():
     if 'logged_in' in session and session['logged_in'] and session['estande'] and session['promoter_id']:
-        return render_template('promoter/6-promoter-menu.html')
+        veiculo_id = session.get('veiculo_id')
+        estande = session.get('estande')
+        place_id = session.get('place_id')
+        training_place_id = session.get('training_place_id')
+        training_type_id = session.get('training_type_id')
+
+        if None in (veiculo_id, estande, place_id, training_place_id, training_type_id):
+            return "Erro: Um ou mais valores na sessão estão ausentes.", 400
+
+        try:
+            cursor = mysql.connection.cursor()
+            query = """
+                UPDATE EstandeLLTTTV 
+                SET Local = %s, LocalTreino = %s, TipoTreino = %s, Veiculo = %s
+                WHERE Estande = %s
+                """
+            cursor.execute(query, (place_id, training_place_id, training_type_id, veiculo_id, estande))
+            mysql.connection.commit()
+            cursor.close()
+            return render_template('promoter/6-promoter-menu.html')
+        except Exception as e:
+            return f"Erro ao inserir no banco de dados: {str(e)}", 500
     else:
         return redirect(url_for('promoter.error_page'))
 
@@ -404,7 +420,8 @@ def aprove_rental_page():
             # else:
             cur.execute(
                 'INSERT INTO Locacao (Tenis, Usuario, Promotor, Veiculo, Estande, data_inicio, data_fim, status, Local, LocalTreino, TipoTreino) VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                (tenis_id, user_id, promoter_id, veiculo_id, estande, data_inicio, data_fim, status, place_id, training_place_id, training_type_id))
+                (tenis_id, user_id, promoter_id, veiculo_id, estande, data_inicio, data_fim, status, place_id,
+                 training_place_id, training_type_id))
             mysql.connection.commit()
 
             if cur.lastrowid != 0:
@@ -620,6 +637,7 @@ def return_with_problems_page():
 
 @promoter.route('/promoter/rentallistexpired', methods=['GET', 'POST'])
 def rental_list_expired_page():
+    reset_estande()
     if request.method == 'POST':
         session.clear()
         return redirect(url_for('promoter.promoter_scan_start_page'))
@@ -723,6 +741,7 @@ def training_place():
         return redirect(url_for('promoter.training_type'))
     return render_template('promoter/18-training-place.html')
 
+
 @promoter.route('/promoter/place', methods=['GET', 'POST'])
 def place():
     if request.method == 'POST':
@@ -736,6 +755,7 @@ def place():
         print(f"place_id: {session['place_id']}")
         return redirect(url_for('promoter.training_place'))
     return render_template('promoter/19-place.html')
+
 
 @promoter.route('/promoter/training-type', methods=['GET', 'POST'])
 def training_type():
@@ -782,6 +802,7 @@ def autocomplete_place():
     suggestions = [{'id': row[0], 'cidade': row[1], 'estado': row[2]} for row in results]
     return jsonify(suggestions)
 
+
 @promoter.route('/autocomplete/training-type', methods=['GET'])
 def autocomplete_training_type():
     query = request.args.get('q', '')
@@ -797,6 +818,7 @@ def autocomplete_training_type():
     suggestions = [{'id': row[0], 'nome': row[1]} for row in results]
     return jsonify(suggestions)
 
+
 def get_first_id(table_name, column_name, search_value):
     cursor = mysql.connection.cursor()
 
@@ -807,6 +829,7 @@ def get_first_id(table_name, column_name, search_value):
 
     cursor.close()
     return result[0] if result else None
+
 
 def insert_record_name(table_name, column_name, value):
     cursor = mysql.connection.cursor()
@@ -888,7 +911,8 @@ def aumentar_base(data_desejada, quantidade_desejada, tipo_treino_filtro="all"):
                                    novo_data_inicio, novo_data_fim, status, 1, TipoTreino))
 
             # Buscar Avaliação associada ao usuário
-            cur.execute("SELECT id, conforto, estabilidade, estilo, compraria FROM Avaliacao WHERE Usuario = %s", (Usuario,))
+            cur.execute("SELECT id, conforto, estabilidade, estilo, compraria FROM Avaliacao WHERE Usuario = %s",
+                        (Usuario,))
             avaliacao = cur.fetchone()
 
             if avaliacao:
@@ -924,6 +948,7 @@ def aumentar_base(data_desejada, quantidade_desejada, tipo_treino_filtro="all"):
     except Exception as e:
         return {"erro": str(e)}
 
+
 @promoter.route('/aumentar_base', methods=['POST'])
 def api_aumentar_base():
     data = request.json
@@ -937,3 +962,13 @@ def api_aumentar_base():
     resultado = aumentar_base(data_desejada, quantidade_desejada, tipo_treino_filtro)
     return jsonify(resultado)
 
+def reset_estande():
+    cur = mysql.connection.cursor()
+    query = """
+        UPDATE EstandeLLTTTV 
+        SET Local = NULL, LocalTreino = NULL, TipoTreino = NULL, Veiculo = NULL
+    """
+    cur.execute(query)
+    mysql.connection.commit()
+    cur.close()
+    print(f"Tarefa executada: Resetando Estandes")

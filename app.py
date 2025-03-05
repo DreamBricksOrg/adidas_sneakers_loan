@@ -7,7 +7,7 @@ from config.database import initialize_mysql
 from veiculo import veiculo
 from sms_sender import sms_sender
 from user import user
-from promoter import promoter, aumentar_base
+from promoter import promoter, aumentar_base, reset_estande
 from admin import admin
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
@@ -72,6 +72,9 @@ def tarefa_aumentar_base():
     except Exception as e:
         print(f"Erro ao executar tarefa_aumentar_base: {str(e)}")
 
+def cron_reset_estande():
+    with app.app_context():
+        reset_estande()
 
 # Configuração do agendador de tarefas
 scheduler = BackgroundScheduler()
@@ -82,6 +85,8 @@ scheduler.add_job(atualizar_status, 'interval', minutes=5)
 # Executa aumentar_base todos os dias às 3h da manhã
 scheduler.add_job(tarefa_aumentar_base, 'cron', hour=7, minute=5)
 
+scheduler.add_job(cron_reset_estande, 'cron', hour=6, minute=5)
+
 scheduler.start()
 
 # Para garantir que o scheduler pare corretamente ao desligar o Flask
@@ -91,7 +96,7 @@ atexit.register(lambda: scheduler.shutdown())
 def main():
     context = ('static/certificate.crt', 'static/privateKey.key')
     if os.getenv('LOCAL_SERVER'):
-        app.run(debug=True, host='0.0.0.0', ssl_context=context)
+        app.run(debug=True, host='0.0.0.0')
     else:
         app.run(host='0.0.0.0', ssl_context=context)
 
