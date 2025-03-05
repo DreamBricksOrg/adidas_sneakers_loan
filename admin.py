@@ -54,7 +54,7 @@ def admin_menu_admin_page():
 def stock_page(model, stand):
     cur = mysql.connection.cursor()
     
-    cur.execute("SELECT * FROM Modelo")
+    cur.execute("SELECT * FROM Modelo WHERE status = 'ATIVO'")
     models = cur.fetchall()
 
     cur.execute("SELECT * FROM Estande")
