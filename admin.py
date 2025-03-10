@@ -53,7 +53,7 @@ def admin_menu_admin_page():
 @admin.route('/admin/stock/<model>/<stand>', methods=['GET'])
 def stock_page(model, stand):
     cur = mysql.connection.cursor()
-    
+
     cur.execute("SELECT * FROM Modelo WHERE status = 'ATIVO'")
     models = cur.fetchall()
 
@@ -63,15 +63,16 @@ def stock_page(model, stand):
     cur.execute("SELECT id, tamanho, quantidade FROM Tenis WHERE Estande = %s AND Modelo = %s",
                 (stand, model))
     tenis_disponiveis = cur.fetchall()
-    
+
     cur.close()
 
     return render_template(
-        'admin/10-available-shoes.html', 
-        tenis_disponiveis=tenis_disponiveis, 
-        models=models, 
+        'admin/10-available-shoes.html',
+        tenis_disponiveis=tenis_disponiveis,
+        models=models,
         stands=stands
     )
+
 
 @admin.route('/admin/stock', methods=['POST'])
 def stock_page_post():
@@ -95,8 +96,6 @@ def stock_page_post():
                 # mysql.connection.commit()
         cur.close()
         return redirect(url_for('admin.admin_menu_page'))
-    
-
 
 
 @admin.route('/admin/dashboard')
@@ -147,7 +146,7 @@ def get_data_models_per_day():
 
     sql = f"""
         SELECT 
-            DATE_FORMAT(Locacao.data_inicio, "%y-%m-%d") AS bdate, 
+            DATE_FORMAT(MIN(Locacao.data_inicio), "%d/%m/%Y") AS bdate, 
             Veiculo.nome AS nome_veiculo, 
             {colunas_sum_case}, 
             COUNT(1) AS num
@@ -162,9 +161,9 @@ def get_data_models_per_day():
         WHERE 
             {filtro_ano}
         GROUP BY 
-            DATE_FORMAT(Locacao.data_inicio, "%y-%m-%d"), Veiculo.nome
+            DATE(Locacao.data_inicio), Veiculo.nome
         ORDER BY 
-            DATE_FORMAT(Locacao.data_inicio, "%y-%m-%d") DESC, Veiculo.nome DESC;
+            DATE(Locacao.data_inicio) DESC, Veiculo.nome DESC;
     """
 
     return jsonify(fetch_data(sql))
@@ -176,7 +175,7 @@ def get_data_status_per_day():
 
     sql = f"""
         SELECT 
-            DATE_FORMAT(Locacao.data_inicio, "%y-%m-%d") AS bdate, 
+            DATE_FORMAT(MIN(Locacao.data_inicio), "%d/%m/%Y") AS bdate, 
             Veiculo.nome AS nome_veiculo,
             SUM(CASE WHEN Locacao.status = 'DEVOLVIDO' THEN 1 ELSE 0 END) AS 'DEVOLVIDO',
             SUM(CASE WHEN Locacao.status = 'CANCELADO' THEN 1 ELSE 0 END) AS 'CANCELADO',
@@ -189,9 +188,9 @@ def get_data_status_per_day():
         WHERE 
             {f"YEAR(Locacao.data_inicio) = {ano}" if ano else "1=1"}
         GROUP BY 
-            DATE_FORMAT(Locacao.data_inicio, "%y-%m-%d"), Veiculo.nome
+            DATE(Locacao.data_inicio), Veiculo.nome
         ORDER BY 
-            DATE_FORMAT(Locacao.data_inicio, "%y-%m-%d") DESC, Veiculo.nome DESC;
+            DATE(Locacao.data_inicio) DESC, Veiculo.nome DESC;
     """
 
     return jsonify(fetch_data(sql))
@@ -203,7 +202,7 @@ def get_data_gen_per_day():
 
     sql = f"""
         SELECT 
-            DATE_FORMAT(Locacao.data_inicio, "%y-%m-%d") AS bdate, 
+            DATE_FORMAT(MIN(Locacao.data_inicio), "%d/%m/%Y") AS bdate, 
             Veiculo.nome AS nome_veiculo,
             SUM(CASE WHEN SUBSTRING(Tenis.tamanho, 1, 1) = 'M' THEN 1 ELSE 0 END) AS Masculino,
             SUM(CASE WHEN SUBSTRING(Tenis.tamanho, 1, 1) = 'F' THEN 1 ELSE 0 END) AS Feminino,
@@ -218,9 +217,9 @@ def get_data_gen_per_day():
         WHERE 
             {f"YEAR(Locacao.data_inicio) = {ano}" if ano else "1=1"}
         GROUP BY 
-            DATE_FORMAT(Locacao.data_inicio, "%y-%m-%d"), Veiculo.nome
+            DATE(Locacao.data_inicio), Veiculo.nome
         ORDER BY 
-            DATE_FORMAT(Locacao.data_inicio, "%y-%m-%d") DESC, Veiculo.nome DESC;
+            DATE(Locacao.data_inicio) DESC, Veiculo.nome DESC;
     """
 
     return jsonify(fetch_data(sql))
@@ -232,7 +231,7 @@ def get_data_num_per_day():
 
     sql = f"""
         SELECT 
-            DATE_FORMAT(Locacao.data_inicio, "%y-%m-%d") AS bdate, 
+            DATE_FORMAT(MIN(Locacao.data_inicio), "%d/%m/%Y") AS bdate, 
             Veiculo.nome AS nome_veiculo,
             SUM(CASE WHEN CAST(SUBSTRING(Tenis.tamanho, 2) AS UNSIGNED) = 34 THEN 1 ELSE 0 END) AS Tamanho_34,
             SUM(CASE WHEN CAST(SUBSTRING(Tenis.tamanho, 2) AS UNSIGNED) = 35 THEN 1 ELSE 0 END) AS Tamanho_35,
@@ -256,9 +255,9 @@ def get_data_num_per_day():
         WHERE 
             {f"YEAR(Locacao.data_inicio) = {ano}" if ano else "1=1"}
         GROUP BY 
-            DATE_FORMAT(Locacao.data_inicio, "%y-%m-%d"), Veiculo.nome
+            DATE(Locacao.data_inicio), Veiculo.nome
         ORDER BY 
-            DATE_FORMAT(Locacao.data_inicio, "%y-%m-%d") DESC, Veiculo.nome DESC;
+            DATE(Locacao.data_inicio) DESC, Veiculo.nome DESC;
     """
 
     return jsonify(fetch_data(sql))
@@ -577,11 +576,11 @@ def get_data_by_franquia():
 def get_data_by_day():
     ano = request.args.get("ano", type=int)
     query = f"""
-        SELECT DATE_FORMAT(data_inicio, '%d-%m-%Y') as dia, count(1) as num
+        SELECT DATE_FORMAT(data_inicio, '%d/%m/%Y') as dia, count(1) as num
         FROM Locacao
         WHERE {f"YEAR(data_inicio) = {ano}" if ano else "1=1"}
-        GROUP BY DATE_FORMAT(data_inicio, '%Y%m%d'), DATE_FORMAT(data_inicio, '%d-%m-%Y')
-        ORDER BY DATE_FORMAT(data_inicio, '%Y%m%d');
+        GROUP BY DATE_FORMAT(data_inicio, '%Y%m%d'), DATE_FORMAT(data_inicio, '%d/%m/%Y')
+        ORDER BY DATE_FORMAT(data_inicio, '%Y%m%d') DESC;
     """
     return jsonify(fetch_data(query))
 
@@ -639,7 +638,8 @@ def get_data_all():
         LEFT JOIN Local Loc ON L.Local = Loc.id
         LEFT JOIN LocalTreino LT ON L.LocalTreino = LT.id
         LEFT JOIN TipoTreino TT ON L.TipoTreino = TT.id
-        WHERE {f"YEAR(L.data_inicio) = {ano}" if ano else "1=1"};
+        WHERE {f"YEAR(L.data_inicio) = {ano}" if ano else "1=1"}
+        ORDER BY L.data_inicio DESC;
     """
     return jsonify(fetch_data(query))
 
