@@ -502,12 +502,25 @@ def get_data_by_vehicle():
     ano = request.args.get("ano", type=int)
     query = f"""
         SELECT 
-            V.nome AS Veiculo,
-            COUNT(1) AS num
+        COALESCE(V.nome, 'ND') AS Veiculo, 
+        COUNT(L.id) AS num
+        FROM Veiculo V
+        LEFT JOIN Locacao L 
+        ON L.Veiculo = V.id
+        AND ({f"YEAR(L.data_inicio) = {ano}" if ano else "1=1"})
+        GROUP BY V.id, V.nome
+        
+        UNION
+        
+        SELECT 
+        'ND' AS Veiculo, 
+        COUNT(L.id) AS num
         FROM Locacao L
-        JOIN Veiculo V ON L.Veiculo = V.id
-        WHERE {f"YEAR(L.data_inicio) = {ano}" if ano else "1=1"}
+        LEFT JOIN Veiculo V ON L.Veiculo = V.id
+        WHERE V.id IS NULL
+        AND ({f"YEAR(L.data_inicio) = {ano}" if ano else "1=1"})
         GROUP BY Veiculo
+        
         ORDER BY Veiculo;
     """
     return jsonify(fetch_data(query))
@@ -517,11 +530,26 @@ def get_data_by_vehicle():
 def get_data_by_tipo_treino():
     ano = request.args.get("ano", type=int)
     query = f"""
-        SELECT IFNULL(TT.nome, 'ND') AS TipoTreino, COUNT(1) AS num
+        SELECT 
+        COALESCE(TT.nome, 'ND') AS TipoTreino, 
+        COUNT(L.id) AS num
+        FROM TipoTreino TT
+        LEFT JOIN Locacao L 
+        ON L.TipoTreino = TT.id
+        AND ({f"YEAR(L.data_inicio) = {ano}" if ano else "1=1"})
+        GROUP BY TT.id, TT.nome
+        
+        UNION
+        
+        SELECT 
+        'ND' AS TipoTreino, 
+        COUNT(L.id) AS num
         FROM Locacao L
         LEFT JOIN TipoTreino TT ON L.TipoTreino = TT.id
-        WHERE {f"YEAR(L.data_inicio) = {ano}" if ano else "1=1"}
+        WHERE TT.id IS NULL
+        AND ({f"YEAR(L.data_inicio) = {ano}" if ano else "1=1"})
         GROUP BY TipoTreino
+        
         ORDER BY TipoTreino;
     """
     return jsonify(fetch_data(query))
@@ -532,13 +560,24 @@ def get_data_by_local():
     ano = request.args.get("ano", type=int)
     query = f"""
         SELECT 
-            IFNULL(Loc.cidade, 'ND') AS cidade,
-            IFNULL(Loc.estado, 'ND') AS estado,
-            count(1) AS num
+        IFNULL(Loc.cidade, 'ND') AS estado,
+        IFNULL(Loc.estado, 'ND') AS sigla,
+        IFNULL(COUNT(L.id), 0) AS num
+        FROM Local Loc
+        LEFT JOIN Locacao L ON L.Local = Loc.id
+        AND ({f"YEAR(L.data_inicio) = {ano}" if ano else "1=1"}) 
+        GROUP BY Loc.cidade, Loc.estado
+    
+        UNION ALL
+    
+        SELECT 
+        'ND' AS estado,
+        'ND' AS sigla,
+        COUNT(*) AS num
         FROM Locacao L
-        LEFT JOIN Local Loc ON L.Local = Loc.id
-        WHERE {f"YEAR(L.data_inicio) = {ano}" if ano else "1=1"}
-        GROUP BY cidade, estado;
+        WHERE NOT EXISTS (
+        SELECT 1 FROM Local Loc WHERE Loc.id = L.Local
+        ) AND ({f"YEAR(L.data_inicio) = {ano}" if ano else "1=1"});
     """
     return jsonify(fetch_data(query))
 
@@ -547,11 +586,23 @@ def get_data_by_local():
 def get_data_by_local_treino():
     ano = request.args.get("ano", type=int)
     query = f"""
-        SELECT IFNULL(LT.nome, 'ND') AS LocalTreino, COUNT(1) AS num
+        SELECT 
+        IFNULL(LT.nome, 'ND') AS LocalTreino, 
+        COUNT(L.id) AS num
+        FROM LocalTreino LT
+        LEFT JOIN Locacao L ON L.LocalTreino = LT.id 
+        AND ({f"YEAR(L.data_inicio) = {ano}" if ano else "1=1"})
+        GROUP BY LT.id, LT.nome
+        
+        UNION ALL
+        
+        SELECT 
+        'ND' AS LocalTreino, 
+        COUNT(*) AS num
         FROM Locacao L
-        LEFT JOIN LocalTreino LT ON L.LocalTreino = LT.id
-        WHERE {f"YEAR(L.data_inicio) = {ano}" if ano else "1=1"}
-        GROUP BY LocalTreino
+        WHERE L.LocalTreino IS NULL 
+        AND ({f"YEAR(L.data_inicio) = {ano}" if ano else "1=1"})
+        
         ORDER BY LocalTreino;
     """
     return jsonify(fetch_data(query))
