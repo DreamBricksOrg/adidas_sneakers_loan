@@ -154,7 +154,7 @@
         suggestionsBox.innerHTML = suggestions
             .map(
             (item) =>
-            `<div onclick="selectSuggestion('${item.cidade}')">${item.cidade} - ${item.estado}</div>`
+            `<div onclick="selectSuggestion('${item.cidade}')">${item.cidade}</div>`
         )
             .join('');
     }
