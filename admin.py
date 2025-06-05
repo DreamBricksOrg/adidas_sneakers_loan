@@ -421,17 +421,24 @@ def create_sneaker_model():
     try:
         cur = mysql.connection.cursor()
 
-        # Criar o novo modelo na tabela Modelo
-        cur.execute("INSERT INTO Modelo (nome, status) VALUES (%s, 'ATIVO')", (modelo_name,))
-        mysql.connection.commit()
-        modelo_id = cur.lastrowid  # Pega o ID do modelo recém-criado
+        # Verificar se o modelo já existe
+        cur.execute("SELECT id FROM Modelo WHERE nome = %s", (modelo_name,))
+        modelo_result = cur.fetchone()
+
+        if modelo_result:
+            modelo_id = modelo_result[0]
+        else:
+            # Criar o novo modelo na tabela Modelo
+            cur.execute("INSERT INTO Modelo (nome, status) VALUES (%s, 'ATIVO')", (modelo_name,))
+            mysql.connection.commit()
+            modelo_id = cur.lastrowid  # ID do modelo recém-criado
 
         # Buscar o ID do Estande pelo nome
         cur.execute("SELECT id FROM Estande WHERE nome = %s", (estande_name,))
         estande_result = cur.fetchone()
         if not estande_result:
             return jsonify({"error": "Estande não encontrado"}), 404
-        estande_id = estande_result[0]  # Acessando a primeira posição da tupla corretamente
+        estande_id = estande_result[0]
 
         # Gerar os tamanhos
         tamanhos = []
@@ -439,15 +446,23 @@ def create_sneaker_model():
             for num in range(34, 46):
                 tamanhos.append(f"{prefixo}{num}")
 
-        # Inserir os tênis na tabela Tenis
+        # Inserir os tênis na tabela Tenis, somente se ainda não existirem
         for tamanho in tamanhos:
-            cur.execute("INSERT INTO Tenis (tamanho, quantidade, Estande, Modelo) VALUES (%s, 0, %s, %s)",
-                        (tamanho, estande_id, modelo_id))
+            cur.execute("""
+                SELECT id FROM Tenis WHERE tamanho = %s AND Estande = %s AND Modelo = %s
+            """, (tamanho, estande_id, modelo_id))
+            tenis_result = cur.fetchone()
+
+            if not tenis_result:
+                cur.execute("""
+                    INSERT INTO Tenis (tamanho, quantidade, Estande, Modelo)
+                    VALUES (%s, 0, %s, %s)
+                """, (tamanho, estande_id, modelo_id))
 
         mysql.connection.commit()
 
         return jsonify(
-            {"message": "Modelo e Tênis criados com sucesso", "modelo_id": modelo_id, "estande_id": estande_id})
+            {"message": "Modelo e Tênis criados ou atualizados com sucesso", "modelo_id": modelo_id, "estande_id": estande_id})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
