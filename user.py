@@ -89,15 +89,26 @@ def terms_page():
 @user.route('/selectmodel', methods=['GET', 'POST'])
 def select_model():
     cur = mysql.connection.cursor()
+    estande = session.get('estande')
+
     cur.execute("SELECT id, nome, status FROM Modelo")
-    models = cur.fetchall()
+    all_models = cur.fetchall()
+    filtered_models = []
+
+    for model in all_models:
+        model_id = model[0]
+        cur.execute("SELECT COUNT(*) FROM Tenis WHERE Modelo = %s AND Estande = %s AND quantidade > 0", (model_id,estande))
+        count = cur.fetchone()[0]
+        if count > 0:
+            filtered_models.append(model)
+
     cur.close()
     if request.method == "POST":
         modelo = request.form['model']
         session['modelo'] = modelo
         return redirect(url_for('user.choose_size_page'))
 
-    return render_template('user/18-select-model.html', models=models)
+    return render_template('user/18-select-model.html', models=filtered_models)
 
 
 @user.route('/choose-size', methods=['GET', 'POST'])
@@ -113,7 +124,6 @@ def choose_size_page():
     cur = mysql.connection.cursor()
     cur.execute("SELECT id, tamanho, quantidade FROM Tenis WHERE estande = %s AND Modelo = %s", (estande, modelo))
     tenis = cur.fetchall()
-    print(tenis)
     cur.close()
 
     return render_template('user/3-shoes-size-supernova.html', tenis=tenis)
