@@ -872,12 +872,19 @@ def aumentar_base(data_desejada, quantidade_desejada, tipo_treino_filtro="all"):
 
         primeiro_horario, ultimo_horario = horarios
 
+        # Buscar veículos usados na data desejada
+        cur.execute("SELECT DISTINCT Veiculo FROM Locacao WHERE DATE(data_inicio) = %s", (data_desejada,))
+        veiculos_dia = [row[0] for row in cur.fetchall()]
+
+        if not veiculos_dia:
+            return {"erro": "Nenhum veículo encontrado nos registros da data desejada."}
+
         # Construção da consulta para buscar registros antigos
         query_base = """
             SELECT id, Tenis, Usuario, Promotor, Veiculo, Estande, Local, LocalTreino, 
                    data_inicio, data_fim, status, TipoTreino
             FROM Locacao
-            WHERE DATE(data_inicio) < %s
+            WHERE DATE(data_inicio) < %s AND Veiculo IN %s
         """
 
         # Aplicar filtro baseado no tipo_treino_filtro
@@ -888,7 +895,8 @@ def aumentar_base(data_desejada, quantidade_desejada, tipo_treino_filtro="all"):
 
         query_base += " ORDER BY RAND() LIMIT %s"
 
-        cur.execute(query_base, (data_desejada, registros_faltantes))
+        # Executar query com a tupla de veículos
+        cur.execute(query_base, (data_desejada, tuple(veiculos_dia), registros_faltantes))
         locacoes_antigas = cur.fetchall()
 
         novas_locacoes = []
