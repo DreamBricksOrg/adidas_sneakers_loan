@@ -12,6 +12,74 @@ import random
 
 user = Blueprint('user', __name__)
 
+@user.route('/user/add-user-form', methods=['GET'])
+def add_user_form():
+    cursor = mysql.connection.cursor()
+    
+    # Consulta modelos
+    cursor.execute('SELECT id, nome, status FROM Modelo')
+    modelos_tuplas = cursor.fetchall()
+    modelos = []
+    for modelo in modelos_tuplas:
+        modelos.append({
+            'id': modelo[0],
+            'nome': modelo[1],
+            'status': modelo[2]
+        })
+    
+    # Consulta veículos
+    cursor.execute('SELECT id, nome FROM Veiculo')
+    veiculos_tuplas = cursor.fetchall()
+    veiculos = []
+    for veiculo in veiculos_tuplas:
+        veiculos.append({
+            'id': veiculo[0],
+            'nome': veiculo[1]
+        })
+    
+    # Consulta locais
+    cursor.execute('SELECT id, cidade, estado FROM Local')
+    locais_tuplas = cursor.fetchall()
+    locais = []
+    for local in locais_tuplas:
+        locais.append({
+            'id': local[0],
+            'cidade': local[1],
+            'estado': local[2]
+        })
+    
+    # Consulta tipos de treino
+    cursor.execute('SELECT id, nome FROM TipoTreino')
+    tipos_treino_tuplas = cursor.fetchall()
+    tipos_treino = []
+    for tipo in tipos_treino_tuplas:
+        tipos_treino.append({
+            'id': tipo[0],
+            'nome': tipo[1]
+        })
+    
+    cursor.close()
+    
+    return render_template('user/22-add-user-not-registered.html', 
+                          modelos=modelos, 
+                          veiculos=veiculos, 
+                          locais=locais, 
+                          tipos_treino=tipos_treino)
+
+@user.route('/api/locais-treino-por-local/<int:local_id>', methods=['GET'])
+def get_locais_treino_por_local(local_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT id, nome FROM LocalTreino WHERE Local = %s', (local_id,))
+    locais_treino_tuplas = cursor.fetchall()
+    locais_treino = []
+    for local_treino in locais_treino_tuplas:
+        locais_treino.append({
+            'id': local_treino[0],
+            'nome': local_treino[1]
+        })
+    cursor.close()
+    return jsonify(locais_treino)
+
 
 @user.route('/users', methods=['GET'])
 def get_user():
@@ -376,8 +444,12 @@ def add_user_not_registered():
             documento = data.get('documento')
             telefone = data.get('telefone', '')
             data_inicio_str = data.get('data_inicio')  # Apenas "dd/mm/aaaa"
+            local_id = data.get('local_id')
+            local_treino_id = data.get('local_treino_id')
+            tipo_treino_id = data.get('tipo_treino_id')
+            veiculo_id = data.get('veiculo_id')
 
-            if not all([nome, tamanho, modelo, email, data_nascimento, documento, data_inicio_str]):
+            if not all([nome, tamanho, modelo, email, data_nascimento, documento, data_inicio_str, local_id, local_treino_id, tipo_treino_id, veiculo_id]):
                 errors.append({'error': 'Campos obrigatórios faltando.', 'data': data})
                 continue
 
@@ -409,6 +481,7 @@ def add_user_not_registered():
             dataToEncrypt = f"{nome},{email},{data_nascimento},{documento},{telefone},{genero}"
             dados_criptografados = db_encrypt_string(dataToEncrypt, pub_key)
 
+
             # Pesquisar o modelo do tênis
             cursor.execute("SELECT id FROM Modelo WHERE nome = %s", (modelo,))
             modelo_result = cursor.fetchone()
@@ -432,11 +505,13 @@ def add_user_not_registered():
 
             tenis_id = tenis_result[0]  # Pegamos o ID do tênis encontrado
 
+            documento_masked = mask_document(documento)
+
             # Iniciar transação
             cursor.execute(
                 '''INSERT INTO Usuario (nome_iniciais, documento, dados_criptografados, confirmacao_sms, data_registro, telefone_hash) 
                 VALUES (%s, %s, %s, %s, %s, %s)''',
-                (nome_iniciais, documento, dados_criptografados, confirmacao_sms, data_inicio_dt, telefone_hash)
+                (nome_iniciais, documento_masked, dados_criptografados, confirmacao_sms, data_inicio_dt, telefone_hash)
             )
             user_id = cursor.lastrowid
 
@@ -444,7 +519,7 @@ def add_user_not_registered():
             cursor.execute(
                 '''INSERT INTO Locacao (Tenis, Usuario, Promotor, Veiculo, Estande, data_inicio, data_fim, status, Local, LocalTreino, TipoTreino) 
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)''',
-                (tenis_id, user_id, 6, 2, 1, data_inicio_dt, data_fim_dt, 'DEVOLVIDO', 1, 2, 2)
+                (tenis_id, user_id, 6, veiculo_id, 1, data_inicio_dt, data_fim_dt, 'DEVOLVIDO', local_id, local_treino_id, tipo_treino_id)
             )
             locacao_id = cursor.lastrowid
 
@@ -477,6 +552,25 @@ def add_user_not_registered():
         response['errors'] = errors
 
     return jsonify(response), 201 if created_users else 400
+
+
+
+def mask_document(documento: str) -> str:
+    if not documento or len(documento) != 14:
+        return documento  # Retorna inalterado se não estiver no formato esperado
+
+    # Índices que permanecem visíveis: 0,1 e 12,13
+    visiveis = {0, 1, 12, 13}
+    mascarado = []
+
+    for idx, char in enumerate(documento):
+        if idx in visiveis or char in ".-":
+            mascarado.append(char)
+        else:
+            mascarado.append('*')
+
+    return ''.join(mascarado)
+
 
 
 # Função para formatar nome em iniciais
