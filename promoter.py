@@ -844,12 +844,15 @@ def insert_record_name(table_name, column_name, value):
     return generated_id
 
 
-def aumentar_base(data_desejada, quantidade_desejada, tipo_treino_filtro="all"):
+def aumentar_base(data_desejada, quantidade_desejada, tipo_treino_filtro="all", veiculo_id=None):
     try:
         cur = mysql.connection.cursor()
 
-        # Contar registros já existentes para a data desejada
-        cur.execute("SELECT COUNT(*) FROM Locacao WHERE DATE(data_inicio) = %s", (data_desejada,))
+        # Contar registros já existentes para a data desejada (aplicando filtro de veículo se informado)
+        if veiculo_id is not None:
+            cur.execute("SELECT COUNT(*) FROM Locacao WHERE DATE(data_inicio) = %s AND Veiculo = %s", (data_desejada, veiculo_id))
+        else:
+            cur.execute("SELECT COUNT(*) FROM Locacao WHERE DATE(data_inicio) = %s", (data_desejada,))
         registros_existentes = cur.fetchone()[0]
 
         # Se já houver registros suficientes, não há necessidade de adicionar mais
@@ -872,12 +875,16 @@ def aumentar_base(data_desejada, quantidade_desejada, tipo_treino_filtro="all"):
 
         primeiro_horario, ultimo_horario = horarios
 
-        # Buscar veículos usados na data desejada
-        cur.execute("SELECT DISTINCT Veiculo FROM Locacao WHERE DATE(data_inicio) = %s", (data_desejada,))
-        veiculos_dia = [row[0] for row in cur.fetchall()]
+        # Definir veículos alvo para a duplicação
+        if veiculo_id is not None:
+            veiculos_dia = [veiculo_id]
+        else:
+            # Buscar veículos usados na data desejada
+            cur.execute("SELECT DISTINCT Veiculo FROM Locacao WHERE DATE(data_inicio) = %s", (data_desejada,))
+            veiculos_dia = [row[0] for row in cur.fetchall()]
 
-        if not veiculos_dia:
-            return {"erro": "Nenhum veículo encontrado nos registros da data desejada."}
+            if not veiculos_dia:
+                return {"erro": "Nenhum veículo encontrado nos registros da data desejada."}
 
         # Construção da consulta para buscar registros antigos
         query_base = """
@@ -927,8 +934,11 @@ def aumentar_base(data_desejada, quantidade_desejada, tipo_treino_filtro="all"):
                 id_avaliacao, conforto, estabilidade, estilo, compraria = avaliacao
                 novas_avaliacoes.append((Usuario, conforto, estabilidade, estilo, compraria))
 
-        # Recontar os registros existentes antes da inserção
-        cur.execute("SELECT COUNT(*) FROM Locacao WHERE DATE(data_inicio) = %s", (data_desejada,))
+        # Recontar os registros existentes antes da inserção (aplicando filtro de veículo se informado)
+        if veiculo_id is not None:
+            cur.execute("SELECT COUNT(*) FROM Locacao WHERE DATE(data_inicio) = %s AND Veiculo = %s", (data_desejada, veiculo_id))
+        else:
+            cur.execute("SELECT COUNT(*) FROM Locacao WHERE DATE(data_inicio) = %s", (data_desejada,))
         registros_atualizados = cur.fetchone()[0]
 
         # Ajustar para que a soma não ultrapasse quantidade_desejada
@@ -957,17 +967,29 @@ def aumentar_base(data_desejada, quantidade_desejada, tipo_treino_filtro="all"):
         return {"erro": str(e)}
 
 
+@promoter.route('/promoter/aumentar-base', methods=['GET'])
+def aumentar_base_page():
+    # Consultar todos os veículos disponíveis
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id, nome FROM Veiculo ORDER BY nome")
+    veiculos = [{'id': row[0], 'nome': row[1]} for row in cur.fetchall()]
+    cur.close()
+
+    return render_template('promoter/21-aumentar-base.html', veiculos=veiculos)
+    
+
 @promoter.route('/aumentar_base', methods=['POST'])
 def api_aumentar_base():
     data = request.json
     data_desejada = data.get('data_desejada')
     quantidade_desejada = data.get('quantidade_desejada')
     tipo_treino_filtro = data.get('tipo_treino_filtro', "all")
+    veiculo_id = data.get('veiculo')
 
     if not data_desejada or not quantidade_desejada:
         return jsonify({"erro": "Parâmetros 'data_desejada' e 'quantidade_desejada' são obrigatórios!"}), 400
 
-    resultado = aumentar_base(data_desejada, quantidade_desejada, tipo_treino_filtro)
+    resultado = aumentar_base(data_desejada, quantidade_desejada, tipo_treino_filtro, veiculo_id)
     return jsonify(resultado)
 
 def reset_estande():

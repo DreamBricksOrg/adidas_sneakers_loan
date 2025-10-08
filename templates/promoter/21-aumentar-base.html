@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="../../static/css/default.css"/>
+
+    <link
+            rel="shortcut icon"
+            href="../../static/assets/images/logos/adidas.png"
+            type="image/x-icon"
+    />
+    <title>Aumentar Base</title>
+
+    <style>
+        .container {
+            background-image: url("../../static/assets/images/shoes-2.png");
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1;
+        }
+
+        h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            z-index: 2;
+            text-align: center;
+        }
+
+        form {
+            position: relative;
+            z-index: 2;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 30px 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .form-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .form-item label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-item input, .form-item select {
+            width: 100%;
+            padding: 10px 15px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-family: "Roboto", sans-serif;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 5px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-family: "Roboto", sans-serif;
+            color: white;
+            background: #333;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            background: #555;
+        }
+
+        .result-container {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            display: none;
+        }
+
+        .success {
+            color: #28a745;
+        }
+
+        .error {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="overlay"></div>
+    <h1>Aumentar Base de Dados</h1>
+    <form id="aumentar-base-form">
+        <div class="form-item">
+            <label for="data_desejada">Data Desejada:</label>
+            <input
+                    type="date"
+                    id="data_desejada"
+                    name="data_desejada"
+                    required
+            />
+        </div>
+        <div class="form-item">
+            <label for="quantidade_desejada">Quantidade Desejada:</label>
+            <input
+                    type="number"
+                    id="quantidade_desejada"
+                    name="quantidade_desejada"
+                    min="1"
+                    required
+            />
+        </div>
+        <div class="form-item">
+            <label for="veiculo">Veículo (opcional):</label>
+            <select id="veiculo" name="veiculo">
+                <option value="">Todos os veículos</option>
+                {% for veiculo in veiculos %}
+                <option value="{{ veiculo.id }}">{{ veiculo.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-item" style="display: none;">
+            <label>Filtro de Tipo de Treino:</label>
+            <div class="radio-group">
+                <div class="radio-option">
+                    <input type="radio" id="tipo_all" name="tipo_treino_filtro" value="all" checked>
+                    <label for="tipo_all">Todos</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="tipo_yes" name="tipo_treino_filtro" value="yes">
+                    <label for="tipo_yes">Com treino</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="tipo_no" name="tipo_treino_filtro" value="no">
+                    <label for="tipo_no">Sem treino</label>
+                </div>
+            </div>
+        </div>
+        <div class="btn-container">
+            <button type="submit">AUMENTAR BASE</button>
+        </div>
+        <div id="result" class="result-container"></div>
+    </form>
+</div>
+
+<script>
+    document.getElementById('aumentar-base-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const data_desejada = document.getElementById('data_desejada').value;
+        const quantidade_desejada = document.getElementById('quantidade_desejada').value;
+        const veiculo = document.getElementById('veiculo').value;
+        const tipo_treino_filtro = document.querySelector('input[name="tipo_treino_filtro"]:checked').value;
+        
+        const resultContainer = document.getElementById('result');
+        resultContainer.innerHTML = 'Processando...';
+        resultContainer.style.display = 'block';
+        resultContainer.className = 'result-container';
+        
+        try {
+            const response = await fetch('/aumentar_base', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    data_desejada,
+                    quantidade_desejada: parseInt(quantidade_desejada),
+                    tipo_treino_filtro,
+                    veiculo: veiculo ? parseInt(veiculo) : null
+                }),
+            });
+            
+            const result = await response.json();
+            
+            if (result.erro) {
+                resultContainer.innerHTML = `<strong>Erro:</strong> ${result.erro}`;
+                resultContainer.classList.add('error');
+            } else {
+                resultContainer.innerHTML = `<strong>Sucesso:</strong> ${result.mensagem}`;
+                resultContainer.classList.add('success');
+            }
+        } catch (error) {
+            resultContainer.innerHTML = `<strong>Erro:</strong> Falha na comunicação com o servidor.`;
+            resultContainer.classList.add('error');
+            console.error('Erro:', error);
+        }
+    });
+</script>
+</body>
+</html>
