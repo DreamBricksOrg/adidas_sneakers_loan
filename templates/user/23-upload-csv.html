@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../../static/css/default.css" />
+    <!-- Choices.js CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+
+    <link rel="shortcut icon" href="../../static/assets/images/logos/adidas.png" type="image/x-icon" />
+    <title>Upload em Massa via CSV</title>
+
+    <style>
+        .container {
+            background-image: url("../../static/assets/images/shoes-2.png");
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1;
+        }
+
+        h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            z-index: 2;
+            text-align: center;
+        }
+
+        form {
+            position: relative;
+            z-index: 2;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 30px 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .form-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .form-item label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-item input,
+        .form-item select {
+            width: 100%;
+            padding: 10px 15px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-family: "Roboto", sans-serif;
+        }
+
+        .btn-container {
+            text-align: center;
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 16px;
+            font-family: "Roboto", sans-serif;
+            color: white;
+            background: #333;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+            min-width: 150px;
+        }
+
+        button:hover {
+            background: #555;
+        }
+
+        button:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        .result-container {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            display: none;
+        }
+
+        .success {
+            color: #28a745;
+        }
+
+        .error {
+            color: #dc3545;
+        }
+
+        /* Estilos para as seções do formulário */
+        .form-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border: 1px solid #ddd;
+        }
+
+        .form-section h2 {
+            color: #333;
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .csv-info {
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .csv-info h3 {
+            margin-top: 0;
+            color: #007bff;
+        }
+
+        .csv-info ul {
+            margin-bottom: 0;
+            padding-left: 20px;
+        }
+
+        .csv-preview {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th, table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+        }
+
+        .validation-error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .validation-success {
+            color: #28a745;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .file-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border: 2px dashed #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .file-upload:hover {
+            border-color: #007bff;
+        }
+
+        .file-upload-icon {
+            font-size: 48px;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+
+        .file-upload-text {
+            text-align: center;
+        }
+
+        .file-upload-text p {
+            color: #333;
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        .progress-container {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            height: 5px;
+            background-color: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: #007bff;
+            width: 0;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="overlay"></div>
+        <h1>Upload em Massa via CSV</h1>
+        <form id="csv-upload-form">
+            <div class="form-section">
+                <h2>Upload de Arquivo CSV</h2>
+                <div class="csv-info">
+                    <h3>Formato esperado do arquivo CSV:</h3>
+                    <ul>
+                        <li>Cabeçalhos: nome,email,data_nascimento,documento,telefone,modelo,tamanho</li>
+                        <li>Formato de data: DD/MM/AAAA</li>
+                        <li>Documento (CPF): 111.111.111-11</li>
+                        <li>Telefone: 9999999-9999</li>
+                        <li>Modelo: Deve corresponder exatamente ao nome do modelo no sistema</li>
+                        <li>Tamanho: Número inteiro</li>
+                    </ul>
+                </div>
+                <div class="file-upload" id="drop-area">
+                    <div class="file-upload-icon">📁</div>
+                    <div class="file-upload-text">
+                        <p>Arraste e solte seu arquivo CSV aqui ou clique para selecionar</p>
+                        <p><small>Tamanho máximo: 5MB</small></p>
+                    </div>
+                    <input type="file" id="csv-file" accept=".csv" />
+                    <div class="progress-container" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress" id="upload-progress"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="file-info" style="margin-top: 10px; display: none;"></div>
+                <div id="validation-message"></div>
+            </div>
+
+            <div class="form-section">
+                <h2>Ação</h2>
+                <div class="form-item">
+                    <label for="data_inicio">Data de Início:</label>
+                    <input type="date" id="data_inicio" name="data_inicio" required />
+                </div>
+                <div class="form-item">
+                    <label for="veiculo">Veículo:</label>
+                    <select id="veiculo" name="veiculo_id" required>
+                        <option value="">Selecione um veículo</option>
+                        {% for veiculo in veiculos %}
+                        <option value="{{ veiculo.id }}">{{ veiculo.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label for="local">Local:</label>
+                    <select id="local" name="local_id" required>
+                        <option value="">Selecione um local</option>
+                        {% for local in locais %}
+                        <option value="{{ local.id }}">{{ local.cidade }}/{{ local.estado }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label for="local_treino">Local de Treino:</label>
+                    <select id="local_treino" name="local_treino_id" required>
+                        <option value="">Selecione um local de treino</option>
+                    </select>
+                </div>
+                <div class="form-item">
+                    <label for="tipo_treino">Tipo de Treino:</label>
+                    <select id="tipo_treino" name="tipo_treino_id" required>
+                        <option value="">Selecione um tipo de treino</option>
+                        {% for tipo in tipos_treino %}
+                        <option value="{{ tipo.id }}">{{ tipo.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-section" id="preview-section" style="display: none;">
+                <h2>Pré-visualização dos Dados</h2>
+                <div class="csv-preview">
+                    <table id="csv-preview-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>Data Nascimento</th>
+                                <th>Documento</th>
+                                <th>Telefone</th>
+                                <th>Modelo</th>
+                                <th>Tamanho</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="csv-preview-body">
+                            <!-- Dados do CSV serão inseridos aqui -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="btn-container">
+                <button type="button" id="validate-btn">VALIDAR CSV</button>
+                <button type="submit" id="submit-btn" disabled>ENVIAR DADOS</button>
+            </div>
+            <div id="result" class="result-container"></div>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <!-- jQuery Mask Plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <!-- Choices.js -->
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- PapaParse para processamento de CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Variáveis globais
+            let csvData = null;
+            let validationPassed = false;
+            let modelosDisponiveis = [];
+
+            // Inicializar Choices.js em todos os selects
+            const veiculoSelect = new Choices('#veiculo', {
+                searchEnabled: true,
+                searchPlaceholderValue: 'Pesquisar...',
+                placeholder: true,
+                placeholderValue: 'Selecione um veículo',
+                noResultsText: 'Nenhum resultado encontrado',
+                itemSelectText: 'Clique para selecionar'
+            });
+
+            const localSelect = new Choices('#local', {
+                searchEnabled: true,
+                searchPlaceholderValue: 'Pesquisar...',
+                placeholder: true,
+                placeholderValue: 'Selecione um local',
+                noResultsText: 'Nenhum resultado encontrado',
+                itemSelectText: 'Clique para selecionar'
+            });
+
+            const tipoTreinoSelect = new Choices('#tipo_treino', {
+                searchEnabled: true,
+                searchPlaceholderValue: 'Pesquisar...',
+                placeholder: true,
+                placeholderValue: 'Selecione um tipo de treino',
+                noResultsText: 'Nenhum resultado encontrado',
+                itemSelectText: 'Clique para selecionar'
+            });
+
+            // Variável para armazenar a instância do Choices.js para local_treino
+            let localTreinoSelect;
+
+            // Inicializar o Choices.js para local_treino
+            function initLocalTreinoChoices() {
+                if (localTreinoSelect) {
+                    localTreinoSelect.destroy();
+                }
+                localTreinoSelect = new Choices('#local_treino', {
+                    searchEnabled: true,
+                    searchPlaceholderValue: 'Pesquisar...',
+                    placeholder: true,
+                    placeholderValue: 'Selecione um local de treino',
+                    noResultsText: 'Nenhum resultado encontrado',
+                    itemSelectText: 'Clique para selecionar'
+                });
+            }
+
+            // Inicializar o Choices.js para local_treino na carga da página
+            initLocalTreinoChoices();
+
+            // Carregar locais de treino quando o local for selecionado
+            document.querySelector('#local').addEventListener('change', function () {
+                var localId = this.value;
+                if (localId) {
+                    $.ajax({
+                        url: '/api/locais-treino-por-local/' + localId,
+                        type: 'GET',
+                        success: function (data) {
+                            // Destruir a instância atual do Choices.js
+                            if (localTreinoSelect) {
+                                localTreinoSelect.destroy();
+                            }
+
+                            // Atualizar as opções do select
+                            var selectElement = document.getElementById('local_treino');
+                            selectElement.innerHTML = '<option value="">Selecione um local de treino</option>';
+
+                            // Adicionar as novas opções
+                            for (var i = 0; i < data.length; i++) {
+                                var option = document.createElement('option');
+                                option.value = data[i].id;
+                                option.textContent = data[i].nome;
+                                selectElement.appendChild(option);
+                            }
+
+                            // Reinicializar o Choices.js
+                            initLocalTreinoChoices();
+                        }
+                    });
+                } else {
+                    // Destruir a instância atual do Choices.js
+                    if (localTreinoSelect) {
+                        localTreinoSelect.destroy();
+                    }
+
+                    // Limpar as opções
+                    document.getElementById('local_treino').innerHTML = '<option value="">Selecione um local de treino</option>';
+
+                    // Reinicializar o Choices.js
+                    initLocalTreinoChoices();
+                }
+            });
+
+            // Carregar modelos disponíveis
+            $.ajax({
+                url: '/api/modelos',
+                type: 'GET',
+                success: function (data) {
+                    modelosDisponiveis = data;
+                }
+            });
+
+            // Configuração do drag and drop para upload de arquivo
+            const dropArea = document.getElementById('drop-area');
+            const fileInput = document.getElementById('csv-file');
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight() {
+                dropArea.style.borderColor = '#007bff';
+            }
+
+            function unhighlight() {
+                dropArea.style.borderColor = '#ccc';
+            }
+
+            dropArea.addEventListener('drop', handleDrop, false);
+            dropArea.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleFiles);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles({ target: { files: files } });
+            }
+
+            function handleFiles(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    if (file.size > 5 * 1024 * 1024) { // 5MB
+                        showValidationMessage('O arquivo é muito grande. Tamanho máximo: 5MB', 'error');
+                        return;
+                    }
+
+                    if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+                        showValidationMessage('Por favor, selecione um arquivo CSV válido', 'error');
+                        return;
+                    }
+
+                    $('#file-info').text(`Arquivo selecionado: ${file.name}`).show();
+                    showValidationMessage('', ''); // Limpar mensagens anteriores
+                    $('#preview-section').hide();
+                    $('#submit-btn').prop('disabled', true);
+                    validationPassed = false;
+                }
+            }
+
+            // Função para mostrar mensagens de validação
+            function showValidationMessage(message, type) {
+                const validationMessage = $('#validation-message');
+                validationMessage.text(message);
+                
+                if (type === 'error') {
+                    validationMessage.removeClass('validation-success').addClass('validation-error');
+                } else if (type === 'success') {
+                    validationMessage.removeClass('validation-error').addClass('validation-success');
+                } else {
+                    validationMessage.removeClass('validation-error validation-success');
+                }
+            }
+
+            // Validar o arquivo CSV
+            $('#validate-btn').click(function() {
+                const file = fileInput.files[0];
+                if (!file) {
+                    showValidationMessage('Por favor, selecione um arquivo CSV', 'error');
+                    return;
+                }
+
+                // Verificar se os campos de ação estão preenchidos
+                if (!$('#data_inicio').val() || !$('#veiculo').val() || !$('#local').val() || 
+                    !$('#local_treino').val() || !$('#tipo_treino').val()) {
+                    showValidationMessage('Por favor, preencha todos os campos da seção Ação', 'error');
+                    return;
+                }
+
+                showValidationMessage('Validando arquivo...', '');
+                
+                Papa.parse(file, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        validateCSVData(results);
+                    },
+                    error: function(error) {
+                        showValidationMessage(`Erro ao processar o arquivo: ${error}`, 'error');
+                    }
+                });
+            });
+
+            // Validar os dados do CSV
+            function validateCSVData(results) {
+                const data = results.data;
+                const errors = results.errors;
+                const requiredHeaders = ['nome', 'email', 'data_nascimento', 'documento', 'telefone', 'modelo', 'tamanho'];
+                
+                // Verificar se há erros de parsing
+                if (errors.length > 0) {
+                    showValidationMessage(`Erro no formato do CSV: ${errors[0].message}`, 'error');
+                    return;
+                }
+
+                // Verificar se o CSV está vazio
+                if (data.length === 0) {
+                    showValidationMessage('O arquivo CSV não contém dados', 'error');
+                    return;
+                }
+
+                // Verificar cabeçalhos
+                const headers = Object.keys(data[0]);
+                const missingHeaders = requiredHeaders.filter(header => !headers.includes(header));
+                
+                if (missingHeaders.length > 0) {
+                    showValidationMessage(`Cabeçalhos ausentes: ${missingHeaders.join(', ')}`, 'error');
+                    return;
+                }
+
+                // Validar cada linha
+                let hasErrors = false;
+                let rowsWithErrors = [];
+
+                data.forEach((row, index) => {
+                    row.status = 'Válido';
+                    row.errors = [];
+
+                    // Validar campos obrigatórios
+                    requiredHeaders.forEach(header => {
+                        if (!row[header]) {
+                            row.errors.push(`Campo ${header} é obrigatório`);
+                        }
+                    });
+
+                    // Validar formato de email
+                    if (row.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(row.email)) {
+                        row.errors.push('Formato de email inválido');
+                    }
+
+                    // Validar formato de data
+                    if (row.data_nascimento && !/^\d{2}\/\d{2}\/\d{4}$/.test(row.data_nascimento)) {
+                        row.errors.push('Formato de data inválido (use DD/MM/AAAA)');
+                    }
+
+                    // Validar se o modelo existe
+                    if (row.modelo && !modeloExiste(row.modelo)) {
+                        row.errors.push(`Modelo "${row.modelo}" não encontrado no sistema`);
+                    }
+
+                    // Validar se o tamanho é um número
+                    if (row.tamanho && isNaN(parseInt(row.tamanho))) {
+                        row.errors.push('Tamanho deve ser um número');
+                    }
+
+                    if (row.errors.length > 0) {
+                        row.status = 'Inválido';
+                        hasErrors = true;
+                        rowsWithErrors.push(index + 1);
+                    }
+                });
+
+                // Atualizar a visualização
+                updatePreview(data);
+
+                if (hasErrors) {
+                    showValidationMessage(`Encontrados erros nas linhas: ${rowsWithErrors.join(', ')}. Corrija os erros antes de enviar.`, 'error');
+                    $('#submit-btn').prop('disabled', true);
+                    validationPassed = false;
+                } else {
+                    showValidationMessage('Validação concluída com sucesso! Todos os registros são válidos.', 'success');
+                    $('#submit-btn').prop('disabled', false);
+                    validationPassed = true;
+                    csvData = data;
+                }
+            }
+
+            // Verificar se o modelo existe
+            function modeloExiste(modeloNome) {
+                return modelosDisponiveis.some(modelo => modelo.nome.toLowerCase() === modeloNome.toLowerCase());
+            }
+
+            // Atualizar a pré-visualização
+            function updatePreview(data) {
+                const tableBody = $('#csv-preview-body');
+                tableBody.empty();
+
+                data.forEach(row => {
+                    const tr = $('<tr>');
+                    tr.append($('<td>').text(row.nome));
+                    tr.append($('<td>').text(row.email));
+                    tr.append($('<td>').text(row.data_nascimento));
+                    tr.append($('<td>').text(row.documento));
+                    tr.append($('<td>').text(row.telefone));
+                    tr.append($('<td>').text(row.modelo));
+                    tr.append($('<td>').text(row.tamanho));
+                    
+                    const statusTd = $('<td>');
+                    if (row.status === 'Válido') {
+                        statusTd.text('✓').css('color', '#28a745');
+                    } else {
+                        statusTd.html('✗ <span class="validation-error">' + row.errors.join(', ') + '</span>').css('color', '#dc3545');
+                    }
+                    tr.append(statusTd);
+                    
+                    tableBody.append(tr);
+                });
+
+                $('#preview-section').show();
+            }
+
+            // Enviar formulário via AJAX
+            $('#csv-upload-form').submit(function (e) {
+                e.preventDefault();
+                
+                if (!validationPassed || !csvData) {
+                    showValidationMessage('Por favor, valide o arquivo CSV primeiro', 'error');
+                    return;
+                }
+
+                const formData = {
+                    csv_data: csvData,
+                    data_inicio: formatDate($('#data_inicio').val()),
+                    veiculo_id: parseInt($('#veiculo').val()),
+                    local_id: parseInt($('#local').val()),
+                    local_treino_id: parseInt($('#local_treino').val()),
+                    tipo_treino_id: parseInt($('#tipo_treino').val())
+                };
+
+                const resultContainer = $('#result');
+                resultContainer.show();
+                resultContainer.html('Processando...');
+
+                $.ajax({
+                    url: '/api/process-csv',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    success: function (result) {
+                        resultContainer.attr('class', 'result-container success');
+                        resultContainer.html(`Processamento concluído com sucesso! ${result.created_users.length} usuários adicionados.`);
+                        
+                        // Limpar o formulário
+                        fileInput.value = '';
+                        $('#file-info').hide();
+                        $('#preview-section').hide();
+                        $('#submit-btn').prop('disabled', true);
+                        validationPassed = false;
+                        csvData = null;
+                        showValidationMessage('', '');
+                    },
+                    error: function (xhr) {
+                        const error = xhr.responseJSON;
+                        resultContainer.attr('class', 'result-container error');
+                        resultContainer.html(`Erro: ${error && error.message ? error.message : 'Falha ao processar os dados'}`);
+                    }
+                });
+            });
+
+            // Função para formatar data de YYYY-MM-DD para DD/MM/YYYY
+            function formatDate(dateString) {
+                if (!dateString) return '';
+                const parts = dateString.split('-');
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+        });
+    </script>
+</body>
+
+</html>

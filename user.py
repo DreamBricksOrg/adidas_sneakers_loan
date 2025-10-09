@@ -66,6 +66,60 @@ def add_user_form():
                           locais=locais, 
                           tipos_treino=tipos_treino)
 
+@user.route('/user/upload-csv', methods=['GET'])
+def upload_csv_form():
+    cursor = mysql.connection.cursor()
+    
+    # Consulta modelos
+    cursor.execute('SELECT id, nome, status FROM Modelo')
+    modelos_tuplas = cursor.fetchall()
+    modelos = []
+    for modelo in modelos_tuplas:
+        modelos.append({
+            'id': modelo[0],
+            'nome': modelo[1],
+            'status': modelo[2]
+        })
+    
+    # Consulta veículos
+    cursor.execute('SELECT id, nome FROM Veiculo')
+    veiculos_tuplas = cursor.fetchall()
+    veiculos = []
+    for veiculo in veiculos_tuplas:
+        veiculos.append({
+            'id': veiculo[0],
+            'nome': veiculo[1]
+        })
+    
+    # Consulta locais
+    cursor.execute('SELECT id, cidade, estado FROM Local')
+    locais_tuplas = cursor.fetchall()
+    locais = []
+    for local in locais_tuplas:
+        locais.append({
+            'id': local[0],
+            'cidade': local[1],
+            'estado': local[2]
+        })
+    
+    # Consulta tipos de treino
+    cursor.execute('SELECT id, nome FROM TipoTreino')
+    tipos_treino_tuplas = cursor.fetchall()
+    tipos_treino = []
+    for tipo in tipos_treino_tuplas:
+        tipos_treino.append({
+            'id': tipo[0],
+            'nome': tipo[1]
+        })
+    
+    cursor.close()
+    
+    return render_template('user/23-upload-csv.html', 
+                          modelos=modelos, 
+                          veiculos=veiculos, 
+                          locais=locais, 
+                          tipos_treino=tipos_treino)
+
 @user.route('/api/locais-treino-por-local/<int:local_id>', methods=['GET'])
 def get_locais_treino_por_local(local_id):
     cursor = mysql.connection.cursor()
@@ -79,6 +133,167 @@ def get_locais_treino_por_local(local_id):
         })
     cursor.close()
     return jsonify(locais_treino)
+
+@user.route('/api/modelos', methods=['GET'])
+def get_modelos():
+    cursor = mysql.connection.cursor()
+    cursor.execute('SELECT id, nome, status FROM Modelo')
+    modelos_tuplas = cursor.fetchall()
+    modelos = []
+    for modelo in modelos_tuplas:
+        modelos.append({
+            'id': modelo[0],
+            'nome': modelo[1],
+            'status': modelo[2]
+        })
+    cursor.close()
+    return jsonify(modelos)
+
+@user.route('/api/process-csv', methods=['POST'])
+def process_csv():
+    data = request.get_json()
+    
+    if not data or 'csv_data' not in data:
+        return jsonify({'error': 'Dados CSV não fornecidos!'}), 400
+    
+    csv_data = data.get('csv_data')
+    data_inicio_str = data.get('data_inicio')
+    veiculo_id = data.get('veiculo_id')
+    local_id = data.get('local_id')
+    local_treino_id = data.get('local_treino_id')
+    tipo_treino_id = data.get('tipo_treino_id')
+    
+    # Validar campos obrigatórios da ação
+    if not all([data_inicio_str, veiculo_id, local_id, local_treino_id, tipo_treino_id]):
+        return jsonify({'error': 'Campos obrigatórios da ação estão faltando!'}), 400
+    
+    cursor = mysql.connection.cursor()
+    created_users = []
+    errors = []
+    pub_key = get_rsa_key()
+    
+    # Verificar se os modelos existem
+    cursor.execute('SELECT nome FROM Modelo')
+    modelos_db = [modelo[0].lower() for modelo in cursor.fetchall()]
+    
+    for row in csv_data:
+        try:
+            # Validação de campos obrigatórios
+            nome = row.get('nome')
+            tamanho = row.get('tamanho')
+            modelo_nome = row.get('modelo')
+            email = row.get('email')
+            data_nascimento = row.get('data_nascimento')
+            documento = row.get('documento')
+            telefone = row.get('telefone', '')
+            
+            if not all([nome, tamanho, modelo_nome, email, data_nascimento, documento]):
+                errors.append({'error': 'Campos obrigatórios faltando.', 'data': row})
+                continue
+            
+            # Verificar se o modelo existe
+            if modelo_nome.lower() not in modelos_db:
+                errors.append({'error': f'Modelo "{modelo_nome}" não encontrado.', 'data': row})
+                continue
+            
+            telefone_hash = gerar_hash(telefone) if telefone else None
+            confirmacao_sms = False
+            genero = "indefinido"
+            
+            # Verificação do formato da data de início
+            try:
+                data_inicio_dt = datetime.strptime(data_inicio_str, "%d/%m/%Y")
+            except ValueError:
+                errors.append({'error': 'Formato inválido para "data_inicio". Use "dd/mm/aaaa".', 'data': row})
+                continue
+            
+            # Gerar um horário aleatório entre 07:00 e 12:00
+            hora_aleatoria = random.randint(7, 11)
+            minuto_aleatorio = random.randint(0, 59)
+            data_inicio_dt = data_inicio_dt.replace(hour=hora_aleatoria, minute=minuto_aleatorio)
+            
+            # Definir data_fim como 40 minutos após data_inicio
+            data_fim_dt = data_inicio_dt + timedelta(minutes=40)
+            
+            nome_iniciais = formatar_nome_iniciais(nome)
+            if not nome_iniciais:
+                errors.append({'error': 'O nome do usuário é inválido!', 'data': row})
+                continue
+            
+            # Criptografar dados sensíveis
+            dataToEncrypt = f"{nome},{email},{data_nascimento},{documento},{telefone},{genero}"
+            dados_criptografados = db_encrypt_string(dataToEncrypt, pub_key)
+            
+            # Pesquisar o modelo do tênis
+            cursor.execute("SELECT id FROM Modelo WHERE LOWER(nome) = LOWER(%s)", (modelo_nome,))
+            modelo_result = cursor.fetchone()
+            
+            if not modelo_result:
+                errors.append({'error': f'Modelo "{modelo_nome}" não encontrado.', 'data': row})
+                continue
+            
+            modelo_id = modelo_result[0]
+            tamanho_formatado = f"U{tamanho}"  # Prefixo "U"
+            
+            # Buscar o tênis correspondente
+            cursor.execute("SELECT id FROM Tenis WHERE Modelo = %s AND tamanho = %s", (modelo_id, tamanho_formatado))
+            tenis_result = cursor.fetchone()
+            
+            if not tenis_result:
+                errors.append(
+                    {'error': f'Nenhum tênis encontrado para o modelo "{modelo_nome}" e tamanho "{tamanho_formatado}".',
+                     'data': row})
+                continue
+            
+            tenis_id = tenis_result[0]  # Pegamos o ID do tênis encontrado
+            
+            documento_masked = mask_document(documento)
+            
+            # Iniciar transação
+            cursor.execute(
+                '''INSERT INTO Usuario (nome_iniciais, documento, dados_criptografados, confirmacao_sms, data_registro, telefone_hash) 
+                VALUES (%s, %s, %s, %s, %s, %s)''',
+                (nome_iniciais, documento_masked, dados_criptografados, confirmacao_sms, data_inicio_dt, telefone_hash)
+            )
+            user_id = cursor.lastrowid
+            
+            # Inserir locação na tabela Locacao
+            cursor.execute(
+                '''INSERT INTO Locacao (Tenis, Usuario, Promotor, Veiculo, Estande, data_inicio, data_fim, status, Local, LocalTreino, TipoTreino) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)''',
+                (tenis_id, user_id, 6, veiculo_id, 1, data_inicio_dt, data_fim_dt, 'DEVOLVIDO', local_id, local_treino_id, tipo_treino_id)
+            )
+            locacao_id = cursor.lastrowid
+            
+            # Inserir avaliação para o usuário
+            cursor.execute(
+                '''INSERT INTO Avaliacao (Usuario, conforto, estabilidade, estilo, compraria) 
+                VALUES (%s, %s, %s, %s, %s)''',
+                (user_id, 5, 5, 5, 4)
+            )
+            avaliacao_id = cursor.lastrowid
+            
+            # Commit da transação
+            mysql.connection.commit()
+            
+            created_users.append({
+                'id': user_id,
+                'nome_iniciais': nome_iniciais,
+                'locacao_id': locacao_id,
+                'avaliacao_id': avaliacao_id
+            })
+            
+        except Exception as e:
+            mysql.connection.rollback()
+            errors.append({'error': str(e), 'data': row})
+    
+    cursor.close()
+    
+    response = {'created_users': created_users}
+    if errors:
+        response['errors'] = errors
+    
+    return jsonify(response), 201 if created_users else 400
 
 
 @user.route('/users', methods=['GET'])
