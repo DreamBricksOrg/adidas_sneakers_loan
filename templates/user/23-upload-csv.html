@@ -256,9 +256,9 @@
         <h1>Upload em Massa via CSV</h1>
         <form id="csv-upload-form">
             <div class="form-section">
-                <h2>Upload de Arquivo CSV</h2>
+                <h2>Upload de Arquivo (CSV, XLS ou XLSX)</h2>
                 <div class="csv-info">
-                    <h3>Formato esperado do arquivo CSV:</h3>
+                    <h3>Formato esperado do arquivo (CSV, XLS ou XLSX):</h3>
                     <ul>
                         <li>Cabeçalhos: nome,email,data_nascimento,documento,telefone,modelo,tamanho</li>
                         <li>Formato de data: DD/MM/AAAA</li>
@@ -271,10 +271,10 @@
                 <div class="file-upload" id="drop-area">
                     <div class="file-upload-icon">📁</div>
                     <div class="file-upload-text">
-                        <p>Arraste e solte seu arquivo CSV aqui ou clique para selecionar</p>
+                        <p>Arraste e solte seu arquivo CSV, XLS ou XLSX aqui ou clique para selecionar</p>
                         <p><small>Tamanho máximo: 5MB</small></p>
                     </div>
-                    <input type="file" id="csv-file" accept=".csv" />
+                    <input type="file" id="csv-file" accept=".csv,.xls,.xlsx" />
                     <div class="progress-container" style="display: none;">
                         <div class="progress-bar">
                             <div class="progress" id="upload-progress"></div>
@@ -364,6 +364,8 @@
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <!-- PapaParse para processamento de CSV -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <!-- SheetJS para processamento de XLS/XLSX -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         $(document).ready(function () {
             // Variáveis globais
@@ -476,14 +478,66 @@
             const dropArea = document.getElementById('drop-area');
             const fileInput = document.getElementById('csv-file');
 
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName, preventDefaults, false);
-            });
-
+            // Prevenir comportamento padrão para eventos de drag and drop
             function preventDefaults(e) {
                 e.preventDefault();
                 e.stopPropagation();
             }
+
+            // Adicionar destaque visual quando o arquivo estiver sobre a área
+            function highlight() {
+                dropArea.style.borderColor = '#007bff';
+            }
+
+            // Remover destaque visual
+            function unhighlight() {
+                dropArea.style.borderColor = '#ccc';
+            }
+
+            // Lidar com o evento de soltar o arquivo
+            function handleDrop(e) {
+                preventDefaults(e);
+                unhighlight();
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length > 0) {
+                    fileInput.files = files; // Atualizar o input de arquivo
+                    handleFiles(files[0]);
+                }
+            }
+
+            // Lidar com a seleção de arquivo via input
+            function handleFileSelect(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    handleFiles(file);
+                }
+            }
+
+            // Processar o arquivo selecionado
+            function handleFiles(file) {
+                if (file.size > 5 * 1024 * 1024) { // 5MB
+                    showValidationMessage('O arquivo é muito grande. Tamanho máximo: 5MB', 'error');
+                    return;
+                }
+
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+                if (!['csv', 'xls', 'xlsx'].includes(fileExtension)) {
+                    showValidationMessage('Por favor, selecione um arquivo CSV, XLS ou XLSX válido', 'error');
+                    return;
+                }
+
+                $('#file-info').text(`Arquivo selecionado: ${file.name}`).show();
+                showValidationMessage('', ''); // Limpar mensagens anteriores
+                $('#preview-section').hide();
+                $('#submit-btn').prop('disabled', true);
+                validationPassed = false;
+            }
+
+            // Adicionar event listeners para drag and drop
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
 
             ['dragenter', 'dragover'].forEach(eventName => {
                 dropArea.addEventListener(eventName, highlight, false);
@@ -493,44 +547,10 @@
                 dropArea.addEventListener(eventName, unhighlight, false);
             });
 
-            function highlight() {
-                dropArea.style.borderColor = '#007bff';
-            }
-
-            function unhighlight() {
-                dropArea.style.borderColor = '#ccc';
-            }
-
+            // Adicionar event listeners para clique e drop
             dropArea.addEventListener('drop', handleDrop, false);
             dropArea.addEventListener('click', () => fileInput.click());
-            fileInput.addEventListener('change', handleFiles);
-
-            function handleDrop(e) {
-                const dt = e.dataTransfer;
-                const files = dt.files;
-                handleFiles({ target: { files: files } });
-            }
-
-            function handleFiles(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    if (file.size > 5 * 1024 * 1024) { // 5MB
-                        showValidationMessage('O arquivo é muito grande. Tamanho máximo: 5MB', 'error');
-                        return;
-                    }
-
-                    if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
-                        showValidationMessage('Por favor, selecione um arquivo CSV válido', 'error');
-                        return;
-                    }
-
-                    $('#file-info').text(`Arquivo selecionado: ${file.name}`).show();
-                    showValidationMessage('', ''); // Limpar mensagens anteriores
-                    $('#preview-section').hide();
-                    $('#submit-btn').prop('disabled', true);
-                    validationPassed = false;
-                }
-            }
+            fileInput.addEventListener('change', handleFileSelect);
 
             // Função para mostrar mensagens de validação
             function showValidationMessage(message, type) {
@@ -546,11 +566,11 @@
                 }
             }
 
-            // Validar o arquivo CSV
+            // Validar o arquivo (CSV, XLS ou XLSX)
             $('#validate-btn').click(function() {
                 const file = fileInput.files[0];
                 if (!file) {
-                    showValidationMessage('Por favor, selecione um arquivo CSV', 'error');
+                    showValidationMessage('Por favor, selecione um arquivo CSV, XLS ou XLSX', 'error');
                     return;
                 }
 
@@ -563,22 +583,56 @@
 
                 showValidationMessage('Validando arquivo...', '');
                 
-                Papa.parse(file, {
-                    header: true,
-                    skipEmptyLines: true,
-                    complete: function(results) {
-                        validateCSVData(results);
-                    },
-                    error: function(error) {
-                        showValidationMessage(`Erro ao processar o arquivo: ${error}`, 'error');
-                    }
-                });
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+                
+                if (fileExtension === 'csv') {
+                    // Processar arquivo CSV com PapaParse
+                    Papa.parse(file, {
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: function(results) {
+                            validateCSVData(results.data, results.errors);
+                        },
+                        error: function(error) {
+                            showValidationMessage(`Erro ao processar o arquivo CSV: ${error}`, 'error');
+                        }
+                    });
+                } else if (['xls', 'xlsx'].includes(fileExtension)) {
+                    // Processar arquivo Excel com SheetJS
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const data = e.target.result;
+                            const workbook = XLSX.read(data, { type: 'binary' });
+                            const firstSheetName = workbook.SheetNames[0];
+                            const worksheet = workbook.Sheets[firstSheetName];
+                            const excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                            
+                            // Converter dados do Excel para o formato esperado pelo validador
+                            const headers = excelData[0];
+                            const rows = excelData.slice(1);
+                            const formattedData = rows.map(row => {
+                                const obj = {};
+                                headers.forEach((header, index) => {
+                                    obj[header] = row[index] !== undefined ? row[index].toString() : '';
+                                });
+                                return obj;
+                            });
+                            
+                            validateCSVData(formattedData, []);
+                        } catch (error) {
+                            showValidationMessage(`Erro ao processar o arquivo Excel: ${error}`, 'error');
+                        }
+                    };
+                    reader.onerror = function(error) {
+                        showValidationMessage(`Erro ao ler o arquivo Excel: ${error}`, 'error');
+                    };
+                    reader.readAsBinaryString(file);
+                }
             });
 
-            // Validar os dados do CSV
-            function validateCSVData(results) {
-                const data = results.data;
-                const errors = results.errors;
+            // Validar os dados do arquivo
+            function validateCSVData(data, errors) {
                 const requiredHeaders = ['nome', 'email', 'data_nascimento', 'documento', 'telefone', 'modelo', 'tamanho'];
                 
                 // Verificar se há erros de parsing
