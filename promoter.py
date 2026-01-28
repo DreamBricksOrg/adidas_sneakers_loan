@@ -878,6 +878,8 @@ def aumentar_base(data_desejada, quantidade_desejada, tipo_treino_filtro="all", 
         # Definir veículos alvo para a duplicação
         if veiculo_id is not None:
             veiculos_dia = [veiculo_id]
+            # Buscar tênis usados no veículo e data específica
+            cur.execute("SELECT DISTINCT Tenis FROM Locacao WHERE DATE(data_inicio) = %s AND Veiculo = %s", (data_desejada, veiculo_id))
         else:
             # Buscar veículos usados na data desejada
             cur.execute("SELECT DISTINCT Veiculo FROM Locacao WHERE DATE(data_inicio) = %s", (data_desejada,))
@@ -885,13 +887,21 @@ def aumentar_base(data_desejada, quantidade_desejada, tipo_treino_filtro="all", 
 
             if not veiculos_dia:
                 return {"erro": "Nenhum veículo encontrado nos registros da data desejada."}
+            
+            # Buscar tênis usados na data desejada em qualquer veículo
+            cur.execute("SELECT DISTINCT Tenis FROM Locacao WHERE DATE(data_inicio) = %s", (data_desejada,))
+        
+        tenis_dia = [row[0] for row in cur.fetchall()]
+
+        if not tenis_dia:
+            return {"erro": "Nenhum tênis encontrado nos registros da data desejada."}
 
         # Construção da consulta para buscar registros antigos
         query_base = """
             SELECT id, Tenis, Usuario, Promotor, Veiculo, Estande, Local, LocalTreino, 
                    data_inicio, data_fim, status, TipoTreino
             FROM Locacao
-            WHERE DATE(data_inicio) < %s AND Veiculo IN %s
+            WHERE DATE(data_inicio) < %s AND Veiculo IN %s AND Tenis IN %s
         """
 
         # Aplicar filtro baseado no tipo_treino_filtro
@@ -902,8 +912,8 @@ def aumentar_base(data_desejada, quantidade_desejada, tipo_treino_filtro="all", 
 
         query_base += " ORDER BY RAND() LIMIT %s"
 
-        # Executar query com a tupla de veículos
-        cur.execute(query_base, (data_desejada, tuple(veiculos_dia), registros_faltantes))
+        # Executar query com a tupla de veículos e tênis
+        cur.execute(query_base, (data_desejada, tuple(veiculos_dia), tuple(tenis_dia), registros_faltantes))
         locacoes_antigas = cur.fetchall()
 
         novas_locacoes = []
