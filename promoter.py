@@ -901,7 +901,7 @@ def aumentar_base(data_desejada, quantidade_desejada, tipo_treino_filtro="all", 
             SELECT id, Tenis, Usuario, Promotor, Veiculo, Estande, Local, LocalTreino, 
                    data_inicio, data_fim, status, TipoTreino
             FROM Locacao
-            WHERE DATE(data_inicio) < %s AND Veiculo IN %s AND Tenis IN %s
+            WHERE DATE(data_inicio) <= %s AND Veiculo IN %s AND Tenis IN %s
         """
 
         # Aplicar filtro baseado no tipo_treino_filtro
