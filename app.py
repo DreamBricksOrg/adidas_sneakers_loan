@@ -83,7 +83,7 @@ scheduler = BackgroundScheduler()
 scheduler.add_job(atualizar_status, 'interval', minutes=5)
 
 # Executa aumentar_base todos os dias às 3h da manhã
-scheduler.add_job(tarefa_aumentar_base, 'cron', hour=7, minute=5)
+#scheduler.add_job(tarefa_aumentar_base, 'cron', hour=7, minute=5)
 
 scheduler.add_job(cron_reset_estande, 'cron', hour=6, minute=5)
 

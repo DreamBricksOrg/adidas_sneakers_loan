@@ -2,10 +2,11 @@ from flask import Blueprint, request, render_template, session, jsonify, redirec
 from config.database import mysql
 import random
 import requests
+import os
 
 sms_sender = Blueprint('sms_sender', __name__)
 url = 'https://api.smsdev.com.br/v1/send'
-key = "86BX1T5ZIZWJW5ZRHQRKO5GNXZ7XGM40F8TIUVRT3M2C5OWF88AF5XR66IUHG9ZY7Q1R1QKLCUWUUD267ICMKV7MRN0B4QRBC436FH0L27AZBTCE173056KYD226HBXO"
+key = os.getenv('SMS_API_KEY')
 
 
 def send_sms_code(tel, code):
